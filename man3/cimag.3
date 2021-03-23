@@ -4,42 +4,51 @@
 .\" Distributed under GPL
 .\" %%%LICENSE_END
 .\"
-.TH CIMAG 3 2013-06-21 "" "Linux Programmer's Manual"
+.TH CIMAG 3 2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
 cimag, cimagf, cimagl \- get imaginary part of a complex number
 .SH SYNOPSIS
-.B #include <complex.h>
-.sp
-.BI "double cimag(double complex " z ");"
-.br
-.BI "float cimagf(float complex " z ");"
-.br
-.BI "long double cimagl(long double complex " z ");"
-.sp
-Link with \fI\-lm\fP.
-.SH DESCRIPTION
-The
-.BR cimag ()
-function returns the imaginary part of the complex number
-.IR z .
-.LP
-One has:
 .nf
-
+.B #include <complex.h>
+.PP
+.BI "double cimag(double complex " z ");"
+.BI "float cimagf(float complex " z ");"
+.BI "long double cimagl(long double complex " z ");"
+.PP
+Link with \fI\-lm\fP.
+.fi
+.SH DESCRIPTION
+These functions return the imaginary part of the complex number
+.IR z .
+.PP
+One has:
+.PP
+.nf
     z = creal(z) + I * cimag(z)
 .fi
 .SH VERSIONS
 These functions first appeared in glibc in version 2.1.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR cimag (),
 .BR cimagf (),
-and
 .BR cimagl ()
-functions are thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99.
+C99, POSIX.1-2001, POSIX.1-2008.
 .SH NOTES
 gcc also supports __imag__.
 That is a GNU extension.

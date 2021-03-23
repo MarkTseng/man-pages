@@ -28,15 +28,14 @@
 .\"     386BSD man pages
 .\" Modified Sat Jul 24 18:29:11 1993 by Rik Faith (faith@cs.unc.edu)
 .\" Modified 11 June 1995 by Andries Brouwer (aeb@cwi.nl)
-.TH REWINDDIR 3  2013-09-02 "" "Linux Programmer's Manual"
+.TH REWINDDIR 3  2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
 rewinddir \- reset directory stream
 .SH SYNOPSIS
 .nf
 .B #include <sys/types.h>
-.sp
 .B #include <dirent.h>
-.sp
+.PP
 .BI "void rewinddir(DIR *" dirp );
 .fi
 .SH DESCRIPTION
@@ -51,12 +50,24 @@ The
 .BR rewinddir ()
 function returns no value.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR rewinddir ()
-function is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-SVr4, 4.3BSD, POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008, SVr4, 4.3BSD.
 .SH SEE ALSO
 .BR closedir (3),
 .BR opendir (3),

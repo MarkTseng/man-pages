@@ -21,15 +21,17 @@
 .\" <http://www.gnu.org/licenses/>.
 .\" %%%LICENSE_END
 .\"
-.TH AIO_FSYNC 3 2012-05-08  "" "Linux Programmer's Manual"
+.TH AIO_FSYNC 3 2021-03-22  "" "Linux Programmer's Manual"
 .SH NAME
 aio_fsync \- asynchronous file synchronization
 .SH SYNOPSIS
+.nf
 .B "#include <aio.h>"
-.sp
+.PP
 .BI "int aio_fsync(int " op ", struct aiocb *" aiocbp );
-.sp
+.PP
 Link with \fI\-lrt\fP.
+.fi
 .SH DESCRIPTION
 The
 .BR aio_fsync ()
@@ -41,7 +43,7 @@ associated with
 for a description of the
 .I aiocb
 structure.)
-.LP
+.PP
 More precisely, if
 .I op
 is
@@ -55,9 +57,9 @@ is
 .BR O_DSYNC ,
 this call is the asynchronous analog of
 .BR fdatasync (2).
-
+.PP
 Note that this is a request only; it does not wait for I/O completion.
-.LP
+.PP
 Apart from
 .IR aio_fildes ,
 the only field in the structure pointed to by
@@ -75,7 +77,7 @@ On success (the sync request was successfully queued)
 this function returns 0.
 On error, \-1 is returned, and
 .I errno
-is set appropriately.
+is set to indicate the error.
 .SH ERRORS
 .TP
 .B EAGAIN
@@ -100,6 +102,23 @@ is not implemented.
 The
 .BR aio_fsync ()
 function is available since glibc 2.1.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR aio_fsync ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 POSIX.1-2001, POSIX.1-2008.
 .SH SEE ALSO

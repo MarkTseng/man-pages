@@ -24,15 +24,17 @@
 .\"
 .\" Moved to man3, aeb, 980612
 .\"
-.TH ULIMIT 3 2008-08-06 "Linux" "Linux Programmer's Manual"
+.TH ULIMIT 3 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 ulimit \- get and set user limits
 .SH SYNOPSIS
+.nf
 .B #include <ulimit.h>
-.sp
+.PP
 .BI "long ulimit(int " cmd ", long " newlimit );
+.fi
 .SH DESCRIPTION
-Warning: This routine is obsolete.
+Warning: this routine is obsolete.
 Use
 .BR getrlimit (2),
 .BR setrlimit (2),
@@ -40,10 +42,10 @@ and
 .BR sysconf (3)
 instead.
 For the shell command
-.BR ulimit (),
+.BR ulimit ,
 see
 .BR bash (1).
-
+.PP
 The
 .BR ulimit ()
 call will get or set some limit for the calling process.
@@ -70,11 +72,28 @@ On success,
 returns a nonnegative value.
 On error, \-1 is returned, and
 .I errno
-is set appropriately.
+is set to indicate the error.
 .SH ERRORS
 .TP
 .B EPERM
-A unprivileged process tried to increase a limit.
+An unprivileged process tried to increase a limit.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR ulimit ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 SVr4, POSIX.1-2001.
 POSIX.1-2008 marks

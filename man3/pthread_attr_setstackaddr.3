@@ -23,19 +23,19 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH PTHREAD_ATTR_SETSTACKADDR 3 2014-05-10 "Linux" "Linux Programmer's Manual"
+.TH PTHREAD_ATTR_SETSTACKADDR 3 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 pthread_attr_setstackaddr, pthread_attr_getstackaddr \-
 set/get stack address attribute in thread attributes object
 .SH SYNOPSIS
 .nf
 .B #include <pthread.h>
-
+.PP
 .BI "int pthread_attr_setstackaddr(pthread_attr_t *" attr \
 ", void *" stackaddr );
-.BI "int pthread_attr_getstackaddr(pthread_attr_t *" attr \
-", void **" stackaddr );
-.sp
+.BI "int pthread_attr_getstackaddr(const pthread_attr_t *restrict " attr ,
+.BI "                              void **restrict " stackaddr );
+.PP
 Compile and link with \fI\-pthread\fP.
 .fi
 .SH DESCRIPTION
@@ -46,7 +46,7 @@ Use
 and
 .BR pthread_attr_getstack (3)
 instead.
-
+.PP
 The
 .BR pthread_attr_setstackaddr ()
 function sets the stack address attribute of the
@@ -57,13 +57,13 @@ to the value specified in
 This attribute specifies the location of the stack that should
 be used by a thread that is created using the thread attributes object
 .IR attr .
-
+.PP
 .I stackaddr
 should point to a buffer of at least
 .B PTHREAD_STACK_MIN
 bytes that was allocated by the caller.
 The pages of the allocated buffer should be both readable and writable.
-
+.PP
 The
 .BR pthread_attr_getstackaddr ()
 function returns the stack address attribute of the
@@ -81,12 +81,23 @@ handle a possible error return).
 .SH VERSIONS
 These functions are provided by glibc since version 2.1.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
-.BR pthread_attr_setstackaddr ()
-and
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR pthread_attr_setstackaddr (),
 .BR pthread_attr_getstackaddr ()
-functions are thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 POSIX.1-2001 specifies these functions but marks them as obsolete.
 POSIX.1-2008 removes the specification of these functions.

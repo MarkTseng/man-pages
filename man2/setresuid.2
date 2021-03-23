@@ -1,4 +1,5 @@
 .\" Copyright (C) 1997 Andries Brouwer (aeb@cwi.nl)
+.\" and Copyright (C) 2005, 2010, 2014, 2015, Michael Kerrisk <mtk.manpages@gmail.com>
 .\"
 .\" %%%LICENSE_START(VERBATIM)
 .\" Permission is granted to make and distribute verbatim copies of this
@@ -23,38 +24,37 @@
 .\" %%%LICENSE_END
 .\"
 .\" Modified, 2003-05-26, Michael Kerrisk, <mtk.manpages@gmail.com>
-.TH SETRESUID 2 2010-11-22 "Linux" "Linux Programmer's Manual"
+.TH SETRESUID 2 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
-setresuid, setresgid \- set real, effective and saved user or group ID
+setresuid, setresgid \- set real, effective, and saved user or group ID
 .SH SYNOPSIS
+.nf
 .BR "#define _GNU_SOURCE" "         /* See feature_test_macros(7) */"
-.br
 .B #include <unistd.h>
-.sp
+.PP
 .BI "int setresuid(uid_t " ruid ", uid_t " euid ", uid_t " suid );
-.br
 .BI "int setresgid(gid_t " rgid ", gid_t " egid ", gid_t " sgid );
+.fi
 .SH DESCRIPTION
 .BR setresuid ()
 sets the real user ID, the effective user ID, and the
 saved set-user-ID of the calling process.
-
-Unprivileged user processes
-may change the real UID,
+.PP
+An unprivileged process may change its real UID,
 effective UID, and saved set-user-ID, each to one of:
 the current real UID, the current effective UID or the
 current saved set-user-ID.
-
-Privileged processes (on Linux, those having the \fBCAP_SETUID\fP capability)
-may set the real UID, effective UID, and
+.PP
+A privileged process (on Linux, one having the \fBCAP_SETUID\fP capability)
+may set its real UID, effective UID, and
 saved set-user-ID to arbitrary values.
-
+.PP
 If one of the arguments equals \-1, the corresponding value is not changed.
-
+.PP
 Regardless of what changes are made to the real UID, effective UID,
 and saved set-user-ID, the filesystem UID is always set to the same
 value as the (possibly new) effective UID.
-
+.PP
 Completely analogously,
 .BR setresgid ()
 sets the real GID, effective GID, and saved set-group-ID
@@ -65,19 +65,54 @@ with the same restrictions for unprivileged processes.
 On success, zero is returned.
 On error, \-1 is returned, and
 .I errno
-is set appropriately.
+is set to indicate the error.
+.PP
+.IR Note :
+there are cases where
+.BR setresuid ()
+can fail even when the caller is UID 0;
+it is a grave security error to omit checking for a failure return from
+.BR setresuid ().
 .SH ERRORS
 .TP
 .B EAGAIN
-.I uid
-does not match the current UID and this call would
-bring that user ID over its
+The call would change the caller's real UID (i.e.,
+.I ruid
+does not match the caller's real UID),
+but there was a temporary failure allocating the
+necessary kernel data structures.
+.TP
+.B EAGAIN
+.I ruid
+does not match the caller's real UID and this call would
+bring the number of processes belonging to the real user ID
+.I ruid
+over the caller's
 .B RLIMIT_NPROC
 resource limit.
+Since Linux 3.1, this error case no longer occurs
+(but robust applications should check for this error);
+see the description of
+.B EAGAIN
+in
+.BR execve (2).
+.TP
+.B EINVAL
+One or more of the target user or group IDs
+is not valid in this user namespace.
 .TP
 .B EPERM
-The calling process is not privileged (did not have the \fBCAP_SETUID\fP
-capability) and tried to change the IDs to values that are not permitted.
+The calling process is not privileged (did not have the necessary
+capability in its user namespace)
+and tried to change the IDs to values that are not permitted.
+For
+.BR setresuid (),
+the necessary capability is
+.BR CAP_SETUID ;
+for
+.BR setresgid (),
+it is
+.BR CAP_SETGID .
 .SH VERSIONS
 These calls are available under Linux since Linux 2.1.44.
 .SH CONFORMING TO
@@ -86,8 +121,8 @@ they also appear on HP-UX and some of the BSDs.
 .SH NOTES
 Under HP-UX and FreeBSD, the prototype is found in
 .IR <unistd.h> .
-Under Linux the prototype is provided by glibc since version 2.3.2.
-
+Under Linux, the prototype is provided by glibc since version 2.3.2.
+.PP
 The original Linux
 .BR setresuid ()
 and
@@ -103,6 +138,23 @@ The glibc
 and
 .BR setresgid ()
 wrapper functions transparently deal with the variations across kernel versions.
+.\"
+.SS C library/kernel differences
+At the kernel level, user IDs and group IDs are a per-thread attribute.
+However, POSIX requires that all threads in a process
+share the same credentials.
+The NPTL threading implementation handles the POSIX requirements by
+providing wrapper functions for
+the various system calls that change process UIDs and GIDs.
+These wrapper functions (including those for
+.BR setresuid ()
+and
+.BR setresgid ())
+employ a signal-based technique to ensure
+that when one thread changes credentials,
+all of the other threads in the process also change their credentials.
+For details, see
+.BR nptl (7).
 .SH SEE ALSO
 .BR getresuid (2),
 .BR getuid (2),
@@ -111,4 +163,5 @@ wrapper functions transparently deal with the variations across kernel versions.
 .BR setreuid (2),
 .BR setuid (2),
 .BR capabilities (7),
-.BR credentials (7)
+.BR credentials (7),
+.BR user_namespaces (7)

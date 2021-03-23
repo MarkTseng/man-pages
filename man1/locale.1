@@ -22,22 +22,22 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH LOCALE 1 2014-03-10 "Linux" "Linux Programmer's Manual"
+.TH LOCALE 1 2021-03-22 "Linux" "Linux User Manual"
 .SH NAME
 locale \- get locale-specific information
 .SH SYNOPSIS
 .nf
-.BR locale " [OPTION]"
-.BR locale " [OPTION] \-a"
-.BR locale " [OPTION] \-m"
-.BR locale " [OPTION] NAME..."
+.BR locale " [\fIoption\fP]"
+.BR locale " [\fIoption\fP] " \-a
+.BR locale " [\fIoption\fP] " \-m
+.BR locale " [\fIoption\fP] \fIname\fP..."
 .fi
 .SH DESCRIPTION
 The
 .B locale
 command displays information about the current locale, or all locales,
 on standard output.
-
+.PP
 When invoked without arguments,
 .B locale
 displays the current locale settings for each locale category (see
@@ -45,7 +45,9 @@ displays the current locale settings for each locale category (see
 based on the settings of the environment variables that control the locale
 (see
 .BR locale (7)).
-
+Values for variables set in the environment are printed without double
+quotes, implied values are printed with double quotes.
+.PP
 If either the
 .B \-a
 or the
@@ -56,25 +58,27 @@ the behavior is as follows:
 .BR \-a ", " \-\-all\-locales
 Display a list of all available locales.
 The
-.B -v
+.B \-v
 option causes the
 .B LC_IDENTIFICATION
 metadata about each locale to be included in the output.
 .TP
 .BR \-m ", " \-\-charmaps
 Display the available charmaps (character set description files).
+To display the current character set for the locale, use
+\fBlocale \-c charmap\fR.
 .PP
 The
-.I locale
+.B locale
 command can also be provided with one or more arguments,
 which are the names of locale keywords (for example,
 .IR date_fmt ,
-.IR ctype-class-names ,
+.IR ctype\-class\-names ,
 .IR yesexpr ,
 or
 .IR decimal_point )
 or locale categories (for example,
-.BR LC_CTYPE
+.B LC_CTYPE
 or
 .BR LC_TIME ).
 For each argument, the following is displayed:
@@ -90,11 +94,11 @@ When arguments are supplied, the following options are meaningful:
 For a category name argument,
 write the name of the locale category
 on a separate line preceding the list of keyword values for that category.
-
+.IP
 For a keyword name argument,
 write the name of the locale category for this keyword
 on a separate line preceding the keyword value.
-
+.IP
 This option improves readability when multiple name arguments are specified.
 It can be combined with the
 .B \-k
@@ -104,11 +108,11 @@ option.
 For each keyword whose value is being displayed,
 include also the name of that keyword,
 so that the output has the format:
-
+.IP
     \fIkeyword\fP="\fIvalue\fP"
 .PP
 The
-.I locale
+.B locale
 command also knows about the following options:
 .TP
 .BR \-v ", " \-\-verbose
@@ -118,15 +122,22 @@ combinations.
 .BR \-? ", " \-\-help
 Display a summary of command-line options and arguments and exit.
 .TP
-.BR \-\-usage
+.B \-\-usage
 Display a short usage message and exit.
 .TP
 .BR \-V ", " \-\-version
 Display the program version and exit.
+.SH FILES
+.TP
+.I /usr/lib/locale/locale\-archive
+Usual default locale archive location.
+.TP
+.I /usr/share/i18n/locales
+Usual default path for locale definition files.
 .SH CONFORMING TO
-POSIX.1-2001, POSIX.1-2008
-.SH EXAMPLE
-.nf
+POSIX.1-2001, POSIX.1-2008.
+.SH EXAMPLES
+.EX
 $ \fBlocale\fP
 LANG=en_US.UTF\-8
 LC_CTYPE="en_US.UTF\-8"
@@ -153,20 +164,45 @@ $ \fBlocale \-ck date_fmt\fP
 LC_TIME
 date_fmt="%a %b %e %H:%M:%S %Z %Y"
 
-$ \fBlocale LC_MESSAGES\fP
-^[yY].*
-^[nN].*
-Yes
-No
+$ \fBlocale LC_TELEPHONE\fP
++%c (%a) %l
+(%a) %l
+11
+1
 UTF\-8
 
-$ \fBlocale \-k LC_MESSAGES\fP
-yesexpr="^[yY].*"
-noexpr="^[nN].*"
-yesstr="Yes"
-nostr="No"
-messages\-codeset="UTF\-8"
-.fi
+$ \fBlocale \-k LC_TELEPHONE\fP
+tel_int_fmt="+%c (%a) %l"
+tel_dom_fmt="(%a) %l"
+int_select="11"
+int_prefix="1"
+telephone\-codeset="UTF\-8"
+.EE
+.PP
+The following example compiles a custom locale from the
+.I ./wrk
+directory with the
+.BR localedef (1)
+utility under the
+.I $HOME/.locale
+directory, then tests the result with the
+.BR date (1)
+command, and then sets the environment variables
+.B LOCPATH
+and
+.B LANG
+in the shell profile file so that the custom locale will be used in the
+subsequent user sessions:
+.PP
+.EX
+$ \fBmkdir \-p $HOME/.locale\fP
+$ \fBI18NPATH=./wrk/ localedef \-f UTF\-8 \-i fi_SE $HOME/.locale/fi_SE.UTF\-8\fP
+$ \fBLOCPATH=$HOME/.locale LC_ALL=fi_SE.UTF\-8 date\fP
+$ \fBecho "export LOCPATH=\e$HOME/.locale" >> $HOME/.bashrc\fP
+$ \fBecho "export LANG=fi_SE.UTF\-8" >> $HOME/.bashrc\fP
+.EE
 .SH SEE ALSO
+.BR localedef (1),
+.BR charmap (5),
 .BR locale (5),
 .BR locale (7)

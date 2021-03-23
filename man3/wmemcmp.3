@@ -12,13 +12,13 @@
 .\"   Dinkumware C library reference http://www.dinkumware.com/
 .\"   OpenGroup's Single UNIX specification http://www.UNIX-systems.org/online.html
 .\"
-.TH WMEMCMP 3  2013-11-05 "GNU" "Linux Programmer's Manual"
+.TH WMEMCMP 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 wmemcmp \- compare two arrays of wide-characters
 .SH SYNOPSIS
 .nf
 .B #include <wchar.h>
-.sp
+.PP
 .BI "int wmemcmp(const wchar_t *" s1 ", const wchar_t *" s2 ", size_t " n );
 .fi
 .SH DESCRIPTION
@@ -68,12 +68,24 @@ wide-character
 is less than
 .IR s2[i] .
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR wmemcmp ()
-function is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99.
+POSIX.1-2001, POSIX.1-2008, C99.
 .SH SEE ALSO
 .BR memcmp (3),
 .BR wcscmp (3)

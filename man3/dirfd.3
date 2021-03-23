@@ -22,42 +22,34 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH DIRFD 3 2013-07-05 "Linux" "Linux Programmer's Manual"
+.TH DIRFD 3 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 dirfd \- get directory stream file descriptor
 .SH SYNOPSIS
+.nf
 .B #include <sys/types.h>
-.br
 .B #include <dirent.h>
-.sp
+.PP
 .BI "int dirfd(DIR *" dirp );
-.sp
-.in -4n
+.fi
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
+.PP
 .BR dirfd ():
-.br
-.RS 4
-.PD 0
-.ad l
-_BSD_SOURCE || _SVID_SOURCE
-.br
-|| /* Since glibc 2.10: */
-.RS 4
-(_POSIX_C_SOURCE\ >=\ 200809L || _XOPEN_SOURCE\ >=\ 700)
-.RE
-.PD
-.RE
-.ad
+.nf
+    /* Since glibc 2.10: */ _POSIX_C_SOURCE >= 200809L
+        || /* Glibc <= 2.19: */ _BSD_SOURCE || _SVID_SOURCE
+.fi
 .SH DESCRIPTION
 The function
 .BR dirfd ()
 returns the file descriptor associated with the directory stream
 .IR dirp .
-.LP
-This descriptor is the one used internally by the directory stream.
+.PP
+This file descriptor is the one used internally by the directory stream.
 As a result, it is useful only for functions which do not depend on
 or alter the file position, such as
 .BR fstat (2)
@@ -67,10 +59,12 @@ It will be automatically closed when
 .BR closedir (3)
 is called.
 .SH RETURN VALUE
-On success, a nonnegative file descriptor is returned.
+On success,
+.BR dirfd ()
+returns a file descriptor (a nonnegative integer).
 On error, \-1 is returned, and
 .I errno
-is set to indicate the cause of the error.
+is set to indicate the error.
 .SH ERRORS
 POSIX.1-2008 specifies two errors,
 neither of which is returned by the current
@@ -85,24 +79,29 @@ does not refer to a valid directory stream.
 The implementation does not support the association of a file
 descriptor with a directory.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR dirfd ()
-function is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 POSIX.1-2008.
 This function was a BSD extension, present in 4.3BSD-Reno, not in 4.2BSD.
 .\" It is present in libc5 (since 5.1.2) and in glibc2.
-.SH NOTES
-The prototype for
-.BR dirfd ()
-is available only if
-.B _BSD_SOURCE
-or
-.B _SVID_SOURCE
-is defined.
 .SH SEE ALSO
 .BR open (2),
+.BR openat (2),
 .BR closedir (3),
 .BR opendir (3),
 .BR readdir (3),

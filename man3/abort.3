@@ -31,31 +31,29 @@
 .\" Modified Fri Aug  4 10:51:53 2000 - patch from Joseph S. Myers
 .\" 2007-12-15, mtk, Mostly rewritten
 .\"
-.TH ABORT 3  2014-03-25 "GNU" "Linux Programmer's Manual"
+.TH ABORT 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 abort \- cause abnormal process termination
 .SH SYNOPSIS
 .nf
 .B #include <stdlib.h>
-.sp
-.B void abort(void);
+.PP
+.B noreturn void abort(void);
 .fi
 .SH DESCRIPTION
 The
 .BR abort ()
-first unblocks the
+function first unblocks the
 .B SIGABRT
-signal, and then raises that signal for the calling process.
+signal, and then raises that signal for the calling process
+(as though
+.BR raise (3)
+was called).
 This results in the abnormal termination of the process unless the
 .B SIGABRT
 signal is caught and the signal handler does not return
 (see
 .BR longjmp (3)).
-.PP
-If the
-.BR abort ()
-function causes process termination,
-all open streams are closed and flushed.
 .PP
 If the
 .B SIGABRT
@@ -70,15 +68,43 @@ The
 .BR abort ()
 function never returns.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR abort ()
-function is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-SVr4, POSIX.1-2001, 4.3BSD, C89, C99.
+SVr4, POSIX.1-2001, POSIX.1-2008, 4.3BSD, C89, C99.
+.SH NOTES
+Up until glibc 2.26,
+if the
+.BR abort ()
+function caused process termination,
+all open streams were closed and flushed (as with
+.BR fclose (3)).
+However, in some cases this could result in deadlocks and data corruption.
+Therefore, starting with glibc 2.27,
+.\" glibc commit 91e7cf982d0104f0e71770f5ae8e3faf352dea9f
+.BR abort ()
+terminates the process without flushing streams.
+POSIX.1 permits either possible behavior, saying that
+.BR abort ()
+"may include an attempt to effect fclose() on all open streams".
 .SH SEE ALSO
 .BR gdb (1),
 .BR sigaction (2),
+.BR assert (3),
 .BR exit (3),
 .BR longjmp (3),
 .BR raise (3)

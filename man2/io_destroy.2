@@ -4,19 +4,27 @@
 .\" This file is distributed according to the GNU General Public License.
 .\" %%%LICENSE_END
 .\"
-.TH IO_DESTROY 2 2013-04-08 "Linux" "Linux Programmer's Manual"
+.TH IO_DESTROY 2 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 io_destroy \- destroy an asynchronous I/O context
 .SH SYNOPSIS
 .nf
 .BR "#include <linux/aio_abi.h>" "          /* Defines needed types */"
-
+.PP
 .BI "int io_destroy(aio_context_t " ctx_id );
 .fi
-
+.PP
 .IR Note :
 There is no glibc wrapper for this system call; see NOTES.
 .SH DESCRIPTION
+.IR Note :
+this page describes the raw Linux system call interface.
+The wrapper function provided by
+.I libaio
+uses a different type for the
+.I ctx_id
+argument.
+See NOTES.
 .PP
 The
 .BR io_destroy ()
@@ -43,15 +51,13 @@ The AIO context specified by \fIctx_id\fP is invalid.
 .BR io_destroy ()
 is not implemented on this architecture.
 .SH VERSIONS
-.PP
 The asynchronous I/O system calls first appeared in Linux 2.5.
 .SH CONFORMING TO
-.PP
 .BR io_destroy ()
 is Linux-specific and should not be used in programs
 that are intended to be portable.
 .SH NOTES
-Glibc does not provide a wrapper function for this system call.
+Glibc does not provide a wrapper for this system call.
 You could invoke it using
 .BR syscall (2).
 But instead, you probably want to use the
@@ -59,7 +65,7 @@ But instead, you probably want to use the
 wrapper function provided by
 .\" http://git.fedorahosted.org/git/?p=libaio.git
 .IR libaio .
-
+.PP
 Note that the
 .I libaio
 wrapper function uses a different type

@@ -23,28 +23,32 @@
 .\" %%%LICENSE_END
 .\"
 .\" Modified Sat Jul 24 19:53:02 1993 by Rik Faith (faith@cs.unc.edu)
+.\"
 .\" FIXME Many more values for 'name' are supported, some of which
-.\"	are documented under 'info confstr'.
-.\"	See <bits/confname.h> for the rest.
-.\"	These should all be added to this page.
-.\"	See also the POSIX.1-2001 specification of confstr()
-.TH CONFSTR 3  2014-03-20 "GNU" "Linux Programmer's Manual"
+.\" are documented under 'info confstr'.
+.\" See <bits/confname.h> for the rest.
+.\" These should all be added to this page.
+.\" See also the POSIX.1-2001 specification of confstr()
+.\"
+.TH CONFSTR 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 confstr \- get configuration dependent string variables
 .SH SYNOPSIS
 .nf
 .B #include <unistd.h>
-.sp
+.PP
 .BI "size_t confstr(int " "name" ", char *" buf ", size_t " len );
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
+.PP
 .BR confstr ():
-_POSIX_C_SOURCE\ >=\ 2 || _XOPEN_SOURCE
+.nf
+    _POSIX_C_SOURCE >= 2 || _XOPEN_SOURCE
+.fi
 .SH DESCRIPTION
 .BR confstr ()
 gets the value of configuration-dependent string variables.
@@ -56,11 +60,11 @@ The following variables are supported:
 .TP
 .BR _CS_GNU_LIBC_VERSION " (GNU C library only; since glibc 2.3.2)"
 A string which identifies the GNU C library version on this system
-(e.g, "glibc 2.3.4").
+(e.g., "glibc 2.3.4").
 .TP
 .BR _CS_GNU_LIBPTHREAD_VERSION " (GNU C library only; since glibc 2.3.2)"
 A string which identifies the POSIX implementation supplied by this
-C library (e.g, "NPTL 2.3.4" or "linuxthreads-0.10").
+C library (e.g., "NPTL 2.3.4" or "linuxthreads\-0.10").
 .TP
 .B _CS_PATH
 A value for the
@@ -78,7 +82,7 @@ copies the value of the string to
 .I buf
 truncated to
 .I len \- 1
-bytes if necessary, with a null byte (\(aq\\0\(aq) as terminator.
+bytes if necessary, with a null byte (\(aq\e0\(aq) as terminator.
 This can be detected by comparing the return value of
 .BR confstr ()
 against
@@ -103,7 +107,7 @@ This value may be greater than
 which means that the value in
 .I buf
 is truncated.
-
+.PP
 If
 .I name
 is a valid configuration variable,
@@ -124,15 +128,31 @@ is set to
 The value of
 .I name
 is invalid.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR confstr ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-POSIX.1-2001.
-.SH EXAMPLE
+POSIX.1-2001, POSIX.1-2008.
+.SH EXAMPLES
 The following code fragment determines the path where to find
 the POSIX.2 system utilities:
-.br
-.nf
+.PP
 .in +4n
-
+.EX
 char *pathbuf;
 size_t n;
 
@@ -141,13 +161,13 @@ pathbuf = malloc(n);
 if (pathbuf == NULL)
     abort();
 confstr(_CS_PATH, pathbuf, n);
+.EE
 .in
-.fi
 .SH SEE ALSO
 .BR getconf (1),
 .BR sh (1),
 .BR exec (3),
-.BR fpathconf (3)
-.BR sysconf (3)
-.BR pathconf (3)
+.BR fpathconf (3),
+.BR pathconf (3),
+.BR sysconf (3),
 .BR system (3)

@@ -25,43 +25,37 @@
 .\" %%%LICENSE_END
 .\"
 .\" Commit fcf634098c00dd9cd247447368495f0b79be12d1
-.\"	
-.TH PROCESS_VM_READV 2 2014-05-05 "Linux" "Linux Programmer's Manual"
+.\"
+.TH PROCESS_VM_READV 2 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 process_vm_readv, process_vm_writev \- transfer data between process address spaces
 .SH SYNOPSIS
 .nf
 .B #include <sys/uio.h>
-
+.PP
 .BI "ssize_t process_vm_readv(pid_t " pid ,
-.BI "                         const struct iovec *" local_iov ,
-.BI "                         unsigned long " liovcnt ,
-.BI "                         const struct iovec *" remote_iov ,
-.BI "                         unsigned long " riovcnt ,
-.BI "                         unsigned long " flags ");"
-
+.BI "                       const struct iovec *" local_iov ,
+.BI "                       unsigned long " liovcnt ,
+.BI "                       const struct iovec *" remote_iov ,
+.BI "                       unsigned long " riovcnt ,
+.BI "                       unsigned long " flags ");"
 .BI "ssize_t process_vm_writev(pid_t " pid ,
-.BI "                          const struct iovec *" local_iov ,
-.BI "                          unsigned long " liovcnt ,
-.BI "                          const struct iovec *" remote_iov ,
-.BI "                          unsigned long " riovcnt ,
-.BI "                          unsigned long " flags ");"
+.BI "                       const struct iovec *" local_iov ,
+.BI "                       unsigned long " liovcnt ,
+.BI "                       const struct iovec *" remote_iov ,
+.BI "                       unsigned long " riovcnt ,
+.BI "                       unsigned long " flags ");"
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
-.BR process_vm_readv (),
-.BR process_vm_write ():
-.PD 0
-.ad l
-.RS 4
-.BR _GNU_SOURCE
 .RE
-.ad
-.PD
+.PP
+.BR process_vm_readv (),
+.BR process_vm_writev ():
+.nf
+    _GNU_SOURCE
 .fi
 .SH DESCRIPTION
 These system calls transfer data between the address space
@@ -70,7 +64,7 @@ of the calling process ("the local process") and the process identified by
 ("the remote process").
 The data moves directly between the address spaces of the two processes,
 without passing through kernel space.
-
+.PP
 The
 .BR process_vm_readv ()
 system call transfers data from the remote process to the local process.
@@ -95,7 +89,7 @@ and
 .IR liovcnt
 specifies the number of elements in
 .IR local_iov .
-
+.PP
 The
 .BR process_vm_writev ()
 system call is the converse of
@@ -109,7 +103,7 @@ and
 .IR remote_iov
 have the same meaning as for
 .BR process_vm_readv ().
-
+.PP
 The
 .I local_iov
 and
@@ -119,16 +113,16 @@ arguments point to an array of
 structures, defined in
 .IR <sys/uio.h>
 as:
-
+.PP
 .in +4n
-.nf
+.EX
 struct iovec {
     void  *iov_base;    /* Starting address */
     size_t iov_len;     /* Number of bytes to transfer */
 };
-.fi
+.EE
 .in
-
+.PP
 Buffers are processed in array order.
 This means that
 .BR process_vm_readv ()
@@ -142,7 +136,7 @@ Likewise,
 is completely read before proceeding to
 .IR remote_iov[1] ,
 and so on.
-
+.PP
 Similarly,
 .BR process_vm_writev ()
 writes out the entire contents of
@@ -153,7 +147,7 @@ and it completely fills
 .I remote_iov[0]
 before proceeding to
 .IR remote_iov[1] .
-
+.PP
 The lengths of
 .I remote_iov[i].iov_len
 and
@@ -161,11 +155,11 @@ and
 do not have to be the same.
 Thus, it is possible to split a single local buffer
 into multiple remote buffers, or vice versa.
-
+.PP
 The
 .I flags
 argument is currently unused and must be set to 0.
-
+.PP
 The values specified in the
 .I liovcnt
 and
@@ -178,7 +172,7 @@ or accessible via the call
 .IR sysconf(_SC_IOV_MAX) ).
 .\" In time, glibc might provide a wrapper that works around this limit,
 .\" as is done for readv()/writev()
-
+.PP
 The count arguments and
 .IR local_iov
 are checked before doing any transfers.
@@ -188,7 +182,7 @@ is invalid,
 or the addresses refer to regions that are inaccessible to the local process,
 none of the vectors will be processed
 and an error will be returned immediately.
-
+.PP
 Note, however, that these system calls do not check the memory regions
 in the remote process until just before doing the read/write.
 Consequently, a partial read/write (see RETURN VALUE)
@@ -198,7 +192,7 @@ elements points to an invalid memory region in the remote process.
 No further reads/writes will be attempted beyond that point.
 Keep this in mind when attempting to read data of unknown length
 (such as C strings that are null-terminated) from a remote process,
-by avoiding spanning memory pages (typically 4KiB) in a single remote
+by avoiding spanning memory pages (typically 4\ KiB) in a single remote
 .I iovec
 element.
 (Instead, split the remote read into two
@@ -208,20 +202,12 @@ elements and have them merge back into a single write
 entry.
 The first read entry goes up to the page boundary,
 while the second starts on the next page boundary.)
-
-In order to read from or write to another process,
-either the caller must have the capability
-.BR CAP_SYS_PTRACE ,
-or
-the real user ID, effective user ID, and saved set-user-ID
-of the remote process must match the real user ID of the caller
-.I and
-the real group ID, effective group ID, and saved set-group-ID
-of the remote process must match the real group ID of the caller.
-(The permission required is exactly the same as that required to perform a
-.BR ptrace (2)
-.BR PTRACE_ATTACH
-on the remote process.)
+.PP
+Permission to read from or write to another process
+is governed by a ptrace access mode
+.B PTRACE_MODE_ATTACH_REALCREDS
+check; see
+.BR ptrace (2).
 .SH RETURN VALUE
 On success,
 .BR process_vm_readv ()
@@ -238,11 +224,22 @@ These system calls won't perform a partial transfer that splits a single
 element.)
 The caller should check the return value to determine whether
 a partial read/write occurred.
-
+.PP
 On error, \-1 is returned and
 .I errno
-is set appropriately.
+is set to indicate the error.
 .SH ERRORS
+.TP
+.B EFAULT
+The memory described by
+.I local_iov
+is outside the caller's accessible address space.
+.TP
+.B EFAULT
+The memory described by
+.I remote_iov
+is outside the accessible address space of the process
+.IR pid .
 .TP
 .B EINVAL
 The sum of the
@@ -264,17 +261,6 @@ is not 0.
 or
 .I riovcnt
 is too large.
-.TP
-.B EFAULT
-The memory described by
-.I local_iov
-is outside the caller's accessible address space.
-.TP
-.B EFAULT
-The memory described by
-.I remote_iov
-is outside the accessible address space of the process
-.IR pid .
 .TP
 .B ENOMEM
 Could not allocate memory for internal copies of the
@@ -300,7 +286,7 @@ The data transfers performed by
 and
 .BR process_vm_writev ()
 are not guaranteed to be atomic in any way.
-
+.PP
 These system calls were designed to permit fast message passing
 by allowing messages to be exchanged with a single copy operation
 (rather than the double copy that would be required
@@ -308,7 +294,7 @@ when using, for example, shared memory or pipes).
 .\" Original user is MPI, http://www.mcs.anl.gov/research/projects/mpi/
 .\" See also some benchmarks at http://lwn.net/Articles/405284/
 .\" and http://marc.info/?l=linux-mm&m=130105930902915&w=2
-.SH EXAMPLE
+.SH EXAMPLES
 The following code sample demonstrates the use of
 .BR process_vm_readv ().
 It reads 20 bytes at the address 0x10000 from the process with PID 10
@@ -316,8 +302,8 @@ and writes the first 10 bytes into
 .I buf1
 and the second 10 bytes into
 .IR buf2 .
-.sp
-.nf
+.PP
+.EX
 #include <sys/uio.h>
 
 int
@@ -335,7 +321,7 @@ main(void)
     local[1].iov_base = buf2;
     local[1].iov_len = 10;
     remote[0].iov_base = (void *) 0x10000;
-    remote[1].iov_len = 20;
+    remote[0].iov_len = 20;
 
     nread = process_vm_readv(pid, local, 2, remote, 1, 0);
     if (nread != 20)
@@ -343,7 +329,7 @@ main(void)
     else
         return 0;
 }
-.fi
+.EE
 .SH SEE ALSO
 .BR readv (2),
 .BR writev (2)

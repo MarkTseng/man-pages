@@ -22,15 +22,16 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH TCGETSID 3 2014-01-13 "GNU" "Linux Programmer's Manual"
+.TH TCGETSID 3 2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 tcgetsid \- get session ID
 .SH SYNOPSIS
+.nf
 .BR "#define _XOPEN_SOURCE 500" "        /* See feature_test_macros(7) */"
-.br
 .B "#include <termios.h>"
-.sp
+.PP
 .BI "pid_t tcgetsid(int " fd );
+.fi
 .SH DESCRIPTION
 The function
 .BR tcgetsid ()
@@ -48,7 +49,7 @@ the function
 will return the session ID of this session.
 Otherwise, \-1 is returned, and
 .I errno
-is set appropriately.
+is set to indicate the error.
 .SH ERRORS
 .TP
 .B EBADF
@@ -63,12 +64,24 @@ it has one but it is not described by
 .BR tcgetsid ()
 is provided in glibc since version 2.1.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR tcgetsid ()
-function is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008.
 .SH NOTES
 This function is implemented via the
 .B TIOCGSID

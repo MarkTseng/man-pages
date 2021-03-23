@@ -13,14 +13,15 @@
 .\"   OpenGroup's Single UNIX specification http://www.UNIX-systems.org/online.html
 .\"   ISO/IEC 9899:1999
 .\"
-.TH MBTOWC 3  2014-03-18 "GNU" "Linux Programmer's Manual"
+.TH MBTOWC 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 mbtowc \- convert a multibyte sequence to a wide character
 .SH SYNOPSIS
 .nf
 .B #include <stdlib.h>
-.sp
-.BI "int mbtowc(wchar_t *" pwc ", const char *" s ", size_t " n );
+.PP
+.BI "int mbtowc(wchar_t *restrict " pwc ", const char *restrict " s \
+", size_t " n );
 .fi
 .SH DESCRIPTION
 The main case for this function is when
@@ -43,7 +44,7 @@ It updates an internal shift state known only to the
 function.
 If
 .I s
-does not point to a null byte (\(aq\\0\(aq), it returns the number
+does not point to a null byte (\(aq\e0\(aq), it returns the number
 of bytes that were consumed from
 .IR s ,
 otherwise it returns 0.
@@ -110,8 +111,25 @@ is NULL, the
 function
 returns nonzero if the encoding
 has nontrivial shift state, or zero if the encoding is stateless.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR mbtowc ()
+T}	Thread safety	MT-Unsafe race
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99.
+POSIX.1-2001, POSIX.1-2008, C99.
 .SH NOTES
 The behavior of
 .BR mbtowc ()
@@ -130,5 +148,5 @@ a better interface to the same functionality.
 .BR mblen (3),
 .BR mbrtowc (3),
 .BR mbstowcs (3),
-.BR wctomb (3),
-.BR wcstombs (3)
+.BR wcstombs (3),
+.BR wctomb (3)

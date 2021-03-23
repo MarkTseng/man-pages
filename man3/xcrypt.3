@@ -10,18 +10,23 @@
 .\"  3. xencrypt() a hexstring
 .\"  to bad to be true :(
 .\"
-.TH XCRYPT 3 2003-04-04 "" "Linux Programmer's Manual"
+.TH XCRYPT 3 2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
 xencrypt, xdecrypt, passwd2des \- RFS password encryption
 .SH SYNOPSIS
+.nf
 .B "#include <rpc/des_crypt.h>"
-.sp
+.PP
 .BI "void passwd2des(char " *passwd ", char *" key ");"
-.sp
+.PP
 .BI "int xencrypt(char *" secret ", char *" passwd ");"
-.sp
 .BI "int xdecrypt(char *" secret ", char *" passwd ");"
+.fi
 .SH DESCRIPTION
+.BR WARNING :
+Do not use these functions in new code. They do not achieve
+any type of acceptable cryptographic security guarantees.
+.PP
 The function
 .BR passwd2des ()
 takes a character string
@@ -37,7 +42,7 @@ Both other functions described here use this function to turn their
 argument
 .I passwd
 into a DES key.
-.LP
+.PP
 The
 .BR xencrypt ()
 function takes the ASCII character string
@@ -54,7 +59,7 @@ and outputs the result again in
 as a hex string
 .\" (over the alphabet 0123456789abcdef)
 of the same length.
-.LP
+.PP
 The
 .BR xdecrypt ()
 function performs the converse operation.
@@ -65,8 +70,26 @@ and
 .BR xdecrypt ()
 return 1 on success and 0 on error.
 .SH VERSIONS
-These routines are present in libc 4.6.27 and later, and in
-glibc 2.1 and later.
+These functions are available in glibc since version 2.1.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR passwd2des (),
+.BR xencrypt (),
+.BR xdecrypt ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH BUGS
 The prototypes are missing from the abovementioned include file.
 .SH SEE ALSO

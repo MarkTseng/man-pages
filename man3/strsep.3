@@ -30,23 +30,28 @@
 .\" Modified Mon Jan 20 12:04:18 1997 by Andries Brouwer (aeb@cwi.nl)
 .\" Modified Tue Jan 23 20:23:07 2001 by Andries Brouwer (aeb@cwi.nl)
 .\"
-.TH STRSEP 3  2014-02-25 "GNU" "Linux Programmer's Manual"
+.TH STRSEP 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 strsep \- extract token from string
 .SH SYNOPSIS
 .nf
 .B #include <string.h>
-.sp
-.BI "char *strsep(char **" stringp ", const char *" delim );
+.PP
+.BI "char *strsep(char **restrict " stringp ", const char *restrict " delim );
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
+.PP
 .BR strsep ():
-_BSD_SOURCE
+.nf
+    Since glibc 2.19:
+        _DEFAULT_SOURCE
+    Glibc 2.19 and earlier:
+        _BSD_SOURCE
+.fi
 .SH DESCRIPTION
 If
 .I *stringp
@@ -60,7 +65,7 @@ in the string
 that is delimited by one of the bytes in the string
 .IR delim .
 This token is terminated by overwriting the delimiter
-with a null byte (\(aq\\0\(aq),
+with a null byte (\(aq\e0\(aq),
 and
 .I *stringp
 is updated to point past the token.
@@ -77,10 +82,22 @@ function returns a pointer to the token,
 that is, it returns the original value of
 .IR *stringp .
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR strsep ()
-function is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 4.4BSD.
 .SH NOTES

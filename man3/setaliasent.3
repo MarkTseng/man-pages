@@ -6,28 +6,28 @@
 .\"
 .\" Polished a bit, added a little, aeb
 .\"
-.TH SETALIASENT 3 2003-09-09 "GNU" "Linux Programmer's Manual"
+.TH SETALIASENT 3 2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 setaliasent, endaliasent, getaliasent, getaliasent_r,
 getaliasbyname, getaliasbyname_r \- read an alias entry
 .SH SYNOPSIS
+.nf
 .B #include <aliases.h>
-.sp
+.PP
 .B "void setaliasent(void);"
-.sp
 .B "void endaliasent(void);"
-.sp
+.PP
 .B "struct aliasent *getaliasent(void);"
-.sp
-.BI "int getaliasent_r(struct aliasent *" result ","
-.br
-.BI "        char *" buffer ", size_t " buflen ", struct aliasent **" res );
-.sp
+.BI "int getaliasent_r(struct aliasent *restrict " result ,
+.BI "                     char *restrict " buffer ", size_t " buflen ,
+.BI "                     struct aliasent **restrict " res );
+.PP
 .BI "struct aliasent *getaliasbyname(const char *" name );
-.sp
-.BI "int getaliasbyname_r(const char *" name ", struct aliasent *" result ,
-.br
-.BI "        char *" buffer ", size_t " buflen ", struct aliasent **" res );
+.BI "int getaliasbyname_r(const char *restrict " name ,
+.BI "                     struct aliasent *restrict " result ,
+.BI "                     char *restrict " buffer ", size_t " buflen ,
+.BI "                     struct aliasent **restrict " res );
+.fi
 .SH DESCRIPTION
 One of the databases available with the Name Service Switch (NSS)
 is the aliases database, that contains mail aliases.
@@ -75,16 +75,16 @@ The
 .I "struct aliasent"
 is defined in
 .IR <aliases.h> :
+.PP
 .in +4n
-.nf
-
+.EX
 struct aliasent {
     char    *alias_name;             /* alias name */
     size_t   alias_members_len;
     char   **alias_members;          /* alias name list */
     int      alias_local;
 };
-.fi
+.EE
 .in
 .SH RETURN VALUE
 The functions
@@ -98,26 +98,50 @@ The default alias database is the file
 This can be changed in the
 .I /etc/nsswitch.conf
 file.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR setaliasent (),
+.BR endaliasent (),
+.BR getaliasent_r (),
+.BR getaliasbyname_r ()
+T}	Thread safety	MT-Safe locale
+T{
+.BR getaliasent (),
+.BR getaliasbyname ()
+T}	Thread safety	MT-Unsafe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 These routines are glibc-specific.
 The NeXT system has similar routines:
+.PP
 .in +4n
-.nf
-
+.EX
 #include <aliasdb.h>
 
 void alias_setent(void);
 void alias_endent(void);
 alias_ent *alias_getent(void);
 alias_ent *alias_getbyname(char *name);
-.fi
+.EE
 .in
-.SH EXAMPLE
+.SH EXAMPLES
 The following example compiles with
 .IR "gcc example.c \-o example" .
 It will dump all names in the alias database.
-.sp
-.nf
+.PP
+.EX
 #include <aliases.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -132,7 +156,7 @@ main(void)
         al = getaliasent();
         if (al == NULL)
             break;
-        printf("Name: %s\\n", al\->alias_name);
+        printf("Name: %s\en", al\->alias_name);
     }
     if (errno) {
         perror("reading alias");
@@ -141,7 +165,7 @@ main(void)
     endaliasent();
     exit(EXIT_SUCCESS);
 }
-.fi
+.EE
 .SH SEE ALSO
 .BR getgrent (3),
 .BR getpwent (3),

@@ -13,7 +13,7 @@
 .\"   OpenGroup's Single UNIX specification http://www.UNIX-systems.org/online.html
 .\"   ISO/IEC 9899:1999
 .\"
-.TH WPRINTF 3  2014-03-19 "GNU" "Linux Programmer's Manual"
+.TH WPRINTF 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 wprintf, fwprintf, swprintf, vwprintf, vfwprintf, vswprintf \- formatted
 wide-character output conversion
@@ -21,40 +21,36 @@ wide-character output conversion
 .nf
 .B #include <stdio.h>
 .B #include <wchar.h>
-.sp
-.BI "int wprintf(const wchar_t *" format ", ...);"
-.BI "int fwprintf(FILE *" stream ", const wchar_t *" format ", ...);"
-.BI "int swprintf(wchar_t *" wcs ", size_t " maxlen ,
-.BI "             const wchar_t *" format ", ...);"
-.sp
-.BI "int vwprintf(const wchar_t *" format ", va_list " args );
-.BI "int vfwprintf(FILE *" stream ", const wchar_t *" format ", va_list " args );
-.BI "int vswprintf(wchar_t *" wcs ", size_t " maxlen ,
-.BI "              const wchar_t *" format ", va_list " args );
+.PP
+.BI "int wprintf(const wchar_t *restrict " format ", ...);"
+.BI "int fwprintf(FILE *restrict " stream ,
+.BI "             const wchar_t *restrict " format ", ...);"
+.BI "int swprintf(wchar_t *restrict " wcs ", size_t " maxlen ,
+.BI "             const wchar_t *restrict " format ", ...);"
+.PP
+.BI "int vwprintf(const wchar_t *restrict " format ", va_list " args );
+.BI "int vfwprintf(FILE *restrict " stream ,
+.BI "             const wchar_t *restrict " format ", va_list " args );
+.BI "int vswprintf(wchar_t *restrict " wcs ", size_t " maxlen ,
+.BI "             const wchar_t *restrict " format ", va_list " args );
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
-.ad l
+.RE
+.PP
 All functions shown above:
-.RS 4
 .\" .BR wprintf (),
 .\" .BR fwprintf (),
 .\" .BR swprintf (),
 .\" .BR vwprintf (),
 .\" .BR vfwprintf (),
 .\" .BR vswprintf ():
-_XOPEN_SOURCE\ >=\ 500 || _ISOC99_SOURCE ||
-.br
-_POSIX_C_SOURCE\ >=\ 200112L;
-.br
-or
-.I cc\ -std=c99
-.RE
-.ad
+.nf
+    _XOPEN_SOURCE >= 500 || _ISOC99_SOURCE
+        || _POSIX_C_SOURCE >= 200112L
+.fi
 .SH DESCRIPTION
 The
 .BR wprintf ()
@@ -164,7 +160,7 @@ modifier is present, the
 .B s
 If no
 .B l
-modifier is present: The
+modifier is present: the
 .I "const\ char\ *"
 argument is expected to be a pointer to an array of character type
 (pointer to a string) containing a multibyte character sequence beginning
@@ -175,7 +171,7 @@ wide characters (each by a call to the
 function with a conversion state starting in the initial state before
 the first byte).
 The resulting wide characters are written up to
-(but not including) the terminating null wide character (L\(aq\\0\(aq).
+(but not including) the terminating null wide character (L\(aq\e0\(aq).
 If a precision is
 specified, no more wide characters than the number specified are written.
 Note that the precision determines the number of
@@ -184,13 +180,13 @@ written, not the number of
 .I bytes
 or
 .IR "screen positions" .
-The array must contain a terminating null byte (\(aq\\0\(aq),
+The array must contain a terminating null byte (\(aq\e0\(aq),
 unless a precision is given
 and it is so small that the number of converted wide characters reaches it
 before the end of the array is reached.
 If an
 .B l
-modifier is present: The
+modifier is present: the
 .I "const\ wchar_t\ *"
 argument is expected to be a pointer to an array of wide characters.
 Wide characters from the array are written up to (but not including) a
@@ -208,8 +204,30 @@ case of the functions
 and
 .BR vswprintf ().
 They return \-1 when an error occurs.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR wprintf (),
+.BR fwprintf (),
+.BR swprintf (),
+.BR vwprintf (),
+.BR vfwprintf (),
+.BR vswprintf ()
+T}	Thread safety	MT-Safe locale
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99.
+POSIX.1-2001, POSIX.1-2008, C99.
 .SH NOTES
 The behavior of
 .BR wprintf ()
@@ -236,7 +254,7 @@ representation is platform- and locale-dependent.
 wide characters using their Unicode (ISO-10646) code point, but other
 platforms don't do this.
 Also, the use of C99 universal character names
-of the form \\unnnn does not solve this problem.)
+of the form \eunnnn does not solve this problem.)
 Therefore, in
 internationalized programs, the
 .I format

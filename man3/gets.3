@@ -26,18 +26,18 @@
 .\" Modified Fri Sep  8 15:48:13 1995 by Andries Brouwer (aeb@cwi.nl)
 .\" Modified 2013-12-31, David Malcolm <dmalcolm@redhat.com>
 .\"     Split gets(3) into its own page; fgetc() et al. move to fgetc(3)
-.TH GETS 3  2014-01-24 "GNU" "Linux Programmer's Manual"
+.TH GETS 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 gets \- get a string from standard input (DEPRECATED)
 .SH SYNOPSIS
 .nf
 .B #include <stdio.h>
-.sp
+.PP
 .BI "char *gets(char *" "s" );
 .fi
 .SH DESCRIPTION
 .IR "Never use this function" .
-
+.PP
 .BR gets ()
 reads a line from
 .I stdin
@@ -55,9 +55,26 @@ on success, and NULL
 on error or when end of file occurs while no characters have been read.
 However, given the lack of buffer overrun checking, there can be no
 guarantees that the function will even return.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR gets ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 C89, C99, POSIX.1-2001.
-
+.PP
 LSB deprecates
 .BR gets ().
 POSIX.1-2008 marks
@@ -83,7 +100,7 @@ It has been used to break computer security.
 Use
 .BR fgets ()
 instead.
-
+.PP
 For more information, see CWE-242 (aka "Use of Inherently Dangerous
 Function") at
 http://cwe.mitre.org/data/definitions/242.html

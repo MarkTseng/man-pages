@@ -15,16 +15,16 @@
 .\" 2000-06-30 correction by Yuichi SATO <sato@complex.eng.hokudai.ac.jp>
 .\" 2000-11-15 aeb, fixed prototype
 .\"
-.TH ICONV 3 2012-05-10 "GNU" "Linux Programmer's Manual"
+.TH ICONV 3 2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 iconv \- perform character set conversion
 .SH SYNOPSIS
 .nf
 .B #include <iconv.h>
-.sp
+.PP
 .BI "size_t iconv(iconv_t " cd ,
-.BI "             char **" inbuf ", size_t *" inbytesleft ,
-.BI "             char **" outbuf ", size_t *" outbytesleft );
+.BI "             char **restrict " inbuf ", size_t *restrict " inbytesleft ,
+.BI "             char **restrict " outbuf ", size_t *restrict " outbytesleft );
 .fi
 .SH DESCRIPTION
 The
@@ -124,8 +124,13 @@ The
 .BR iconv ()
 function returns the number of characters converted in a
 nonreversible way during this call; reversible conversions are not counted.
-In case of error, it sets \fIerrno\fP and returns
-.IR (size_t)\ \-1 .
+In case of error,
+.BR iconv ()
+returns
+.IR (size_t)\ \-1
+and sets
+.I errno
+to indicate the error.
 .SH ERRORS
 The following errors can occur, among others:
 .TP
@@ -139,9 +144,38 @@ An invalid multibyte sequence has been encountered in the input.
 An incomplete multibyte sequence has been encountered in the input.
 .SH VERSIONS
 This function is available in glibc since version 2.1.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR iconv ()
+T}	Thread safety	MT-Safe race:cd
+.TE
+.hy
+.ad
+.sp 1
+.PP
+The
+.BR iconv ()
+function is MT-Safe, as long as callers arrange for
+mutual exclusion on the
+.I cd
+argument.
 .SH CONFORMING TO
-POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008.
 .SH NOTES
+In each series of calls to
+.BR iconv (),
+the last should be one with \fIinbuf\fP or \fI*inbuf\fP equal to NULL,
+in order to flush out any partially converted input.
+.PP
 Although
 .I inbuf
 and
@@ -153,7 +187,7 @@ as C strings or as arrays of characters:
 the interpretation of character byte sequences is
 handled internally by the conversion functions.
 In some encodings, a zero byte may be a valid part of a multibyte character.
-
+.PP
 The caller of
 .BR iconv ()
 must ensure that the pointers passed to the function are suitable
@@ -162,4 +196,5 @@ This includes ensuring correct alignment on platforms that have
 tight restrictions on alignment.
 .SH SEE ALSO
 .BR iconv_close (3),
-.BR iconv_open (3)
+.BR iconv_open (3),
+.BR iconvconfig (8)

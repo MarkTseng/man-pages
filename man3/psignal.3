@@ -27,32 +27,32 @@
 .\"     Lewine's _POSIX Programmer's Guide_ (O'Reilly & Associates, 1991)
 .\"     386BSD man pages
 .\" Modified Sat Jul 24 18:45:17 1993 by Rik Faith (faith@cs.unc.edu)
-.TH PSIGNAL 3  2010-10-06 "GNU" "Linux Programmer's Manual"
+.TH PSIGNAL 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
-psignal, psiginfo \- print signal message
+psignal, psiginfo \- print signal description
 .SH SYNOPSIS
 .nf
 .B #include <signal.h>
-.sp
+.PP
 .BI "void psignal(int " sig ", const char *" s );
 .BI "void psiginfo(const siginfo_t *" pinfo ", const char *" s );
-.sp
-.BI "extern const char *const " sys_siglist [];
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
+.PP
 .BR psignal ():
-_SVID_SOURCE || _BSD_SOURCE
-.br
+    Since glibc 2.19:
+            _DEFAULT_SOURCE
+    Glibc 2.19 and earlier:
+        _BSD_SOURCE || _SVID_SOURCE
+.PP
 .BR psiginfo ():
-_XOPEN_SOURCE\ >=\ 700 || _POSIX_C_SOURCE\ >=\ 200809L
-.br
-.IR sys_siglist :
-_BSD_SOURCE
+.nf
+    _POSIX_C_SOURCE >= 200809L
+.fi
 .SH DESCRIPTION
 The
 .BR psignal ()
@@ -62,7 +62,7 @@ describing the signal number \fIsig\fP, and a trailing newline.
 If the string \fIs\fP is NULL or empty, the colon and space are omitted.
 If \fIsig\fP is invalid,
 the message displayed will indicate an unknown signal.
-
+.PP
 The
 .BR psiginfo ()
 function is like
@@ -83,9 +83,6 @@ and the user ID and process ID of the sender, for signals set using
 .BR kill (2)
 or
 .BR sigqueue (3)).
-
-The array \fIsys_siglist\fP holds the signal description strings
-indexed by signal number.
 .SH RETURN VALUE
 The
 .BR psignal ()
@@ -96,6 +93,24 @@ functions return no value.
 The
 .BR psiginfo ()
 function was added to glibc in version 2.10.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR psignal (),
+.BR psiginfo ()
+T}	Thread safety	MT-Safe locale
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 POSIX.1-2008, 4.3BSD.
 .SH BUGS
@@ -104,11 +119,11 @@ In glibc versions up to 2.12,
 had the following bugs:
 .IP * 3
 In some circumstances, a trailing newline is not printed.
-.\" FIXME http://sourceware.org/bugzilla/show_bug.cgi?id=12107
+.\" FIXME . http://sourceware.org/bugzilla/show_bug.cgi?id=12107
 .\" Reportedly now fixed; check glibc 2.13
 .IP *
 Additional details are not displayed for real-time signals.
-.\" FIXME http://sourceware.org/bugzilla/show_bug.cgi?id=12108
+.\" FIXME . http://sourceware.org/bugzilla/show_bug.cgi?id=12108
 .\" Reportedly now fixed; check glibc 2.13
 .SH SEE ALSO
 .BR sigaction (2),

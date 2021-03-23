@@ -29,35 +29,35 @@
 .\" Modified 1993-04-12, David Metcalfe
 .\" Modified 1993-07-24, Rik Faith (faith@cs.unc.edu)
 .\" Modified 2002-01-20, Walter Harms
-.TH BSTRING 3  2002-01-20 "" "Linux Programmer's Manual"
+.TH BSTRING 3  2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
 bcmp, bcopy, bzero, memccpy, memchr, memcmp, memcpy, memfrob, memmem,
 memmove, memset \- byte string operations
 .SH SYNOPSIS
 .nf
 .B #include <string.h>
-.sp
-.BI "int bcmp(const void *" s1 ", const void *" s2 ", int " n );
-.sp
-.BI "void bcopy(const void *" src ", void *" dest ", int " n );
-.sp
-.BI "void bzero(void *" s ", int " n );
-.sp
+.PP
+.BI "int bcmp(const void *" s1 ", const void *" s2 ", size_t " n );
+.PP
+.BI "void bcopy(const void *" src ", void *" dest ", size_t " n );
+.PP
+.BI "void bzero(void *" s ", size_t " n );
+.PP
 .BI "void *memccpy(void *" dest ", const void *" src ", int " c ", size_t " n );
-.sp
+.PP
 .BI "void *memchr(const void *" s ", int " c ", size_t " n );
-.sp
+.PP
 .BI "int memcmp(const void *" s1 ", const void *" s2 ", size_t " n );
-.sp
+.PP
 .BI "void *memcpy(void *" dest ", const void *" src ", size_t " n );
-.sp
+.PP
 .BI "void *memfrob(void *" s ", size_t " n );
-.sp
-.BI "void *memmem(const void *" needle ", size_t " needlelen ,
-.BI "             const void *" haystack ", size_t " haystacklen );
-.sp
+.PP
+.BI "void *memmem(const void *" haystack ", size_t " haystacklen ,
+.BI "             const void *" needle ", size_t " needlelen );
+.PP
 .BI "void *memmove(void *" dest ", const void *" src ", size_t " n );
-.sp
+.PP
 .BI "void *memset(void *" s ", int " c ", size_t " n );
 .fi
 .SH DESCRIPTION
@@ -68,13 +68,13 @@ for descriptions of each function.
 .SH NOTES
 The functions
 .BR bcmp (),
-.BR bcopy ()
+.BR bcopy (),
 and
 .BR bzero ()
 are obsolete.
 Use
 .BR memcmp (),
-.BR memcpy ()
+.BR memcpy (),
 and
 .BR memset ()
 instead.
@@ -90,4 +90,5 @@ instead.
 .BR memfrob (3),
 .BR memmem (3),
 .BR memmove (3),
-.BR memset (3)
+.BR memset (3),
+.BR string (3)

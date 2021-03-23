@@ -13,13 +13,13 @@
 .\"   OpenGroup's Single UNIX specification http://www.UNIX-systems.org/online.html
 .\"   ISO/IEC 9899:1999
 .\"
-.TH WCSNCMP 3  2013-11-25 "GNU" "Linux Programmer's Manual"
+.TH WCSNCMP 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 wcsncmp \- compare two fixed-size wide-character strings
 .SH SYNOPSIS
 .nf
 .B #include <wchar.h>
-.sp
+.PP
 .BI "int wcsncmp(const wchar_t *" s1 ", const wchar_t *" s2 ", size_t " n );
 .fi
 .SH DESCRIPTION
@@ -38,7 +38,7 @@ but at most
 wide
 characters from each string.
 In each string, the comparison extends only up
-to the first occurrence of a null wide character (L\(aq\\0\(aq), if any.
+to the first occurrence of a null wide character (L\(aq\e0\(aq), if any.
 .SH RETURN VALUE
 The
 .BR wcsncmp ()
@@ -62,7 +62,7 @@ greater than
 It returns an integer less than zero if at the first
 differing position
 .I i
-.RI (i
+.RI ( i
 <
 .IR n ),
 the corresponding
@@ -71,12 +71,24 @@ wide-character
 is less than
 .IR s2[i] .
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR wcsncmp ()
-function is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99.
+POSIX.1-2001, POSIX.1-2008, C99.
 .SH SEE ALSO
 .BR strncmp (3),
 .BR wcsncasecmp (3)

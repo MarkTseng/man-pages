@@ -22,14 +22,14 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH FCLOSEALL 3  2013-06-21 "GNU" "Linux Programmer's Manual"
+.TH FCLOSEALL 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 fcloseall \- close all open streams
 .SH SYNOPSIS
 .nf
 .BR "#define _GNU_SOURCE" "         /* See feature_test_macros(7) */"
 .B #include <stdio.h>
-.sp
+.PP
 .B int fcloseall(void);
 .fi
 .SH DESCRIPTION
@@ -40,7 +40,7 @@ Buffered output for each stream is written before it is closed
 (as for
 .BR fflush (3));
 buffered input is discarded.
-
+.PP
 The standard streams,
 .IR stdin ,
 .IR stdout ,
@@ -53,7 +53,23 @@ on error,
 .B EOF
 is returned.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR fcloseall ()
+T}	Thread safety	MT-Unsafe race:streams
+.TE
+.hy
+.ad
+.sp 1
+.PP
 The
 .BR fcloseall ()
 function does not lock the streams, so it is not thread-safe.

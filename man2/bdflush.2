@@ -24,16 +24,19 @@
 .\" Modified 1997-01-31 by Eric S. Raymond <esr@thyrsus.com>
 .\" Modified 2004-06-17 by Michael Kerrisk <mtk.manpages@gmail.com>
 .\"
-.TH BDFLUSH 2 2014-04-06 "Linux" "Linux Programmer's Manual"
+.TH BDFLUSH 2 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 bdflush \- start, flush, or tune buffer-dirty-flush daemon
 .SH SYNOPSIS
 .nf
 .B #include <sys/kdaemon.h>
-
+.PP
 .BI "int bdflush(int "  func ", long *" address );
 .BI "int bdflush(int "  func ", long " data );
 .fi
+.PP
+.IR Note :
+There is no glibc wrapper for this system call; see VERSIONS.
 .SH DESCRIPTION
 .IR Note :
 Since Linux 2.6,
@@ -45,7 +48,7 @@ Nowadays, the task performed by
 is handled by the kernel
 .I pdflush
 thread.
-
+.PP
 .BR bdflush ()
 starts, flushes, or tunes the buffer-dirty-flush daemon.
 Only a privileged process (one with the
@@ -112,11 +115,13 @@ or to write an invalid value to a parameter.
 Caller does not have the
 .B CAP_SYS_ADMIN
 capability.
+.SH VERSIONS
+Since version 2.23, glibc no longer supports this obsolete system call.
 .SH CONFORMING TO
 .BR bdflush ()
 is Linux-specific and should not be used in programs
 intended to be portable.
 .SH SEE ALSO
+.BR sync (1),
 .BR fsync (2),
-.BR sync (2),
-.BR sync (8)
+.BR sync (2)

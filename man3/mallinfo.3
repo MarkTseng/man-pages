@@ -1,4 +1,3 @@
-'\" t
 .\" Copyright (c) 2012 by Michael Kerrisk <mtk.manpages@gmail.com>
 .\"
 .\" %%%LICENSE_START(VERBATIM)
@@ -23,42 +22,63 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH MALLINFO 3  2012-05-06 "Linux" "Linux Programmer's Manual"
+.TH MALLINFO 3  2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
-mallinfo \- obtain memory allocation information
+mallinfo, mallinfo2 \- obtain memory allocation information
 .SH SYNOPSIS
+.nf
 .B #include <malloc.h>
-
+.PP
 .B struct mallinfo mallinfo(void);
+.B struct mallinfo2 mallinfo2(void);
+.fi
 .SH DESCRIPTION
-The
-.BR mallinfo ()
-function returns a copy of a structure containing information about
+These functions return a copy of a structure containing information about
 memory allocations performed by
 .BR malloc (3)
 and related functions.
-This structure is defined as follows:
+The structure returned by each function contains the same fields.
+However, the older function,
+.BR mallinfo (),
+is deprecated since the type used for the fields is too small (see BUGS).
+.PP
+Note that not all allocations are visible to these functions;
+see BUGS and consider using
+.BR malloc_info (3)
+instead.
+.PP
+The
+.I mallinfo2
+structure returned by
+.BR mallinfo2 ()
+is defined as follows:
 .PP
 .in +4n
-.nf
-struct mallinfo {
-    int arena;     /* Non-mmapped space allocated (bytes) */
-    int ordblks;   /* Number of free chunks */
-    int smblks;    /* Number of free fastbin blocks */
-    int hblks;     /* Number of mmapped regions */
-    int hblkhd;    /* Space allocated in mmapped regions (bytes) */
-    int usmblks;   /* Maximum total allocated space (bytes) */
-    int fsmblks;   /* Space in freed fastbin blocks (bytes) */
-    int uordblks;  /* Total allocated space (bytes) */
-    int fordblks;  /* Total free space (bytes) */
-    int keepcost;  /* Top-most, releasable space (bytes) */
+.EX
+struct mallinfo2 {
+    size_t arena;     /* Non\-mmapped space allocated (bytes) */
+    size_t ordblks;   /* Number of free chunks */
+    size_t smblks;    /* Number of free fastbin blocks */
+    size_t hblks;     /* Number of mmapped regions */
+    size_t hblkhd;    /* Space allocated in mmapped regions
+                         (bytes) */
+    size_t usmblks;   /* See below */
+    size_t fsmblks;   /* Space in freed fastbin blocks (bytes) */
+    size_t uordblks;  /* Total allocated space (bytes) */
+    size_t fordblks;  /* Total free space (bytes) */
+    size_t keepcost;  /* Top\-most, releasable space (bytes) */
 };
-.fi
+.EE
 .in
 .PP
-The fields of the
+The
 .I mallinfo
-structure contain the following information:
+structure returned by the deprecated
+.BR mallinfo ()
+function is exactly the same, except that the fields are typed as
+.IR int .
+.PP
+The structure fields contain the following information:
 .TP 10
 .I arena
 The total amount of memory allocated by means other than
@@ -70,6 +90,8 @@ This figure includes both in-use blocks and blocks on the free list.
 The number of ordinary (i.e., non-fastbin) free blocks.
 .TP
 .I smblks
+.\" the glibc info page wrongly says this field is unused
+.\" https://sourceware.org/bugzilla/show_bug.cgi?id=26746
 The number of fastbin free blocks (see
 .BR mallopt (3)).
 .TP
@@ -86,11 +108,15 @@ The number of bytes in blocks currently allocated using
 .BR mmap (2).
 .TP
 .I usmblks
-The "highwater mark" for allocated space\(emthat is,
-the maximum amount of space that was ever allocated.
-This field is maintained only in nonthreading environments.
+This field is unused, and is always 0.
+.\" It seems to have been zero since at least as far back as glibc 2.15
+Historically, it was the "highwater mark" for allocated space\(emthat is,
+the maximum amount of space that was ever allocated (in bytes);
+this field was maintained only in nonthreading environments.
 .TP
 .I fsmblks
+.\" the glibc info page wrongly says this field is unused
+.\" https://sourceware.org/bugzilla/show_bug.cgi?id=26746
 The total number of bytes in fastbin free blocks.
 .TP
 .I uordblks
@@ -105,14 +131,56 @@ of the heap.
 This is the maximum number of bytes that could ideally
 (i.e., ignoring page alignment restrictions, and so on) be released by
 .BR malloc_trim (3).
-.\" .SH VERSIONS
-.\" Available already in glibc 2.0, possibly earlier
+.SH VERSIONS
+.\" mallinfo(): Available already in glibc 2.0, possibly earlier
+The
+.BR mallinfo2 ()
+function was added
+.\" commit e3960d1c57e57f33e0e846d615788f4ede73b945
+in glibc 2.33.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lb lb lbx
+l l l.
+Interface	Attribute	Value
+T{
+.BR mallinfo (),
+.BR mallinfo2 ()
+T}	Thread safety	T{
+MT-Unsafe init const:mallopt
+T}
+.TE
+.hy
+.ad
+.sp 1
+.BR mallinfo ()/
+.BR mallinfo2 ()
+would access some global internal objects.
+If modify them with non-atomically,
+may get inconsistent results.
+The identifier
+.I mallopt
+in
+.I const:mallopt
+mean that
+.BR mallopt ()
+would modify the global internal objects with atomics, that make sure
+.BR mallinfo ()/
+.BR mallinfo2 ()
+is safe enough, others modify with non-atomically maybe not.
 .SH CONFORMING TO
-This function is not specified by POSIX or the C standards.
-A similar function exists on many System V derivatives,
+These functions are not specified by POSIX or the C standards.
+A
+.BR mallinfo ()
+function exists on many System V derivatives,
 and was specified in the SVID.
 .SH BUGS
-.\" FIXME http://sourceware.org/bugzilla/show_bug.cgi?id=208
+.\" FIXME . http://sourceware.org/bugzilla/show_bug.cgi?id=208
 .\" See the 24 Aug 2011 mail by Paul Pluzhnikov:
 .\"     "[patch] Fix mallinfo() to accumulate results for all arenas"
 .\" on libc-alpha@sourceware.org
@@ -123,25 +191,27 @@ See
 and
 .BR malloc_info (3)
 for alternatives that include information about other arenas.
-
+.PP
 The fields of the
 .I mallinfo
-structure are typed as
+structure that is returned by the older
+.BR mallinfo ()
+function are typed as
 .IR int .
 However, because some internal bookkeeping values may be of type
 .IR long ,
 the reported values may wrap around zero and thus be inaccurate.
-.SH EXAMPLE
+.SH EXAMPLES
 The program below employs
-.BR mallinfo ()
+.BR mallinfo2 ()
 to retrieve memory allocation statistics before and after
 allocating and freeing some blocks of memory.
 The statistics are displayed on standard output.
-
+.PP
 The first two command-line arguments specify the number and size of
 blocks to be allocated with
 .BR malloc (3).
-
+.PP
 The remaining three arguments specify which of the allocated blocks
 should be freed with
 .BR free (3).
@@ -155,13 +225,13 @@ of the last block to be freed
 (default is one greater than the maximum block number).
 If these three arguments are omitted,
 then the defaults cause all allocated blocks to be freed.
-
+.PP
 In the following example run of the program,
 1000 allocations of 100 bytes are performed,
 and then every second allocated block is freed:
 .PP
 .in +4n
-.nf
+.EX
 $ \fB./a.out 1000 100 2\fP
 ============== Before allocating blocks ==============
 Total non\-mmapped bytes (arena):       0
@@ -198,31 +268,32 @@ Free bytes held in fastbins (fsmblks): 0
 Total allocated space (uordblks):      52000
 Total free space (fordblks):           83168
 Topmost releasable block (keepcost):   31168
-.fi
+.EE
 .in
 .SS Program source
 \&
-.nf
+.EX
 #include <malloc.h>
-#include "tlpi_hdr.h"
+#include <stdlib.h>
+#include <string.h>
 
 static void
-display_mallinfo(void)
+display_mallinfo2(void)
 {
-    struct mallinfo mi;
+    struct mallinfo2 mi;
 
-    mi = mallinfo();
+    mi = mallinfo2();
 
-    printf("Total non\-mmapped bytes (arena):       %d\\n", mi.arena);
-    printf("# of free chunks (ordblks):            %d\\n", mi.ordblks);
-    printf("# of free fastbin blocks (smblks):     %d\\n", mi.smblks);
-    printf("# of mapped regions (hblks):           %d\\n", mi.hblks);
-    printf("Bytes in mapped regions (hblkhd):      %d\\n", mi.hblkhd);
-    printf("Max. total allocated space (usmblks):  %d\\n", mi.usmblks);
-    printf("Free bytes held in fastbins (fsmblks): %d\\n", mi.fsmblks);
-    printf("Total allocated space (uordblks):      %d\\n", mi.uordblks);
-    printf("Total free space (fordblks):           %d\\n", mi.fordblks);
-    printf("Topmost releasable block (keepcost):   %d\\n", mi.keepcost);
+    printf("Total non\-mmapped bytes (arena):       %zu\en", mi.arena);
+    printf("# of free chunks (ordblks):            %zu\en", mi.ordblks);
+    printf("# of free fastbin blocks (smblks):     %zu\en", mi.smblks);
+    printf("# of mapped regions (hblks):           %zu\en", mi.hblks);
+    printf("Bytes in mapped regions (hblkhd):      %zu\en", mi.hblkhd);
+    printf("Max. total allocated space (usmblks):  %zu\en", mi.usmblks);
+    printf("Free bytes held in fastbins (fsmblks): %zu\en", mi.fsmblks);
+    printf("Total allocated space (uordblks):      %zu\en", mi.uordblks);
+    printf("Total free space (fordblks):           %zu\en", mi.fordblks);
+    printf("Topmost releasable block (keepcost):   %zu\en", mi.keepcost);
 }
 
 int
@@ -230,12 +301,14 @@ main(int argc, char *argv[])
 {
 #define MAX_ALLOCS 2000000
     char *alloc[MAX_ALLOCS];
-    int numBlocks, j, freeBegin, freeEnd, freeStep;
+    int numBlocks, freeBegin, freeEnd, freeStep;
     size_t blockSize;
 
-    if (argc < 3 || strcmp(argv[1], "\-\-help") == 0)
-        usageErr("%s num\-blocks block\-size [free\-step [start\-free "
-                "[end\-free]]]\\n", argv[0]);
+    if (argc < 3 || strcmp(argv[1], "\-\-help") == 0) {
+        fprintf(stderr, "%s num\-blocks block\-size [free\-step "
+                "[start\-free [end\-free]]]\en", argv[0]);
+        exit(EXIT_FAILURE);
+    }
 
     numBlocks = atoi(argv[1]);
     blockSize = atoi(argv[2]);
@@ -243,30 +316,34 @@ main(int argc, char *argv[])
     freeBegin = (argc > 4) ? atoi(argv[4]) : 0;
     freeEnd = (argc > 5) ? atoi(argv[5]) : numBlocks;
 
-    printf("============== Before allocating blocks ==============\\n");
-    display_mallinfo();
+    printf("============== Before allocating blocks ==============\en");
+    display_mallinfo2();
 
-    for (j = 0; j < numBlocks; j++) {
-        if (numBlocks >= MAX_ALLOCS)
-            fatal("Too many allocations");
+    for (int j = 0; j < numBlocks; j++) {
+        if (numBlocks >= MAX_ALLOCS) {
+            fprintf(stderr, "Too many allocations\en");
+            exit(EXIT_FAILURE);
+        }
 
         alloc[j] = malloc(blockSize);
-        if (alloc[j] == NULL)
-            errExit("malloc");
+        if (alloc[j] == NULL) {
+            perror("malloc");
+            exit(EXIT_FAILURE);
+        }
     }
 
-    printf("\\n============== After allocating blocks ==============\\n");
-    display_mallinfo();
+    printf("\en============== After allocating blocks ==============\en");
+    display_mallinfo2();
 
-    for (j = freeBegin; j < freeEnd; j += freeStep)
+    for (int j = freeBegin; j < freeEnd; j += freeStep)
         free(alloc[j]);
 
-    printf("\\n============== After freeing blocks ==============\\n");
-    display_mallinfo();
+    printf("\en============== After freeing blocks ==============\en");
+    display_mallinfo2();
 
     exit(EXIT_SUCCESS);
 }
-.fi
+.EE
 .SH SEE ALSO
 .ad l
 .nh

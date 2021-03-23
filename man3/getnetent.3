@@ -27,22 +27,20 @@
 .\"     Lewine's _POSIX Programmer's Guide_ (O'Reilly & Associates, 1991)
 .\"     386BSD man pages
 .\" Modified Sat Jul 24 21:48:06 1993 by Rik Faith (faith@cs.unc.edu)
-.TH GETNETENT 3  2008-08-19 "GNU" "Linux Programmer's Manual"
+.TH GETNETENT 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 getnetent, getnetbyname, getnetbyaddr, setnetent, endnetent \-
 get network entry
 .SH SYNOPSIS
 .nf
 .B #include <netdb.h>
-.sp
+.PP
 .B struct netent *getnetent(void);
-.sp
+.PP
 .BI "struct netent *getnetbyname(const char *" name );
-.sp
 .BI "struct netent *getnetbyaddr(uint32_t " net ", int " type );
-.sp
+.PP
 .BI "void setnetent(int " stayopen );
-.sp
 .B void endnetent(void);
 .fi
 .SH DESCRIPTION
@@ -99,16 +97,16 @@ The
 structure is defined in
 .I <netdb.h>
 as follows:
-.sp
+.PP
 .in +4n
-.nf
+.EX
 struct netent {
     char      *n_name;     /* official network name */
     char     **n_aliases;  /* alias list */
     int        n_addrtype; /* net address type */
     uint32_t   n_net;      /* network number */
 }
-.fi
+.EE
 .in
 .PP
 The members of the
@@ -130,7 +128,7 @@ The network number in host byte order.
 .SH RETURN VALUE
 The
 .BR getnetent (),
-.BR getnetbyname ()
+.BR getnetbyname (),
 and
 .BR getnetbyaddr ()
 functions return a pointer to a
@@ -142,8 +140,58 @@ error occurs or the end of the file is reached.
 .TP
 .I /etc/networks
 networks database file
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lb lb lbx
+l l l.
+Interface	Attribute	Value
+T{
+.BR getnetent ()
+T}	Thread safety	T{
+MT-Unsafe race:netent
+race:netentbuf env locale
+T}
+T{
+.BR getnetbyname ()
+T}	Thread safety	T{
+MT-Unsafe race:netbyname
+env locale
+T}
+T{
+.BR getnetbyaddr ()
+T}	Thread safety	T{
+MT-Unsafe race:netbyaddr
+locale
+T}
+T{
+.BR setnetent (),
+.BR endnetent ()
+T}	Thread safety	T{
+MT-Unsafe race:netent env
+locale
+T}
+.TE
+.hy
+.ad
+.sp 1
+In the above table,
+.I netent
+in
+.I race:netent
+signifies that if any of the functions
+.BR setnetent (),
+.BR getnetent (),
+or
+.BR endnetent ()
+are used in parallel in different threads of a program,
+then data races could occur.
 .SH CONFORMING TO
-4.3BSD, POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008, 4.3BSD.
 .SH NOTES
 In glibc versions before 2.2, the
 .I net

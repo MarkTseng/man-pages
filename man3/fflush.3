@@ -42,23 +42,28 @@
 .\" Modified 2000-07-22 by Nicolás Lichtmaier <nick@debian.org>
 .\" Modified 2001-10-16 by John Levon <moz@compsoc.man.ac.uk>
 .\"
-.TH FFLUSH 3  2013-07-15 "GNU" "Linux Programmer's Manual"
+.TH FFLUSH 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 fflush \- flush a stream
 .SH SYNOPSIS
+.nf
 .B #include <stdio.h>
-.sp
+.PP
 .BI "int fflush(FILE *" stream );
+.fi
 .SH DESCRIPTION
 For output streams,
 .BR fflush ()
 forces a write of all user-space buffered data for the given output or update
 .I stream
 via the stream's underlying write function.
-For input streams,
+.PP
+For input streams associated with seekable files
+(e.g., disk files, but not pipes or terminals),
 .BR fflush ()
 discards any buffered data that has been fetched from the underlying file,
 but has not been consumed by the application.
+.PP
 The open status of the stream is unaffected.
 .PP
 If the
@@ -68,6 +73,8 @@ argument is NULL,
 flushes
 .I all
 open output streams.
+.\" mtk: POSIX specifies that only output streams are flushed for this case.
+.\" Also verified for glibc by experiment.
 .PP
 For a nonlocking counterpart, see
 .BR unlocked_stdio (3).
@@ -81,7 +88,7 @@ is set to indicate the error.
 .SH ERRORS
 .TP
 .B EBADF
-.I Stream
+.I stream
 is not an open stream, or is not open for writing.
 .PP
 The function
@@ -91,20 +98,31 @@ may also fail and set
 for any of the errors specified for
 .BR write (2).
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR fflush ()
-function is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 C89, C99, POSIX.1-2001, POSIX.1-2008.
-
-The standards do not specify the behavior for input streams.
-Most other implementations behave the same as Linux.
-.\" Verified on: Solaris 8.
+.PP
+POSIX.1-2001 did not specify the behavior for flushing of input streams,
+but the behavior is specified in POSIX.1-2008.
 .SH NOTES
 Note that
 .BR fflush ()
-only flushes the user-space buffers provided by the C library.
+flushes only the user-space buffers provided by the C library.
 To ensure that the data is physically stored on disk
 the kernel buffers must be flushed too, for example, with
 .BR sync (2)
@@ -115,6 +133,7 @@ or
 .BR sync (2),
 .BR write (2),
 .BR fclose (3),
+.BR fileno (3),
 .BR fopen (3),
 .BR setbuf (3),
 .BR unlocked_stdio (3)

@@ -13,13 +13,13 @@
 .\"   OpenGroup's Single UNIX specification http://www.UNIX-systems.org/online.html
 .\"   ISO/IEC 9899:1999
 .\"
-.TH WMEMSET 3  2013-11-11 "GNU" "Linux Programmer's Manual"
+.TH WMEMSET 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 wmemset \- fill an array of wide-characters with a constant wide character
 .SH SYNOPSIS
 .nf
 .B #include <wchar.h>
-.sp
+.PP
 .BI "wchar_t *wmemset(wchar_t *" wcs ", wchar_t " wc ", size_t " n );
 .fi
 .SH DESCRIPTION
@@ -41,11 +41,23 @@ copies of the wide character
 returns
 .IR wcs .
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR wmemset ()
-function is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99.
+POSIX.1-2001, POSIX.1-2008, C99.
 .SH SEE ALSO
 .BR memset (3)

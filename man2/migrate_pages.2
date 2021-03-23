@@ -15,18 +15,21 @@
 .\" permission notice identical to this one.
 .\" %%%LICENSE_END
 .\"
-.TH MIGRATE_PAGES 2 2012-08-01 "Linux" "Linux Programmer's Manual"
+.TH MIGRATE_PAGES 2 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 migrate_pages \- move all pages in a process to another set of nodes
 .SH SYNOPSIS
 .nf
 .B #include <numaif.h>
-.sp
+.PP
 .BI "long migrate_pages(int " pid ", unsigned long " maxnode,
 .BI "                   const unsigned long *" old_nodes,
 .BI "                   const unsigned long *" new_nodes );
 .fi
-.sp
+.PP
+.IR Note :
+There is no glibc wrapper for this system call; see NOTES.
+.PP
 Link with \fI\-lnuma\fP.
 .SH DESCRIPTION
 .BR migrate_pages ()
@@ -44,7 +47,7 @@ the kernel maintains the relative topology relationship inside
 .I old_nodes
 during the migration to
 .IR new_nodes .
-
+.PP
 The
 .I old_nodes
 and
@@ -66,7 +69,7 @@ as in
 .BR mbind (2),
 but different from
 .BR select (2)).
-
+.PP
 The
 .I pid
 argument is the ID of the process whose pages are to be moved.
@@ -80,7 +83,7 @@ If
 is 0, then
 .BR migrate_pages ()
 moves pages of the calling process.
-
+.PP
 Pages shared with another process will be moved only if the initiating
 process has the
 .B CAP_SYS_NICE
@@ -95,6 +98,30 @@ On error, it returns \-1, and sets
 to indicate the error.
 .SH ERRORS
 .TP
+.B EFAULT
+Part or all of the memory range specified by
+.IR old_nodes / new_nodes
+and
+.I maxnode
+points outside your accessible address space.
+.TP
+.B EINVAL
+The value specified by
+.I maxnode
+exceeds a kernel-imposed limit.
+.\" As at 3.5, this limit is "a page worth of bits", e.g.,
+.\" 8 * 4096 bits, assuming a 4kB page size.
+Or,
+.I old_nodes
+or
+.I new_nodes
+specifies one or more node IDs that are
+greater than the maximum supported node ID.
+Or, none of the node IDs specified by
+.I new_nodes
+are on-line and allowed by the process's current cpuset context,
+or none of the specified nodes contain memory.
+.TP
 .B EPERM
 Insufficient privilege
 .RB ( CAP_SYS_NICE )
@@ -108,7 +135,7 @@ to access the specified target nodes.
 No process matching
 .I pid
 could be found.
-.\" FIXME There are other errors
+.\" FIXME Document the other errors that can occur for migrate_pages()
 .SH VERSIONS
 The
 .BR migrate_pages ()
@@ -116,9 +143,10 @@ system call first appeared on Linux in version 2.6.16.
 .SH CONFORMING TO
 This system call is Linux-specific.
 .SH NOTES
+Glibc does not provide a wrapper for this system call.
 For information on library support, see
 .BR numa (7).
-
+.PP
 Use
 .BR get_mempolicy (2)
 with the
@@ -127,7 +155,7 @@ flag to obtain the set of nodes that are allowed by
 the calling process's cpuset.
 Note that this information is subject to change at any
 time by manual or automatic reconfiguration of the cpuset.
-
+.PP
 Use of
 .BR migrate_pages ()
 may result in pages whose location
@@ -139,11 +167,11 @@ and/or the specified process (see
 That is, memory policy does not constrain the destination
 nodes used by
 .BR migrate_pages ().
-
+.PP
 The
 .I <numaif.h>
 header is not included with glibc, but requires installing
-.I libnuma-devel
+.I libnuma\-devel
 or a similar package.
 .SH SEE ALSO
 .BR get_mempolicy (2),
@@ -155,6 +183,6 @@ or a similar package.
 .BR numa (7),
 .BR migratepages (8),
 .BR numastat (8)
-
-.IR Documentation/vm/page_migration
+.PP
+.IR Documentation/vm/page_migration.rst
 in the Linux kernel source tree

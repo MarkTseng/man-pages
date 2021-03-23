@@ -22,26 +22,29 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH PTHREAD_SIGQUEUE 3 2012-08-19 "Linux" "Linux Programmer's Manual"
+.TH PTHREAD_SIGQUEUE 3 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 pthread_sigqueue \- queue a signal and data to a thread
 .SH SYNOPSIS
 .nf
+.B #include <signal.h>
 .B #include <pthread.h>
-
+.PP
 .BI "int pthread_sigqueue(pthread_t " thread ", int " sig ,
 .BI "                     const union sigval " value );
 .fi
-.sp
+.PP
 Compile and link with \fI\-pthread\fP.
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
+.PP
 .BR pthread_sigqueue ():
-_GNU_SOURCE
+.nf
+    _GNU_SOURCE
+.fi
 .SH DESCRIPTION
 The
 .BR pthread_sigqueue ()
@@ -50,7 +53,7 @@ function performs a similar task to
 but, rather than sending a signal to a process,
 it sends a signal to a thread in the same process as the
 calling thread.
-
+.PP
 The
 .I thread
 argument is the ID of a thread in the same process as the caller.
@@ -90,8 +93,35 @@ is not valid.
 The
 .BR pthread_sigqueue ()
 function first appeared in glibc 2.11.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR pthread_sigqueue ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 This function is a GNU extension.
+.SH NOTES
+The glibc implementation of
+.BR pthread_sigqueue ()
+gives an error
+.RB ( EINVAL )
+on attempts to send either of the real-time signals
+used internally by the NPTL threading implementation.
+See
+.BR nptl (7)
+for details.
 .SH SEE ALSO
 .BR rt_tgsigqueueinfo (2),
 .BR sigaction (2),

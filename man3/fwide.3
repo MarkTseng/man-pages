@@ -13,32 +13,26 @@
 .\"   OpenGroup's Single UNIX specification http://www.UNIX-systems.org/online.html
 .\"   ISO/IEC 9899:1999
 .\"
-.TH FWIDE 3  2014-03-19 "GNU" "Linux Programmer's Manual"
+.TH FWIDE 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 fwide \- set and determine the orientation of a FILE stream
 .SH SYNOPSIS
 .nf
 .B #include <wchar.h>
-.sp
+.PP
 .BI "int fwide(FILE *" stream ", int " mode );
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.ad l
-.sp
-.BR fwide ():
-.RS 4
-_XOPEN_SOURCE\ >=\ 500 || _ISOC99_SOURCE ||
-.br
-_POSIX_C_SOURCE\ >=\ 200112L;
-.br
-or
-.I cc\ -std=c99
 .RE
-.ad
+.PP
+.BR fwide ():
+.nf
+    _XOPEN_SOURCE >= 500 || _ISOC99_SOURCE
+        || _POSIX_C_SOURCE >= 200112L
+.fi
 .SH DESCRIPTION
 When \fImode\fP is zero, the
 .BR fwide ()
@@ -75,7 +69,7 @@ A positive return value means wide-character oriented.
 A negative return value means byte oriented.
 A return value of zero means undecided.
 .SH CONFORMING TO
-C99, POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008, C99.
 .SH NOTES
 Wide-character output to a byte oriented stream can be performed through the
 .BR fprintf (3)

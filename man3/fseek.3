@@ -39,21 +39,21 @@
 .\"
 .\" Converted for Linux, Mon Nov 29 15:22:01 1993, faith@cs.unc.edu
 .\"
-.TH FSEEK 3  2014-04-02 "GNU" "Linux Programmer's Manual"
+.TH FSEEK 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 fgetpos, fseek, fsetpos, ftell, rewind \- reposition a stream
 .SH SYNOPSIS
+.nf
 .B #include <stdio.h>
-.sp
+.PP
 .BI "int fseek(FILE *" stream ", long " offset ", int " whence );
-
 .BI "long ftell(FILE *" stream );
-
+.PP
 .BI "void rewind(FILE *" stream );
-
-.BI "int fgetpos(FILE *" stream ", fpos_t *" pos );
-.br
-.BI "int fsetpos(FILE *" stream ", fpos_t *" pos );
+.PP
+.BI "int fgetpos(FILE *restrict " stream ", fpos_t *restrict " pos );
+.BI "int fsetpos(FILE *" stream ", const fpos_t *" pos );
+.fi
 .SH DESCRIPTION
 The
 .BR fseek ()
@@ -135,11 +135,6 @@ Otherwise, \-1 is returned and
 is set to indicate the error.
 .SH ERRORS
 .TP
-.B EBADF
-The
-.I stream
-specified is not a seekable stream.
-.TP
 .B EINVAL
 The
 .I whence
@@ -151,6 +146,11 @@ was not
 or
 .BR SEEK_CUR .
 Or: the resulting file offset would be negative.
+.TP
+.B ESPIPE
+The file descriptor underlying
+.I stream
+is not seekable (e.g., it refers to a pipe, FIFO, or socket).
 .PP
 The functions
 .BR fgetpos (),
@@ -166,8 +166,29 @@ for any of the errors specified for the routines
 .BR lseek (2),
 and
 .BR malloc (3).
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR fseek (),
+.BR ftell (),
+.BR rewind (),
+.BR fgetpos (),
+.BR fsetpos ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C89, C99.
+POSIX.1-2001, POSIX.1-2008, C89, C99.
 .SH SEE ALSO
 .BR lseek (2),
 .BR fseeko (3)

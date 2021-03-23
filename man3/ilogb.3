@@ -26,47 +26,41 @@
 .\"
 .\" Inspired by a page by Walter Harms created 2002-08-10
 .\"
-.TH ILOGB 3 2013-08-06 "" "Linux Programmer's Manual"
+.TH ILOGB 3 2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
 ilogb, ilogbf, ilogbl \- get integer exponent of a floating-point value
 .SH SYNOPSIS
+.nf
 .B #include <math.h>
-.sp
+.PP
 .BI "int ilogb(double " x );
-.br
 .BI "int ilogbf(float " x );
-.br
 .BI "int ilogbl(long double " x );
-.sp
+.fi
+.PP
 Link with \fI\-lm\fP.
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
-.ad l
-.BR ilogb ():
-.RS 4
-_BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE\ >=\ 500 ||
-_XOPEN_SOURCE\ &&\ _XOPEN_SOURCE_EXTENDED ||
-_ISOC99_SOURCE ||
-_POSIX_C_SOURCE\ >=\ 200112L;
-.br
-or
-.I cc\ -std=c99
 .RE
-.br
+.PP
+.BR ilogb ():
+.nf
+    _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L
+        || _XOPEN_SOURCE >= 500
+.\"    || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED
+        || /* Since glibc 2.19: */ _DEFAULT_SOURCE
+        || /* Glibc <= 2.19: */ _BSD_SOURCE || _SVID_SOURCE
+.fi
+.PP
 .BR ilogbf (),
 .BR ilogbl ():
-.RS 4
-_BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE\ >=\ 600 || _ISOC99_SOURCE ||
-_POSIX_C_SOURCE\ >=\ 200112L;
-.br
-or
-.I cc\ -std=c99
-.RE
-.ad b
+.nf
+    _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L
+        || /* Since glibc 2.19: */ _DEFAULT_SOURCE
+        || /* Glibc <= 2.19: */ _BSD_SOURCE || _SVID_SOURCE
+.fi
 .SH DESCRIPTION
 These functions return the exponent part of their argument
 as a signed integer.
@@ -79,7 +73,7 @@ functions, cast to
 On success, these functions return the exponent of
 .IR x ,
 as a signed integer.
-
+.PP
 If
 .I x
 is zero, then a domain error occurs, and the functions return
@@ -87,14 +81,14 @@ is zero, then a domain error occurs, and the functions return
 .\" case, but for ilogb() it says domain error.
 .BR FP_ILOGB0 .
 .\" glibc: The numeric value is either `INT_MIN' or `-INT_MAX'.
-
+.PP
 If
 .I x
 is a NaN, then a domain error occurs, and the functions return
 .BR FP_ILOGBNAN .
 .\" glibc: The numeric value is either `INT_MIN' or `INT_MAX'.
 .\" On i386, FP_ILOGB0 and FP_ILOGBNAN have the same value.
-
+.PP
 If
 .I x
 is negative infinity or positive infinity, then
@@ -116,43 +110,59 @@ when calling these functions.
 The following errors can occur:
 .TP
 Domain error: \fIx\fP is 0 or a NaN
-.\" .I errno
-.\" is set to
-.\" .BR EDOM .
 An invalid floating-point exception
 .RB ( FE_INVALID )
-is raised.
-.IP
-These functions do not set
-.IR errno
-for this case.
-.\" Bug raised: http://sources.redhat.com/bugzilla/show_bug.cgi?id=6794
+is raised, and
+.I errno
+is set to
+.BR EDOM
+(but see BUGS).
 .TP
 Domain error: \fIx\fP is an infinity
-.\" .I errno
-.\" is set to
-.\" .BR EDOM .
-.\" An invalid floating-point exception
-.\" .RB ( FE_INVALID )
-.\" is raised.
-.IP
-These functions do not set
-.IR errno
-or raise an exception for this case.
-.\" FIXME . Is it intentional that these functions do not set errno,
-.\" or raise an exception?
-.\" log(), log2(), log10() do set errno
-.\" Bug raised: http://sources.redhat.com/bugzilla/show_bug.cgi?id=6794
+An invalid floating-point exception
+.RB ( FE_INVALID )
+is raised, and
+.I errno
+is set to
+.BR EDOM
+(but see BUGS).
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR ilogb (),
 .BR ilogbf (),
-and
 .BR ilogbl ()
-functions are thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99, POSIX.1-2001.
+C99, POSIX.1-2001, POSIX.1-2008.
+.SH BUGS
+.\" Bug raised: http://sources.redhat.com/bugzilla/show_bug.cgi?id=6794
+Before version 2.16, the following bugs existed in the
+glibc implementation of these functions:
+.IP * 3
+The domain error case where
+.I x
+is 0 or a NaN did not cause
+.I errno
+to be set or (on some architectures) raise a floating-point exception.
+.IP * 3
+The domain error case where
+.I x
+is an infinity did not cause
+.I errno
+to be set or raise a floating-point exception.
 .SH SEE ALSO
 .BR log (3),
 .BR logb (3),

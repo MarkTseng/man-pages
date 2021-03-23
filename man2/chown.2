@@ -33,58 +33,47 @@
 .\" 2007-07-08, mtk, added an example program; updated SYNOPSIS
 .\" 2008-05-08, mtk, Describe rules governing ownership of new files
 .\"     (bsdgroups versus sysvgroups, and the effect of the parent
-.\"     directory's set-group-ID permission bit).
+.\"     directory's set-group-ID mode bit).
 .\"
-.TH CHOWN 2 2014-03-19 "Linux" "Linux Programmer's Manual"
+.TH CHOWN 2 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 chown, fchown, lchown, fchownat \- change ownership of a file
 .SH SYNOPSIS
 .nf
 .B #include <unistd.h>
-.sp
+.PP
 .BI "int chown(const char *" pathname ", uid_t " owner ", gid_t " group );
-.br
 .BI "int fchown(int " fd ", uid_t " owner ", gid_t " group );
-.br
 .BI "int lchown(const char *" pathname ", uid_t " owner ", gid_t " group );
-.sp
+.PP
 .BR "#include <fcntl.h>           " "/* Definition of AT_* constants */"
 .B #include <unistd.h>
-.sp
+.PP
 .BI "int fchownat(int " dirfd ", const char *" pathname ,
 .BI "             uid_t " owner ", gid_t " group ", int " flags );
 .fi
-.sp
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
+.PP
 .BR fchown (),
 .BR lchown ():
-.PD 0
-.ad l
-.RS 4
-_BSD_SOURCE || _XOPEN_SOURCE\ >=\ 500 ||
-_XOPEN_SOURCE\ &&\ _XOPEN_SOURCE_EXTENDED
-.br
-|| /* Since glibc 2.12: */ _POSIX_C_SOURCE\ >=\ 200809L
-.RE
-.sp
+.nf
+    /* Since glibc 2.12: */ _POSIX_C_SOURCE >= 200809L
+        || _XOPEN_SOURCE >= 500
+.\"    || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED
+        || /* Glibc <= 2.19: */ _BSD_SOURCE
+.fi
+.PP
 .BR fchownat ():
-.PD 0
-.ad l
-.RS 4
-.TP 4
-Since glibc 2.10:
-_XOPEN_SOURCE\ >=\ 700 || _POSIX_C_SOURCE\ >=\ 200809L
-.TP
-Before glibc 2.10:
-_ATFILE_SOURCE
-.RE
-.ad
-.PD
+.nf
+    Since glibc 2.10:
+        _POSIX_C_SOURCE >= 200809L
+    Before glibc 2.10:
+        _ATFILE_SOURCE
+.fi
 .SH DESCRIPTION
 These system calls change the owner and group of a file.
 The
@@ -116,15 +105,15 @@ to any group of which that owner is a member.
 A privileged process (Linux: with
 .BR CAP_CHOWN )
 may change the group arbitrarily.
-
+.PP
 If the
 .I owner
 or
 .I group
 is specified as \-1, then that ID is not changed.
-
-When the owner or group of an executable file are
-changed by an unprivileged user the
+.PP
+When the owner or group of an executable file is
+changed by an unprivileged user, the
 .B S_ISUID
 and
 .B S_ISGID
@@ -132,7 +121,8 @@ mode bits are cleared.
 POSIX does not specify whether
 this also should happen when root does the
 .BR chown ();
-the Linux behavior depends on the kernel version.
+the Linux behavior depends on the kernel version,
+and since Linux 2.2.13, root is treated like other users.
 .\" In Linux 2.0 kernels, superuser was like everyone else
 .\" In 2.2, up to 2.2.12, these bits were not cleared for superuser.
 .\" Since 2.2.13, superuser is once more like everyone else.
@@ -142,13 +132,17 @@ bit is not set) the
 .B S_ISGID
 bit indicates mandatory locking, and is not cleared by a
 .BR chown ().
+.PP
+When the owner or group of an executable file is changed (by any user),
+all capability sets for the file are cleared.
+.\"
 .SS fchownat()
 The
 .BR fchownat ()
 system call operates in exactly the same way as
 .BR chown (),
 except for the differences described here.
-
+.PP
 If the pathname given in
 .I pathname
 is relative, then it is interpreted relative to the directory
@@ -158,7 +152,7 @@ referred to by the file descriptor
 the calling process, as is done by
 .BR chown ()
 for a relative pathname).
-
+.PP
 If
 .I pathname
 is relative and
@@ -170,13 +164,13 @@ then
 is interpreted relative to the current working
 directory of the calling process (like
 .BR chown ()).
-
+.PP
 If
 .I pathname
 is absolute, then
 .I dirfd
 is ignored.
-
+.PP
 The
 .I flags
 argument is a bit mask created by ORing together
@@ -204,7 +198,6 @@ This flag is Linux-specific; define
 .B _GNU_SOURCE
 .\" Before glibc 2.16, defining _ATFILE_SOURCE sufficed
 to obtain its definition.
-
 .TP
 .B AT_SYMLINK_NOFOLLOW
 If
@@ -225,11 +218,11 @@ for an explanation of the need for
 On success, zero is returned.
 On error, \-1 is returned, and
 .I errno
-is set appropriately.
+is set to indicate the error.
 .SH ERRORS
 Depending on the filesystem,
 errors other than those listed below can be returned.
-
+.PP
 The more general errors for
 .BR chown ()
 are listed below.
@@ -264,6 +257,11 @@ A component of the path prefix is not a directory.
 The calling process did not have the required permissions
 (see above) to change owner and/or group.
 .TP
+.B EPERM
+The file is marked immutable or append-only.
+(See
+.BR ioctl_iflags (2).)
+.TP
 .B EROFS
 The named file resides on a read-only filesystem.
 .PP
@@ -272,7 +270,8 @@ The general errors for
 are listed below:
 .TP
 .B EBADF
-The descriptor is not valid.
+.I fd
+is not a valid open file descriptor.
 .TP
 .B EIO
 A low-level I/O error occurred while modifying the inode.
@@ -315,7 +314,7 @@ library support was added to glibc in version 2.4.
 .BR fchown (),
 .BR lchown ():
 4.4BSD, SVr4, POSIX.1-2001, POSIX.1-2008.
-
+.PP
 The 4.4BSD version can be
 used only by the superuser (that is, ordinary users cannot give away files).
 .\" chown():
@@ -324,10 +323,88 @@ used only by the superuser (that is, ordinary users cannot give away files).
 .\" fchown():
 .\" SVr4 documents additional EINVAL, EIO, EINTR, and ENOLINK
 .\" error conditions.
-
+.PP
 .BR fchownat ():
 POSIX.1-2008.
 .SH NOTES
+.SS Ownership of new files
+When a new file is created (by, for example,
+.BR open (2)
+or
+.BR mkdir (2)),
+its owner is made the same as the filesystem user ID of the
+creating process.
+The group of the file depends on a range of factors,
+including the type of filesystem,
+the options used to mount the filesystem,
+and whether or not the set-group-ID mode bit is enabled
+on the parent directory.
+If the filesystem supports the
+.B "\-o\ grpid"
+(or, synonymously
+.BR "\-o\ bsdgroups" )
+and
+.B "\-o\ nogrpid"
+(or, synonymously
+.BR "\-o\ sysvgroups" )
+.BR mount (8)
+options, then the rules are as follows:
+.IP * 2
+If the filesystem is mounted with
+.BR "\-o\ grpid" ,
+then the group of a new file is made
+the same as that of the parent directory.
+.IP *
+If the filesystem is mounted with
+.BR "\-o\ nogrpid"
+and the set-group-ID bit is disabled on the parent directory,
+then the group of a new file is made the same as the
+process's filesystem GID.
+.IP *
+If the filesystem is mounted with
+.BR "\-o\ nogrpid"
+and the set-group-ID bit is enabled on the parent directory,
+then the group of a new file is made
+the same as that of the parent directory.
+.PP
+As at Linux 4.12,
+the
+.BR "\-o\ grpid"
+and
+.BR "\-o\ nogrpid"
+mount options are supported by ext2, ext3, ext4, and XFS.
+Filesystems that don't support these mount options follow the
+.BR "\-o\ nogrpid"
+rules.
+.SS Glibc notes
+On older kernels where
+.BR fchownat ()
+is unavailable, the glibc wrapper function falls back to the use of
+.BR chown ()
+and
+.BR lchown ().
+When
+.I pathname
+is a relative pathname,
+glibc constructs a pathname based on the symbolic link in
+.IR /proc/self/fd
+that corresponds to the
+.IR dirfd
+argument.
+.SS NFS
+The
+.BR chown ()
+semantics are deliberately violated on NFS filesystems
+which have UID mapping enabled.
+Additionally, the semantics of all system
+calls which access the file contents are violated, because
+.BR chown ()
+may cause immediate access revocation on already open files.
+Client side
+caching may lead to a delay between the time where ownership have
+been changed to allow access for a user and the time where the file can
+actually be accessed by the user on other clients.
+.SS Historical details
 The original Linux
 .BR chown (),
 .BR fchown (),
@@ -346,69 +423,7 @@ The glibc
 and
 .BR lchown ()
 wrapper functions transparently deal with the variations across kernel versions.
-
-When a new file is created (by, for example,
-.BR open (2)
-or
-.BR mkdir (2)),
-its owner is made the same as the filesystem user ID of the
-creating process.
-The group of the file depends on a range of factors,
-including the type of filesystem,
-the options used to mount the filesystem,
-and whether or not the set-group-ID permission bit is enabled
-on the parent directory.
-If the filesystem supports the
-.I "\-o\ grpid"
-(or, synonymously
-.IR "\-o\ bsdgroups" )
-and
-.I "\-o\ nogrpid"
-(or, synonymously
-.IR "\-o\ sysvgroups" )
-.BR mount (8)
-options, then the rules are as follows:
-.IP * 2
-If the filesystem is mounted with
-.IR "\-o\ grpid" ,
-then the group of a new file is made
-the same as that of the parent directory.
-.IP *
-If the filesystem is mounted with
-.IR "\-o\ nogrpid"
-and the set-group-ID bit is disabled on the parent directory,
-then the group of a new file is made the same as the
-process's filesystem GID.
-.IP *
-If the filesystem is mounted with
-.IR "\-o\ nogrpid"
-and the set-group-ID bit is enabled on the parent directory,
-then the group of a new file is made
-the same as that of the parent directory.
 .PP
-As at Linux 2.6.25,
-the
-.IR "\-o\ grpid"
-and
-.IR "\-o\ nogrpid"
-mount options are supported by ext2, ext3, ext4, and XFS.
-Filesystems that don't support these mount options follow the
-.IR "\-o\ nogrpid"
-rules.
-.PP
-The
-.BR chown ()
-semantics are deliberately violated on NFS filesystems
-which have UID mapping enabled.
-Additionally, the semantics of all system
-calls which access the file contents are violated, because
-.BR chown ()
-may cause immediate access revocation on already open files.
-Client side
-caching may lead to a delay between the time where ownership have
-been changed to allow access for a user and the time where the file can
-actually be accessed by the user on other clients.
-
 In versions of Linux prior to 2.1.81 (and distinct from 2.1.46),
 .BR chown ()
 did not follow symbolic links.
@@ -423,8 +438,7 @@ as the old
 has got the same syscall number, and
 .BR chown ()
 got the newly introduced number.
-.SH EXAMPLE
-.PP
+.SH EXAMPLES
 The following program changes the ownership of the file named in
 its second command-line argument to the value specified in its
 first command-line argument.
@@ -433,7 +447,7 @@ or as a username (which is converted to a user ID by using
 .BR getpwnam (3)
 to perform a lookup in the system password file).
 .SS Program source
-.nf
+.EX
 #include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -446,14 +460,14 @@ main(int argc, char *argv[])
     struct passwd *pwd;
     char *endptr;
 
-    if (argc != 3 || argv[1][0] == \(aq\\0\(aq) {
-        fprintf(stderr, "%s <owner> <file>\\n", argv[0]);
+    if (argc != 3 || argv[1][0] == \(aq\e0\(aq) {
+        fprintf(stderr, "%s <owner> <file>\en", argv[0]);
         exit(EXIT_FAILURE);
     }
 
     uid = strtol(argv[1], &endptr, 10);  /* Allow a numeric string */
 
-    if (*endptr != \(aq\\0\(aq) {         /* Was not pure numeric string */
+    if (*endptr != \(aq\e0\(aq) {         /* Was not pure numeric string */
         pwd = getpwnam(argv[1]);   /* Try getting UID for username */
         if (pwd == NULL) {
             perror("getpwnam");
@@ -470,8 +484,10 @@ main(int argc, char *argv[])
 
     exit(EXIT_SUCCESS);
 }
-.fi
+.EE
 .SH SEE ALSO
+.BR chgrp (1),
+.BR chown (1),
 .BR chmod (2),
 .BR flock (2),
 .BR path_resolution (7),

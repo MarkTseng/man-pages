@@ -22,21 +22,28 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH ADJTIME 3 2013-10-07 "Linux" "Linux Programmer's Manual"
+.TH ADJTIME 3 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 adjtime \- correct the time to synchronize the system clock
 .SH SYNOPSIS
 .nf
+.B #include <sys/time.h>
+.PP
 .BI "int adjtime(const struct timeval *" delta ", struct timeval *" olddelta );
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
+.PP
 .BR adjtime ():
-_BSD_SOURCE
+.nf
+    Since glibc 2.19:
+        _DEFAULT_SOURCE
+    Glibc 2.19 and earlier:
+        _BSD_SOURCE
+.fi
 .SH DESCRIPTION
 The
 .BR adjtime ()
@@ -46,14 +53,14 @@ The amount of time by which the clock is to be adjusted is specified
 in the structure pointed to by
 .IR delta .
 This structure has the following form:
+.PP
 .in +4n
-.nf
-
+.EX
 struct timeval {
     time_t      tv_sec;     /* seconds */
     suseconds_t tv_usec;    /* microseconds */
 };
-.fi
+.EE
 .in
 .PP
 If the adjustment in
@@ -65,7 +72,7 @@ has been completed.
 If the adjustment in
 .I delta
 is negative, then the clock is slowed down in a similar fashion.
-
+.PP
 If a clock adjustment from an earlier
 .BR adjtime ()
 call is already in progress
@@ -75,7 +82,7 @@ call, and
 .I delta
 is not NULL for the later call, then the earlier adjustment is stopped,
 but any already completed part of that adjustment is not undone.
-
+.PP
 If
 .I olddelta
 is not NULL, then the buffer that it points to is used to return
@@ -97,14 +104,26 @@ is outside the permitted range.
 .TP
 .B EPERM
 The caller does not have sufficient privilege to adjust the time.
-Under Linux the
+Under Linux, the
 .B CAP_SYS_TIME
 capability is required.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR adjtime ()
-function is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 4.3BSD, System V.
 .SH NOTES
@@ -118,7 +137,7 @@ to adjust the time prevents the problems that can be caused for certain
 applications (e.g.,
 .BR make (1))
 by abrupt positive or negative jumps in the system time.
-
+.PP
 .BR adjtime ()
 is intended to be used to make small adjustments to the system time.
 Most systems impose a limit on the adjustment that can be specified in

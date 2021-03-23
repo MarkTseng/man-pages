@@ -23,35 +23,27 @@
 .\" Formatted or processed versions of this manual, if unaccompanied by
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
-.TH MKDTEMP 3  2010-09-26 "GNU" "Linux Programmer's Manual"
+.TH MKDTEMP 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 mkdtemp \- create a unique temporary directory
 .SH SYNOPSIS
 .nf
 .B #include <stdlib.h>
-.sp
+.PP
 .BI "char *mkdtemp(char *" template );
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
+.PP
 .BR mkdtemp ():
-.br
-.ad l
-.RS 4
-.PD 0
-_BSD_SOURCE
-.br
-|| /* Since glibc 2.10: */
-.RS 4
-(_POSIX_C_SOURCE\ >=\ 200809L || _XOPEN_SOURCE\ >=\ 700)
-.ad
-.PD
-.RE
-.RE
+.nf
+    /* Since glibc 2.19: */ _DEFAULT_SOURCE
+        || /* Glibc 2.19 and earlier: */ _BSD_SOURCE
+        || /* Since glibc 2.10: */ _POSIX_C_SOURCE >= 200809L
+.fi
 .SH DESCRIPTION
 The
 .BR mkdtemp ()
@@ -71,7 +63,7 @@ The
 function returns a pointer to the modified template
 string on success, and NULL on failure, in which case
 .I errno
-is set appropriately.
+is set to indicate the error.
 .SH ERRORS
 .TP
 .B EINVAL
@@ -83,12 +75,30 @@ Also see
 for other possible values for \fIerrno\fP.
 .SH VERSIONS
 Available since glibc 2.1.91.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR mkdtemp ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 POSIX.1-2008.
 This function is present on the BSDs.
 .\" As at 2006, this function is being considered for a revision of POSIX.1
 .\" Also in NetBSD 1.4.
 .SH SEE ALSO
+.BR mktemp (1),
 .BR mkdir (2),
 .BR mkstemp (3),
 .BR mktemp (3),

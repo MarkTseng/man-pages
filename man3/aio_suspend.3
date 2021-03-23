@@ -1,5 +1,5 @@
 .\" Copyright (c) 2003 Andries Brouwer (aeb@cwi.nl)
-.\" and Copyright (C) 2010 Michael kerrisk <mtk.manpages@gmail.com>
+.\" and Copyright (C) 2010 Michael Kerrisk <mtk.manpages@gmail.com>
 .\"
 .\" %%%LICENSE_START(GPLv2+_DOC_FULL)
 .\" This is free documentation; you can redistribute it and/or
@@ -22,18 +22,17 @@
 .\" <http://www.gnu.org/licenses/>.
 .\" %%%LICENSE_END
 .\"
-.TH AIO_SUSPEND 3 2012-05-08  "" "Linux Programmer's Manual"
+.TH AIO_SUSPEND 3 2021-03-22  "" "Linux Programmer's Manual"
 .SH NAME
 aio_suspend \- wait for asynchronous I/O operation or timeout
 .SH SYNOPSIS
 .nf
-.sp
+.PP
 .B "#include <aio.h>"
-.sp
-.BI "int aio_suspend(const struct aiocb * const " aiocb_list [],
-.br
-.BI "                int " nitems ", const struct timespec *" timeout );
-.sp
+.PP
+.BI "int aio_suspend(const struct aiocb *const " aiocb_list "[], int " nitems ,
+.BI "                const struct timespec *restrict " timeout );
+.PP
 Link with \fI\-lrt\fP.
 .fi
 .SH DESCRIPTION
@@ -53,7 +52,7 @@ is not NULL and the specified time interval has passed.
 .I timespec
 structure, see
 .BR nanosleep (2).)
-.LP
+.PP
 The
 .I nitems
 argument specifies the number of items in
@@ -71,12 +70,12 @@ or
 for a description of the
 .I aiocb
 structure.)
-.LP
+.PP
 If
 .B CLOCK_MONOTONIC
 is supported, this clock is used to measure
 the timeout interval (see
-.BR clock_gettime (3)).
+.BR clock_gettime (2)).
 .SH RETURN VALUE
 If this function returns after completion of one of the I/O
 requests specified in
@@ -104,19 +103,40 @@ is not implemented.
 The
 .BR aio_suspend ()
 function is available since glibc 2.1.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR aio_suspend ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 POSIX.1-2001, POSIX.1-2008.
+.PP
+POSIX doesn't specify the parameters to be
+.IR restrict ;
+that is specific to glibc.
 .SH NOTES
 One can achieve polling by using a non-NULL
 .I timeout
 that specifies a zero time interval.
-
+.PP
 If one or more of the asynchronous I/O operations specified in
 .IR aiocb_list
 has already completed at the time of the call to
 .BR aio_suspend (),
 then the call returns immediately.
-
+.PP
 To determine which I/O operations have completed
 after a successful return from
 .BR aio_suspend (),
@@ -126,6 +146,12 @@ to scan the list of
 .I aiocb
 structures pointed to by
 .IR aiocb_list .
+.SH BUGS
+The glibc implementation of
+.BR aio_suspend ()
+is not async-signal-safe,
+.\" FIXME . https://sourceware.org/bugzilla/show_bug.cgi?id=13172
+in violation of the requirements of POSIX.1.
 .SH SEE ALSO
 .BR aio_cancel (3),
 .BR aio_error (3),

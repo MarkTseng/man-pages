@@ -23,17 +23,19 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH PTHREAD_CREATE 3 2012-08-03 "Linux" "Linux Programmer's Manual"
+.TH PTHREAD_CREATE 3 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 pthread_create \- create a new thread
 .SH SYNOPSIS
 .nf
 .B #include <pthread.h>
-
-.BI "int pthread_create(pthread_t *" thread ", const pthread_attr_t *" attr ,
-.BI "                   void *(*" start_routine ") (void *), void *" arg );
+.PP
+.BI "int pthread_create(pthread_t *restrict " thread ,
+.BI "                   const pthread_attr_t *restrict " attr ,
+.BI "                   void *(*" start_routine ")(void *),"
+.BI "                   void *restrict " arg );
 .fi
-.sp
+.PP
 Compile and link with \fI\-pthread\fP.
 .SH DESCRIPTION
 The
@@ -44,7 +46,7 @@ The new thread starts execution by invoking
 .IR arg
 is passed as the sole argument of
 .IR start_routine ().
-
+.PP
 The new thread terminates in one of the following ways:
 .IP * 2
 It calls
@@ -83,14 +85,14 @@ If
 .I attr
 is NULL,
 then the thread is created with default attributes.
-
+.PP
 Before returning, a successful call to
 .BR pthread_create ()
 stores the ID of the new thread in the buffer pointed to by
 .IR thread ;
 this identifier is used to refer to the thread
 in subsequent calls to other pthreads functions.
-
+.PP
 The new thread inherits a copy of the creating thread's signal mask
 .RB ( pthread_sigmask (3)).
 The set of pending signals for the new thread is empty
@@ -98,10 +100,10 @@ The set of pending signals for the new thread is empty
 The new thread does not inherit the creating thread's
 alternate signal stack
 .RB ( sigaltstack (2)).
-
+.PP
 The new thread inherits the calling thread's floating-point environment
 .RB ( fenv (3)).
-
+.PP
 The initial value of the new thread's CPU-time clock is 0
 (see
 .BR pthread_getcpuclockid (3)).
@@ -122,18 +124,25 @@ are undefined.
 .SH ERRORS
 .TP
 .B EAGAIN
-Insufficient resources to create another thread,
-or a system-imposed limit on the number of threads was encountered.
-The latter case may occur in two ways:
-the
+Insufficient resources to create another thread.
+.TP
+.B EAGAIN
+.\" NOTE! The following should match the description in fork(2)
+A system-imposed limit on the number of threads was encountered.
+There are a number of limits that may trigger this error: the
 .BR RLIMIT_NPROC
 soft resource limit (set via
 .BR setrlimit (2)),
-which limits the number of process for a real user ID,
+which limits the number of processes and threads for a real user ID,
 was reached;
-or the kernel's system-wide limit on the number of threads,
-.IR /proc/sys/kernel/threads-max ,
-was reached.
+the kernel's system-wide limit on the number of processes and threads,
+.IR /proc/sys/kernel/threads\-max ,
+was reached (see
+.BR proc (5));
+or the maximum number of PIDs,
+.IR /proc/sys/kernel/pid_max ,
+was reached (see
+.BR proc (5)).
 .TP
 .B EINVAL
 Invalid settings in
@@ -143,8 +152,25 @@ Invalid settings in
 .B EPERM
 No permission to set the scheduling policy and parameters specified in
 .IR attr .
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR pthread_create ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008.
 .SH NOTES
 See
 .BR pthread_self (3)
@@ -157,7 +183,7 @@ after a call to
 .BR pthread_create (),
 it is indeterminate which thread\(emthe caller or the new thread\(emwill
 next execute.
-
+.PP
 A thread may either be
 .I joinable
 or
@@ -177,10 +203,7 @@ By default, a new thread is created in a joinable state, unless
 .I attr
 was set to create the thread in a detached state (using
 .BR pthread_attr_setdetachstate (3)).
-
-.\" FIXME . Perhaps some of the following detail should be in
-.\" a future pthread_attr_setstacksize(3) page.
-On Linux/x86-32, the default stack size for a new thread is 2 megabytes.
+.PP
 Under the NPTL threading implementation, if the
 .BR RLIMIT_STACK
 soft resource limit
@@ -193,24 +216,44 @@ the stack size attribute can be explicitly set in the
 .I attr
 argument used to create a thread,
 in order to obtain a stack size other than the default.
+If the
+.BR RLIMIT_STACK
+resource limit is set to "unlimited",
+a per-architecture value is used for the stack size.
+Here is the value for a few architectures:
+.RS
+.TS
+allbox;
+lb lb
+l r.
+Architecture	Default stack size
+i386	2 MB
+IA-64	32 MB
+PowerPC	4 MB
+S/390	2 MB
+Sparc-32	2 MB
+Sparc-64	4 MB
+x86_64	2 MB
+.TE
+.RE
 .SH BUGS
 In the obsolete LinuxThreads implementation,
 each of the threads in a process has a different process ID.
 This is in violation of the POSIX threads specification,
 and is the source of many other nonconformances to the standard; see
 .BR pthreads (7).
-.SH EXAMPLE
+.SH EXAMPLES
 The program below demonstrates the use of
 .BR pthread_create (),
 as well as a number of other functions in the pthreads API.
-
+.PP
 In the following run,
 on a system providing the NPTL threading implementation,
 the stack size defaults to the value given by the
 "stack size" resource limit:
-
+.PP
 .in +4n
-.nf
+.EX
 .RB "$" " ulimit \-s"
 8192            # The stack size limit is 8 MB (0x800000 bytes)
 .RB "$" " ./a.out hola salut servus"
@@ -220,15 +263,15 @@ Thread 3: top of stack near 0xb6dce3b8; argv_string=servus
 Joined with thread 1; returned value was HOLA
 Joined with thread 2; returned value was SALUT
 Joined with thread 3; returned value was SERVUS
-.fi
+.EE
 .in
-
-In the next run, the program explicitly sets a stack size of 1MB (using
+.PP
+In the next run, the program explicitly sets a stack size of 1\ MB (using
 .BR pthread_attr_setstacksize (3))
 for the created threads:
-
+.PP
 .in +4n
-.nf
+.EX
 .RB "$" " ./a.out \-s 0x100000 hola salut servus"
 Thread 1: top of stack near 0xb7d723b8; argv_string=hola
 Thread 2: top of stack near 0xb7c713b8; argv_string=salut
@@ -236,11 +279,11 @@ Thread 3: top of stack near 0xb7b703b8; argv_string=servus
 Joined with thread 1; returned value was HOLA
 Joined with thread 2; returned value was SALUT
 Joined with thread 3; returned value was SERVUS
-.fi
+.EE
 .in
 .SS Program source
 \&
-.nf
+.EX
 #include <pthread.h>
 #include <string.h>
 #include <stdio.h>
@@ -249,10 +292,10 @@ Joined with thread 3; returned value was SERVUS
 #include <errno.h>
 #include <ctype.h>
 
-#define handle_error_en(en, msg) \\
+#define handle_error_en(en, msg) \e
         do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
 
-#define handle_error(msg) \\
+#define handle_error(msg) \e
         do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
 struct thread_info {    /* Used as argument to thread_start() */
@@ -262,22 +305,22 @@ struct thread_info {    /* Used as argument to thread_start() */
 };
 
 /* Thread start function: display address near top of our stack,
-   and return upper\-cased copy of argv_string */
+   and return upper\-cased copy of argv_string. */
 
 static void *
 thread_start(void *arg)
 {
     struct thread_info *tinfo = arg;
-    char *uargv, *p;
+    char *uargv;
 
-    printf("Thread %d: top of stack near %p; argv_string=%s\\n",
-            tinfo\->thread_num, &p, tinfo\->argv_string);
+    printf("Thread %d: top of stack near %p; argv_string=%s\en",
+            tinfo\->thread_num, (void *) &tinfo, tinfo\->argv_string);
 
     uargv = strdup(tinfo\->argv_string);
     if (uargv == NULL)
         handle_error("strdup");
 
-    for (p = uargv; *p != \(aq\\0\(aq; p++)
+    for (char *p = uargv; *p != \(aq\e0\(aq; p++)
         *p = toupper(*p);
 
     return uargv;
@@ -286,13 +329,12 @@ thread_start(void *arg)
 int
 main(int argc, char *argv[])
 {
-    int s, tnum, opt, num_threads;
-    struct thread_info *tinfo;
+    int s, opt, num_threads;
     pthread_attr_t attr;
-    int stack_size;
+    ssize_t stack_size;
     void *res;
 
-    /* The "\-s" option specifies a stack size for our threads */
+    /* The "\-s" option specifies a stack size for our threads. */
 
     stack_size = \-1;
     while ((opt = getopt(argc, argv, "s:")) != \-1) {
@@ -302,7 +344,7 @@ main(int argc, char *argv[])
             break;
 
         default:
-            fprintf(stderr, "Usage: %s [\-s stack-size] arg...\\n",
+            fprintf(stderr, "Usage: %s [\-s stack\-size] arg...\en",
                     argv[0]);
             exit(EXIT_FAILURE);
         }
@@ -310,7 +352,7 @@ main(int argc, char *argv[])
 
     num_threads = argc \- optind;
 
-    /* Initialize thread creation attributes */
+    /* Initialize thread creation attributes. */
 
     s = pthread_attr_init(&attr);
     if (s != 0)
@@ -322,20 +364,20 @@ main(int argc, char *argv[])
             handle_error_en(s, "pthread_attr_setstacksize");
     }
 
-    /* Allocate memory for pthread_create() arguments */
+    /* Allocate memory for pthread_create() arguments. */
 
-    tinfo = calloc(num_threads, sizeof(struct thread_info));
+    struct thread_info *tinfo = calloc(num_threads, sizeof(*tinfo));
     if (tinfo == NULL)
         handle_error("calloc");
 
-    /* Create one thread for each command\-line argument */
+    /* Create one thread for each command\-line argument. */
 
-    for (tnum = 0; tnum < num_threads; tnum++) {
+    for (int tnum = 0; tnum < num_threads; tnum++) {
         tinfo[tnum].thread_num = tnum + 1;
         tinfo[tnum].argv_string = argv[optind + tnum];
 
         /* The pthread_create() call stores the thread ID into
-           corresponding element of tinfo[] */
+           corresponding element of tinfo[]. */
 
         s = pthread_create(&tinfo[tnum].thread_id, &attr,
                            &thread_start, &tinfo[tnum]);
@@ -344,20 +386,20 @@ main(int argc, char *argv[])
     }
 
     /* Destroy the thread attributes object, since it is no
-       longer needed */
+       longer needed. */
 
     s = pthread_attr_destroy(&attr);
     if (s != 0)
         handle_error_en(s, "pthread_attr_destroy");
 
-    /* Now join with each thread, and display its returned value */
+    /* Now join with each thread, and display its returned value. */
 
-    for (tnum = 0; tnum < num_threads; tnum++) {
+    for (int tnum = 0; tnum < num_threads; tnum++) {
         s = pthread_join(tinfo[tnum].thread_id, &res);
         if (s != 0)
             handle_error_en(s, "pthread_join");
 
-        printf("Joined with thread %d; returned value was %s\\n",
+        printf("Joined with thread %d; returned value was %s\en",
                 tinfo[tnum].thread_num, (char *) res);
         free(res);      /* Free memory allocated by thread */
     }
@@ -365,7 +407,7 @@ main(int argc, char *argv[])
     free(tinfo);
     exit(EXIT_SUCCESS);
 }
-.fi
+.EE
 .SH SEE ALSO
 .ad l
 .nh
@@ -378,4 +420,5 @@ main(int argc, char *argv[])
 .BR pthread_getattr_np (3),
 .BR pthread_join (3),
 .BR pthread_self (3),
+.BR pthread_setattr_default_np (3),
 .BR pthreads (7)

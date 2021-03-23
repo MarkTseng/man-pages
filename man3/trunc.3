@@ -22,49 +22,41 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH TRUNC 3  2013-06-21 "" "Linux Programmer's Manual"
+.TH TRUNC 3  2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
 trunc, truncf, truncl \- round to integer, toward zero
 .SH SYNOPSIS
 .nf
 .B #include <math.h>
-.sp
+.PP
 .BI "double trunc(double " x );
-.br
 .BI "float truncf(float " x );
-.br
 .BI "long double truncl(long double " x );
 .fi
-.sp
+.PP
 Link with \fI\-lm\fP.
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
-.ad l
+.RE
+.PP
 .BR trunc (),
 .BR truncf (),
 .BR truncl ():
-.RS 4
-_XOPEN_SOURCE\ >=\ 600 || _ISOC99_SOURCE ||
-_POSIX_C_SOURCE\ >=\ 200112L;
-.br
-or
-.I cc\ -std=c99
-.RE
-.ad
+.nf
+    _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L
+.fi
 .SH DESCRIPTION
 These functions round
 .I x
-to the nearest integer
-not larger in absolute value.
+to the nearest integer value that is not larger in magnitude than
+.IR x .
 .SH RETURN VALUE
-These functions return the rounded integer value.
-
+These functions return the rounded integer value, in floating format.
+.PP
 If
-.IR x
+.I x
 is integral, infinite, or NaN,
 .I x
 itself is returned.
@@ -73,15 +65,26 @@ No errors occur.
 .SH VERSIONS
 These functions first appeared in glibc in version 2.1.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR trunc (),
 .BR truncf (),
-and
 .BR truncl ()
-functions are thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99, POSIX.1-2001.
+C99, POSIX.1-2001, POSIX.1-2008.
 .SH NOTES
 The integral value returned by these functions may be too large
 to store in an integer type

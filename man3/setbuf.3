@@ -45,48 +45,50 @@
 .\" Correction,  2000-03-03, Andreas Jaeger <aj@suse.de>
 .\" Added return value for setvbuf, aeb,
 .\"
-.TH SETBUF 3  2014-02-18 "Linux" "Linux Programmer's Manual"
+.TH SETBUF 3  2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 setbuf, setbuffer, setlinebuf, setvbuf \- stream buffering operations
 .SH SYNOPSIS
 .nf
 .B #include <stdio.h>
-
-.BI "void setbuf(FILE *" stream ", char *" buf );
-
-.BI "void setbuffer(FILE *" stream ", char *" buf ", size_t "  size );
-
+.PP
+.BI "int setvbuf(FILE *restrict " stream ", char *restrict " buf ,
+.BI "            int " mode ", size_t " size );
+.PP
+.BI "void setbuf(FILE *restrict " stream ", char *restrict " buf );
+.BI "void setbuffer(FILE *restrict " stream ", char *restrict " buf ,
+.BI "            size_t "  size );
 .BI "void setlinebuf(FILE *" stream );
-
-.BI "int setvbuf(FILE *" stream ", char *" buf ", int " mode \
-", size_t " size );
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
+.PP
 .BR setbuffer (),
 .BR setlinebuf ():
-_BSD_SOURCE
+.nf
+    Since glibc 2.19:
+        _DEFAULT_SOURCE
+    Glibc 2.19 and earlier:
+        _BSD_SOURCE
+.fi
 .SH DESCRIPTION
 The three types of buffering available are unbuffered, block buffered, and
 line buffered.
 When an output stream is unbuffered, information appears on
 the destination file or terminal as soon as written; when it is block
-buffered many characters are saved up and written as a block; when it is
-line buffered characters are saved up until a newline is output or input is
+buffered, many characters are saved up and written as a block; when it is
+line buffered, characters are saved up until a newline is output or input is
 read from any stream attached to a terminal device (typically \fIstdin\fP).
 The function
 .BR fflush (3)
 may be used to force the block out early.
 (See
 .BR fclose (3).)
+.PP
 Normally all files are block buffered.
-When the first I/O operation occurs on a file,
-.BR malloc (3)
-is called, and a buffer is obtained.
 If a stream refers to a terminal (as
 .I stdout
 normally does), it is line buffered.
@@ -159,42 +161,68 @@ is invalid or the request cannot be honored).
 It may set
 .I errno
 on failure.
-
+.PP
 The other functions do not return a value.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR setbuf (),
 .BR setbuffer (),
 .BR setlinebuf (),
-and
 .BR setvbuf ()
-functions are thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 The
 .BR setbuf ()
 and
 .BR setvbuf ()
 functions conform to C89 and C99.
-.SH BUGS
-The
-.BR setbuffer ()
-and
-.BR setlinebuf ()
-functions are not portable to versions of BSD before 4.2BSD, and
-are available under Linux since libc 4.5.21.
-On 4.2BSD and 4.3BSD systems,
+.SH NOTES
+POSIX notes
+.\" https://www.austingroupbugs.net/view.php?id=397#c799
+.\" 0000397: setbuf and errno
+that the value of
+.I errno
+is unspecified after a call to
 .BR setbuf ()
-always uses a suboptimal buffer size and should be avoided.
-.P
+and further notes that, since the value of
+.I errno
+is not required to be unchanged after a successful call to
+.BR setbuf (),
+applications should instead use
+.BR setvbuf ()
+in order to detect errors.
+.SH BUGS
+.\" The
+.\" .BR setbuffer ()
+.\" and
+.\" .BR setlinebuf ()
+.\" functions are not portable to versions of BSD before 4.2BSD, and
+.\" are available under Linux since libc 4.5.21.
+.\" On 4.2BSD and 4.3BSD systems,
+.\" .BR setbuf ()
+.\" always uses a suboptimal buffer size and should be avoided.
+.\".PP
 You must make sure that the space that
 .I buf
 points to still exists by the time
 .I stream
 is closed, which also happens at program termination.
 For example, the following is invalid:
-.nf
-.sp
+.PP
+.EX
 #include <stdio.h>
 
 int
@@ -202,11 +230,12 @@ main(void)
 {
     char buf[BUFSIZ];
     setbuf(stdin, buf);
-    printf("Hello, world!\\n");
+    printf("Hello, world!\en");
     return 0;
 }
-.fi
+.EE
 .SH SEE ALSO
+.BR stdbuf (1),
 .BR fclose (3),
 .BR fflush (3),
 .BR fopen (3),

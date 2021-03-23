@@ -7,22 +7,23 @@
 .\" Heavily based on glibc infopages, copyright Free Software Foundation
 .\"
 .\" aeb, 2003, polished a little
-.TH MEMPCPY 3 2014-03-18 "GNU" "Linux Programmer's Manual"
+.TH MEMPCPY 3 2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 mempcpy, wmempcpy  \- copy memory area
 .SH SYNOPSIS
 .nf
 .BR "#define _GNU_SOURCE" "         /* See feature_test_macros(7) */"
-.br
 .B #include <string.h>
-.sp
-.BI "void *mempcpy(void *" dest ", const void *" src ", size_t " n );
-.sp
+.PP
+.BI "void *mempcpy(void *restrict " dest ", const void *restrict " src \
+", size_t " n );
+.PP
 .BR "#define _GNU_SOURCE" "         /* See feature_test_macros(7) */"
-.br
 .B #include <wchar.h>
-.sp
-.BI "wchar_t *wmempcpy(wchar_t *" dest ", const wchar_t *" src ", size_t " n );
+.PP
+.BI "wchar_t *wmempcpy(wchar_t *restrict " dest \
+", const wchar_t *restrict " src ,
+.BI "                  size_t " n );
 .fi
 .SH DESCRIPTION
 The
@@ -58,16 +59,27 @@ wide characters.
 .BR mempcpy ()
 first appeared in glibc in version 2.1.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
-.BR mempcpy ()
-and
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR mempcpy (),
 .BR wmempcpy ()
-functions are thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 This function is a GNU extension.
-.SH EXAMPLE
-.nf
+.SH EXAMPLES
+.EX
 void *
 combine(void *o1, size_t s1, void *o2, size_t s2)
 {
@@ -76,7 +88,7 @@ combine(void *o1, size_t s1, void *o2, size_t s2)
         mempcpy(mempcpy(result, o1, s1), o2, s2);
     return result;
 }
-.fi
+.EE
 .SH SEE ALSO
 .BR memccpy (3),
 .BR memcpy (3),

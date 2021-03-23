@@ -31,22 +31,20 @@
 .\" Modified Mon Apr 22 01:50:54 1996 by Martin Schulze <joey@infodrom.north.de>
 .\" 2001-07-25 added a clause about NULL proto (Martin Michlmayr or David N. Welton)
 .\"
-.TH GETSERVENT 3  2008-08-19 "GNU" "Linux Programmer's Manual"
+.TH GETSERVENT 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 getservent, getservbyname, getservbyport, setservent, endservent \-
 get service entry
 .SH SYNOPSIS
 .nf
 .B #include <netdb.h>
-.sp
+.PP
 .B struct servent *getservent(void);
-.sp
+.PP
 .BI "struct servent *getservbyname(const char *" name ", const char *" proto );
-.sp
 .BI "struct servent *getservbyport(int " port ", const char *" proto );
-.sp
+.PP
 .BI "void setservent(int " stayopen );
-.sp
 .B void endservent(void);
 .fi
 .SH DESCRIPTION
@@ -112,16 +110,16 @@ The
 structure is defined in
 .I <netdb.h>
 as follows:
-.sp
+.PP
 .in +4n
-.nf
+.EX
 struct servent {
     char  *s_name;       /* official service name */
     char **s_aliases;    /* alias list */
     int    s_port;       /* port number */
     char  *s_proto;      /* protocol to use */
 }
-.fi
+.EE
 .in
 .PP
 The members of the
@@ -142,7 +140,7 @@ The name of the protocol to use with this service.
 .SH RETURN VALUE
 The
 .BR getservent (),
-.BR getservbyname ()
+.BR getservbyname (),
 and
 .BR getservbyport ()
 functions return a pointer to a
@@ -154,8 +152,58 @@ error occurs or the end of the file is reached.
 .TP
 .I /etc/services
 services database file
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lb lb lbx
+l l l.
+Interface	Attribute	Value
+T{
+.BR getservent ()
+T}	Thread safety	T{
+MT-Unsafe race:servent
+race:serventbuf locale
+T}
+T{
+.BR getservbyname ()
+T}	Thread safety	T{
+MT-Unsafe race:servbyname
+locale
+T}
+T{
+.BR getservbyport ()
+T}	Thread safety	T{
+MT-Unsafe race:servbyport
+locale
+T}
+T{
+.BR setservent (),
+.BR endservent ()
+T}	Thread safety	T{
+MT-Unsafe race:servent
+locale
+T}
+.TE
+.hy
+.ad
+.sp 1
+In the above table,
+.I servent
+in
+.I race:servent
+signifies that if any of the functions
+.BR setservent (),
+.BR getservent (),
+or
+.BR endservent ()
+are used in parallel in different threads of a program,
+then data races could occur.
 .SH CONFORMING TO
-4.3BSD, POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008, 4.3BSD.
 .SH SEE ALSO
 .BR getnetent (3),
 .BR getprotoent (3),

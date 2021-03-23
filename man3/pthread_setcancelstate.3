@@ -23,17 +23,17 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH PTHREAD_SETCANCELSTATE 3 2008-11-24 "Linux" "Linux Programmer's Manual"
+.TH PTHREAD_SETCANCELSTATE 3 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 pthread_setcancelstate, pthread_setcanceltype \-
 set cancelability state and type
 .SH SYNOPSIS
 .nf
 .B #include <pthread.h>
-
+.PP
 .BI "int pthread_setcancelstate(int " state ", int *" oldstate );
 .BI "int pthread_setcanceltype(int " type ", int *" oldtype );
-.sp
+.PP
 Compile and link with \fI\-pthread\fP.
 .fi
 .SH DESCRIPTION
@@ -79,6 +79,11 @@ a function that is a cancellation point (see
 .BR pthreads (7)).
 This is the default cancelability type in all new threads,
 including the initial thread.
+.IP
+Even with deferred cancellation, a
+cancellation point in an asynchronous signal handler may still
+be acted upon and the effect is as if it was an asynchronous
+cancellation.
 .TP
 .B PTHREAD_CANCEL_ASYNCHRONOUS
 The thread can be canceled at any time.
@@ -110,19 +115,46 @@ Invalid value for
 .IR type .
 .\" .SH VERSIONS
 .\" Available since glibc 2.0
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR pthread_setcancelstate (),
+.BR pthread_setcanceltype ()
+T}	Thread safety	T{
+MT-Safe
+T}
+T{
+.BR pthread_setcancelstate (),
+.BR pthread_setcanceltype ()
+T}	Async-cancel safety	T{
+AC-Safe
+T}
+.TE
+.hy
+.ad
+.sp 1
+.hy
 .SH CONFORMING TO
-POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008.
 .SH NOTES
 For details of what happens when a thread is canceled, see
 .BR pthread_cancel (3).
-
+.PP
 Briefly disabling cancelability is useful
 if a thread performs some critical action
 that must not be interrupted by a cancellation request.
 Beware of disabling cancelability for long periods,
 or around operations that may block for long periods,
 since that will render the thread unresponsive to cancellation requests.
-
+.SS Asynchronous cancelability
 Setting the cancelability type to
 .B PTHREAD_CANCEL_ASYNCHRONOUS
 is rarely useful.
@@ -141,9 +173,10 @@ Furthermore, some internal data structures
 family of functions) may be left in an inconsistent state
 if cancellation occurs in the middle of the function call.
 Consequently, clean-up handlers cease to be useful.
+.PP
 Functions that can be safely asynchronously canceled are called
 .IR "async-cancel-safe functions" .
-POSIX.1-2001 requires only that
+POSIX.1-2001 and POSIX.1-2008 require only that
 .BR pthread_cancel (3),
 .BR pthread_setcancelstate (),
 and
@@ -151,9 +184,10 @@ and
 be async-cancel-safe.
 In general, other library functions
 can't be safely called from an asynchronously cancelable thread.
+.PP
 One of the few circumstances in which asynchronous cancelability is useful
 is for cancellation of a thread that is in a pure compute-bound loop.
-
+.SS Portability notes
 The Linux threading implementations permit the
 .I oldstate
 argument of
@@ -164,14 +198,14 @@ Many other implementations also permit a NULL
 .I oldstat
 argument,
 .\" It looks like at least Solaris, FreeBSD and Tru64 support this.
-but POSIX.1-2001 does not specify this point,
+but POSIX.1 does not specify this point,
 so portable applications should always specify a non-NULL value in
 .IR oldstate .
 A precisely analogous set of statements applies for the
 .I oldtype
 argument of
 .BR pthread_setcanceltype ().
-.SH EXAMPLE
+.SH EXAMPLES
 See
 .BR pthread_cancel (3).
 .SH SEE ALSO

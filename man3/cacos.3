@@ -1,44 +1,61 @@
 .\" Copyright 2002 Walter Harms (walter.harms@informatik.uni-oldenburg.de)
-.\" and Copyright (C) 2011 Michael Kerrisk <mtk.manpages@gamil.com>
+.\" and Copyright (C) 2011 Michael Kerrisk <mtk.manpages@gmail.com>
 .\"
 .\" %%%LICENSE_START(GPL_NOVERSION_ONELINE)
 .\" Distributed under GPL
 .\" %%%LICENSE_END
 .\"
-.TH CACOS 3 2011-09-15 "" "Linux Programmer's Manual"
+.TH CACOS 3 2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
 cacos, cacosf, cacosl \- complex arc cosine
 .SH SYNOPSIS
+.nf
 .B #include <complex.h>
-.sp
+.PP
 .BI "double complex cacos(double complex " z );
-.br
 .BI "float complex cacosf(float complex " z );
-.br
 .BI "long double complex cacosl(long double complex " z );
-.sp
+.PP
 Link with \fI\-lm\fP.
+.fi
 .SH DESCRIPTION
-The
-.BR cacos ()
-function calculates the complex arc cosine of
+These functions calculate the complex arc cosine of
 .IR z .
 If \fIy\ =\ cacos(z)\fP, then \fIz\ =\ ccos(y)\fP.
 The real part of
 .I y
 is chosen in the interval [0,pi].
-.LP
+.PP
 One has:
+.PP
 .nf
-
     cacos(z) = \-i * clog(z + i * csqrt(1 \- z * z))
 .fi
 .SH VERSIONS
 These functions first appeared in glibc in version 2.1.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR cacos (),
+.BR cacosf (),
+.BR cacosl ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99.
-.SH EXAMPLE
-.nf
+C99, POSIX.1-2001, POSIX.1-2008.
+.SH EXAMPLES
+.EX
 /* Link with "\-lm" */
 
 #include <complex.h>
@@ -53,7 +70,7 @@ main(int argc, char *argv[])
     double complex i = I;
 
     if (argc != 3) {
-        fprintf(stderr, "Usage: %s <real> <imag>\\n", argv[0]);
+        fprintf(stderr, "Usage: %s <real> <imag>\en", argv[0]);
         exit(EXIT_FAILURE);
     }
 
@@ -61,15 +78,15 @@ main(int argc, char *argv[])
 
     c = cacos(z);
 
-    printf("cacos() = %6.3f %6.3f*i\\n", creal(c), cimag(c));
+    printf("cacos() = %6.3f %6.3f*i\en", creal(c), cimag(c));
 
     f = \-i * clog(z + i * csqrt(1 \- z * z));
 
-    printf("formula = %6.3f %6.3f*i\\n", creal(f), cimag(f));
+    printf("formula = %6.3f %6.3f*i\en", creal(f), cimag(f));
 
     exit(EXIT_SUCCESS);
 }
-.fi
+.EE
 .SH SEE ALSO
 .BR ccos (3),
 .BR clog (3),

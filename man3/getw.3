@@ -22,40 +22,32 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH GETW 3  2010-09-26 "GNU" "Linux Programmer's Manual"
+.TH GETW 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 getw, putw \- input and output of words (ints)
 .SH SYNOPSIS
 .nf
 .B #include <stdio.h>
-.sp
+.PP
 .BI "int getw(FILE *" stream );
-
 .BI "int putw(int " w ", FILE *" stream );
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
+.PP
 .BR getw (),
 .BR putw ():
-.ad l
-.PD 0
-.RS 4
-.TP 4
-Since glibc 2.3.3:
-_SVID_SOURCE || _BSD_SOURCE ||
-.br
-(_XOPEN_SOURCE &&
-    !(_POSIX_C_SOURCE\ >=\ 200112L || _XOPEN_SOURCE\ >=\ 600))
-.TP
-Before glibc 2.3.3:
-_SVID_SOURCE || _BSD_SOURCE || _XOPEN_SOURCE
-.RE
-.PD
-.ad
+.nf
+    Since glibc 2.3.3:
+        _XOPEN_SOURCE && ! (_POSIX_C_SOURCE >= 200112L)
+            || /* Glibc since 2.19: */ _DEFAULT_SOURCE
+            || /* Glibc <= 2.19: */ _BSD_SOURCE || _SVID_SOURCE
+    Before glibc 2.3.3:
+        _SVID_SOURCE || _BSD_SOURCE || _XOPEN_SOURCE
+.fi
 .SH DESCRIPTION
 .BR getw ()
 reads a word (that is, an \fIint\fP) from \fIstream\fP.
@@ -63,7 +55,7 @@ It's provided for compatibility with SVr4.
 We recommend you use
 .BR fread (3)
 instead.
-.P
+.PP
 .BR putw ()
 writes the word \fIw\fP (that is,
 an \fIint\fP) to \fIstream\fP.
@@ -77,9 +69,27 @@ returns the word read, and
 .BR putw ()
 returns 0.
 On error, they return \fBEOF\fP.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR getw (),
+.BR putw ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 SVr4, SUSv2.
-Not present in POSIX.1-2001.
+Not present in POSIX.1.
 .SH BUGS
 The value returned on error is also a legitimate data value.
 .BR ferror (3)

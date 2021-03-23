@@ -27,7 +27,7 @@
 .\"     Lewine's _POSIX Programmer's Guide_ (O'Reilly & Associates, 1991)
 .\"     386BSD man pages
 .\" Modified Sat Jul 24 18:43:46 1993 by Rik Faith (faith@cs.unc.edu)
-.TH PUTPWENT 3  2013-04-19 "GNU" "Linux Programmer's Manual"
+.TH PUTPWENT 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 putpwent \- write a password file entry
 .SH SYNOPSIS
@@ -35,17 +35,23 @@ putpwent \- write a password file entry
 .B #include <stdio.h>
 .B #include <sys/types.h>
 .B #include <pwd.h>
-.sp
-.BI "int putpwent(const struct passwd *" p ", FILE *" stream );
+.PP
+.BI "int putpwent(const struct passwd *restrict " p \
+", FILE *restrict " stream );
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
+.PP
 .BR putpwent ():
-_SVID_SOURCE
+.nf
+    Since glibc 2.19:
+        _DEFAULT_SOURCE
+    Glibc 2.19 and earlier:
+        _SVID_SOURCE
+.fi
 .SH DESCRIPTION
 The
 .BR putpwent ()
@@ -53,9 +59,9 @@ function writes a password entry from the
 structure \fIp\fP in the file associated with \fIstream\fP.
 .PP
 The \fIpasswd\fP structure is defined in \fI<pwd.h>\fP as follows:
-.sp
+.PP
 .in +4n
-.nf
+.EX
 struct passwd {
     char    *pw_name;        /* username */
     char    *pw_passwd;      /* user password */
@@ -65,20 +71,36 @@ struct passwd {
     char    *pw_dir;         /* home directory */
     char    *pw_shell;       /* shell program */
 };
-.fi
+.EE
 .in
 .SH RETURN VALUE
 The
 .BR putpwent ()
-function returns 0 on success, or \-1 if an error
-occurs.
-In the event of an error,
+function returns 0 on success.
+On failure, it returns \-1, and
 .I errno
-is set to indicate the cause.
+is set to indicate the error.
 .SH ERRORS
 .TP
 .B EINVAL
 Invalid (NULL) argument given.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR putpwent ()
+T}	Thread safety	MT-Safe locale
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 SVr4.
 .SH SEE ALSO

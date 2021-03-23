@@ -22,36 +22,31 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH GETPAGESIZE 2 2010-11-16 "Linux" "Linux Programmer's Manual"
+.TH GETPAGESIZE 2 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 getpagesize \- get memory page size
 .SH SYNOPSIS
+.nf
 .B #include <unistd.h>
-.sp
+.PP
 .B int getpagesize(void);
-.sp
-.in -4n
+.fi
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
-.BR getpagesize ():
-.ad l
-.RS 4
-.PD 0
-.TP 4
-Since glibc 2.12:
-.nf
-_BSD_SOURCE ||
-    !(_POSIX_C_SOURCE\ >=\ 200112L || _XOPEN_SOURCE\ >=\ 600)
-.TP 4
-.fi
-Before glibc 2.12:
-_BSD_SOURCE || _XOPEN_SOURCE\ >=\ 500 ||
-_XOPEN_SOURCE\ &&\ _XOPEN_SOURCE_EXTENDED
-.PD
 .RE
-.ad b
+.PP
+.BR getpagesize ():
+.nf
+    Since glibc 2.20:
+        _DEFAULT_SOURCE || ! (_POSIX_C_SOURCE >= 200112L)
+    Glibc 2.12 to 2.19:
+        _BSD_SOURCE || ! (_POSIX_C_SOURCE >= 200112L)
+    Before glibc 2.12:
+        _BSD_SOURCE || _XOPEN_SOURCE >= 500
+.\"        || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED
+.fi
 .SH DESCRIPTION
 The function
 .BR getpagesize ()
@@ -75,17 +70,17 @@ instead of
 .BR getpagesize ():
 .PP
 .in +4n
-.nf
+.EX
 #include <unistd.h>
 long sz = sysconf(_SC_PAGESIZE);
-.fi
+.EE
 .in
-
+.PP
 (Most systems allow the synonym
 .B _SC_PAGE_SIZE
 for
 .BR _SC_PAGESIZE .)
-
+.PP
 Whether
 .BR getpagesize ()
 is present as a Linux system call depends on the architecture.
@@ -101,7 +96,7 @@ should not find
 at compile time from a header file,
 but use an actual system call, at least for those architectures
 (like sun4) where this dependency exists.
-Here libc4, libc5, glibc 2.0 fail because their
+Here glibc 2.0 fails because its
 .BR getpagesize ()
 returns a statically derived value, and does not use a system call.
 Things are OK in glibc 2.1.

@@ -22,34 +22,30 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH PREAD 2 2013-06-21 "Linux" "Linux Programmer's Manual"
+.TH PREAD 2 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 pread, pwrite \- read from or write to a file descriptor at a given offset
 .SH SYNOPSIS
+.nf
 .B #include <unistd.h>
-.sp
+.PP
 .BI "ssize_t pread(int " fd ", void *" buf ", size_t " count \
 ", off_t " offset );
-.sp
 .BI "ssize_t pwrite(int " fd ", const void *" buf ", size_t " count \
 ", off_t " offset );
-.sp
-.in -4n
+.fi
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.PD 0
-.ad l
-.sp
+.RE
+.PP
 .BR pread (),
 .BR pwrite ():
-.RS 4
-_XOPEN_SOURCE\ >=\ 500
-.br
-|| /* Since glibc 2.12: */ _POSIX_C_SOURCE\ >=\ 200809L
-.RE
-.ad
-.PD
+.nf
+    _XOPEN_SOURCE >= 500
+        || /* Since glibc 2.12: */ _POSIX_C_SOURCE >= 200809L
+.fi
 .SH DESCRIPTION
 .BR pread ()
 reads up to
@@ -77,13 +73,21 @@ The file referenced by
 .I fd
 must be capable of seeking.
 .SH RETURN VALUE
-On success, the number of bytes read or written is returned (zero
-indicates that nothing was written, in the case of
-.BR pwrite (),
-or
-end of file, in the case of
-.BR pread ()),
-or \-1 on error, in which case
+On success,
+.BR pread ()
+returns the number of bytes read
+(a return of zero indicates end of file)
+and
+.BR pwrite ()
+returns the number of bytes written.
+.PP
+Note that it is not an error for a successful call to transfer fewer bytes
+than requested (see
+.BR read (2)
+and
+.BR write (2)).
+.PP
+On error, \-1 is returned and
 .I errno
 is set to indicate the error.
 .SH ERRORS
@@ -113,7 +117,7 @@ C library support (including emulation using
 .BR lseek (2)
 on older kernels without the system calls) was added in glibc 2.1.
 .SH CONFORMING TO
-POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008.
 .SH NOTES
 The
 .BR pread ()
@@ -122,7 +126,8 @@ and
 system calls are especially useful in multithreaded applications.
 They allow multiple threads to perform I/O on the same file descriptor
 without being affected by changes to the file offset by other threads.
-
+.\"
+.SS C library/kernel differences
 On Linux, the underlying system calls were renamed
 in kernel 2.6:
 .BR pread ()
@@ -138,7 +143,7 @@ The glibc
 and
 .BR pwrite ()
 wrapper functions transparently deal with the change.
-
+.PP
 On some 32-bit architectures,
 the calling signature for these system calls differ,
 for the reasons described in
@@ -146,11 +151,11 @@ for the reasons described in
 .SH BUGS
 POSIX requires that opening a file with the
 .BR O_APPEND
-flag should have no affect on the location at which
+flag should have no effect on the location at which
 .BR pwrite ()
 writes data.
 However, on Linux, if a file is opened with
-.\" FIXME https://bugzilla.kernel.org/show_bug.cgi?id=43178
+.\" FIXME . https://bugzilla.kernel.org/show_bug.cgi?id=43178
 .BR O_APPEND ,
 .BR pwrite ()
 appends data to the end of the file, regardless of the value of

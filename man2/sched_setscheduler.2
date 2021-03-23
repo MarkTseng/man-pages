@@ -23,20 +23,17 @@
 .\" %%%LICENSE_END
 .\"
 .\"
-.TH SCHED_SETSCHEDULER 2 2014-04-28 "Linux" "Linux Programmer's Manual"
+.TH SCHED_SETSCHEDULER 2 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 sched_setscheduler, sched_getscheduler \-
 set and get scheduling policy/parameters
 .SH SYNOPSIS
 .nf
 .B #include <sched.h>
-.sp
+.PP
 .BI "int sched_setscheduler(pid_t " pid ", int " policy ,
-.br
 .BI "                       const struct sched_param *" param );
-.sp
 .BI "int sched_getscheduler(pid_t " pid );
-.sp
 .fi
 .SH DESCRIPTION
 The
@@ -46,27 +43,27 @@ sets both the scheduling policy and parameters for the
 thread whose ID is specified in \fIpid\fP.
 If \fIpid\fP equals zero, the
 scheduling policy and parameters of the calling thread will be set.
-
+.PP
 The scheduling parameters are specified in the
 .I param
 argument, which is a pointer to a structure of the following form:
-
-.nf
+.PP
 .in +4n
+.EX
 struct sched_param {
     ...
     int sched_priority;
     ...
 };
+.EE
 .in
-.fi
-
+.PP
 In the current implementation, the structure contains only one field,
 .IR sched_priority .
 The interpretation of
 .I param
 depends on the selected policy.
-
+.PP
 Currently, Linux supports the following "normal"
 (i.e., non-real-time) scheduling policies as values that may be specified in
 .IR policy :
@@ -87,7 +84,7 @@ low priority background jobs.
 For each of the above policies,
 .IR param\->sched_priority
 must be 0.
-
+.PP
 Various "real-time" policies are also supported,
 for special time-critical applications that need precise control over
 the way in which runnable threads are selected for execution.
@@ -106,14 +103,14 @@ a round-robin policy.
 For each of the above policies,
 .IR param\->sched_priority
 specifies a scheduling priority for the thread.
-This is a number on the range returned by calling
+This is a number in the range returned by calling
 .BR sched_get_priority_min (2)
 and
-.BR sched_get_priority_min (2)
+.BR sched_get_priority_max (2)
 with the specified
 .IR policy .
 On Linux, these system calls return, respectively, 1 and 99.
-
+.PP
 Since Linux 2.6.32, the
 .B SCHED_RESET_ON_FORK
 flag can be ORed in
@@ -126,7 +123,7 @@ do not inherit privileged scheduling policies.
 See
 .BR sched (7)
 for details.
-
+.PP
 .BR sched_getscheduler ()
 returns the current scheduling policy of the thread
 identified by \fIpid\fP.
@@ -141,13 +138,26 @@ On success,
 returns the policy for the thread (a nonnegative integer).
 On error, both calls return \-1, and
 .I errno
-is set appropriately.
+is set to indicate the error.
 .SH ERRORS
 .TP
 .B EINVAL
-The scheduling \fIpolicy\fP is not one of the recognized policies,
-\fIparam\fP is NULL,
-or \fIparam\fP does not make sense for the \fIpolicy\fP.
+Invalid arguments:
+.I pid
+is negative or
+.I param
+is NULL.
+.TP
+.B EINVAL
+.RB ( sched_setscheduler ())
+.I policy
+is not one of the recognized policies.
+.TP
+.B EINVAL
+.RB ( sched_setscheduler ())
+.I param
+does not make sense for the specified
+.IR policy .
 .TP
 .B EPERM
 The calling thread does not have appropriate privileges.
@@ -155,13 +165,18 @@ The calling thread does not have appropriate privileges.
 .B ESRCH
 The thread whose ID is \fIpid\fP could not be found.
 .SH CONFORMING TO
-POSIX.1-2001 (but see BUGS below).
+POSIX.1-2001, POSIX.1-2008 (but see BUGS below).
 The \fBSCHED_BATCH\fP and \fBSCHED_IDLE\fP policies are Linux-specific.
 .SH NOTES
 Further details of the semantics of all of the above "normal"
-and "real-time" scheduling policies can be found in
-.BR sched (7).
-
+and "real-time" scheduling policies can be found in the
+.BR sched (7)
+manual page.
+That page also describes an additional policy,
+.BR SCHED_DEADLINE ,
+which is settable only via
+.BR sched_setattr (2).
+.PP
 POSIX systems on which
 .BR sched_setscheduler ()
 and
@@ -169,7 +184,7 @@ and
 are available define
 .B _POSIX_PRIORITY_SCHEDULING
 in \fI<unistd.h>\fP.
-
+.PP
 POSIX.1 does not detail the permissions that an unprivileged
 thread requires in order to call
 .BR sched_setscheduler (),
@@ -186,10 +201,10 @@ can be passed in the argument
 .IR pid .
 Specifying
 .I pid
-as 0 will operate on the attribute for the calling thread,
+as 0 will operate on the attributes of the calling thread,
 and passing the value returned from a call to
 .BR getpid (2)
-will operate on the attribute for the main thread of the thread group.
+will operate on the attributes of the main thread of the thread group.
 (If you are using the POSIX threads API, then use
 .BR pthread_setschedparam (3),
 .BR pthread_getschedparam (3),
@@ -199,7 +214,7 @@ instead of the
 .BR sched_* (2)
 system calls.)
 .SH BUGS
-POSIX says that on success,
+POSIX.1 says that on success,
 .BR sched_setscheduler ()
 should return the previous scheduling policy.
 Linux
@@ -209,6 +224,7 @@ since it always returns 0 on success.
 .SH SEE ALSO
 .ad l
 .nh
+.BR chrt (1),
 .BR nice (2),
 .BR sched_get_priority_max (2),
 .BR sched_get_priority_min (2),

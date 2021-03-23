@@ -13,13 +13,13 @@
 .\"   OpenGroup's Single UNIX specification http://www.UNIX-systems.org/online.html
 .\"   ISO/IEC 9899:1999
 .\"
-.TH UNGETWC 3  2013-12-09 "GNU" "Linux Programmer's Manual"
+.TH UNGETWC 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 ungetwc \- push back a wide character onto a FILE stream
 .SH SYNOPSIS
 .nf
 .B #include <wchar.h>
-.sp
+.PP
 .BI "wint_t ungetwc(wint_t " wc ", FILE *" stream );
 .fi
 .SH DESCRIPTION
@@ -42,7 +42,7 @@ If
 .I wc
 is an invalid wide character,
 it sets
-.IR errno
+.I errno
 to
 .B EILSEQ
 and returns
@@ -69,18 +69,30 @@ level of push-back is guaranteed.
 The
 .BR ungetwc ()
 function returns
-.IR wc
+.I wc
 when successful, or
 .B WEOF
 upon
 failure.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR ungetwc ()
-function is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99.
+POSIX.1-2001, POSIX.1-2008, C99.
 .SH NOTES
 The behavior of
 .BR ungetwc ()

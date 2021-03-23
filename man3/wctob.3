@@ -13,13 +13,13 @@
 .\"   OpenGroup's Single UNIX specification http://www.UNIX-systems.org/online.html
 .\"   ISO/IEC 9899:1999
 .\"
-.TH WCTOB 3 2011-09-22 "GNU" "Linux Programmer's Manual"
+.TH WCTOB 3 2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 wctob \- try to represent a wide character as a single byte
 .SH SYNOPSIS
 .nf
 .B #include <wchar.h>
-.sp
+.PP
 .BI "int wctob(wint_t " c );
 .fi
 .SH DESCRIPTION
@@ -44,11 +44,28 @@ The
 .BR wctob ()
 function returns the single-byte representation of
 .IR c ,
-if it exists, of
+if it exists, or
 .B EOF
 otherwise.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR wctob ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99.
+POSIX.1-2001, POSIX.1-2008, C99.
 .SH NOTES
 The behavior of
 .BR wctob ()

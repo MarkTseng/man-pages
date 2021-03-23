@@ -10,13 +10,13 @@
 .\" 2005-06-16 mtk, mentioned freopen()
 .\" 2007-12-08, mtk, Converted from mdoc to man macros
 .\"
-.TH STDIN 3 2008-07-14 "Linux" "Linux Programmer's Manual"
+.TH STDIN 3 2017-09-15 "Linux" "Linux Programmer's Manual"
 .SH NAME
 stdin, stdout, stderr \- standard I/O streams
 .SH SYNOPSIS
 .nf
 .B #include <stdio.h>
-
+.PP
 .BI "extern FILE *" stdin ;
 .BI "extern FILE *" stdout ;
 .BI "extern FILE *" stderr ;
@@ -27,7 +27,7 @@ for it when it starts up, one for input, one for output, and one for
 printing diagnostic or error messages.
 These are typically attached to
 the user's terminal (see
-.BR tty (4)
+.BR tty (4))
 but might instead refer to files or other devices, depending on what
 the parent process chose to set up.
 (See also the "Redirection" section of
@@ -42,7 +42,7 @@ used to refer to these files, namely
 .IR stdout ,
 and
 .IR stderr .
-
+.PP
 Each of these symbols is a
 .BR stdio (3)
 macro of type pointer to

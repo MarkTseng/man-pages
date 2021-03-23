@@ -24,24 +24,19 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH INIT_MODULE 2 2014-05-10 "Linux" "Linux Programmer's Manual"
+.TH INIT_MODULE 2 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 init_module, finit_module \- load a kernel module
 .SH SYNOPSIS
 .nf
 .BI "int init_module(void *" module_image ", unsigned long " len ,
 .BI "                const char *" param_values );
-
 .BI "int finit_module(int " fd ", const char *" param_values ,
 .BI "                 int " flags );
 .fi
-
+.PP
 .IR Note :
-glibc provides no header file declaration of
-.BR init_module ()
-and no wrapper function for
-.BR finit_module ();
-see NOTES.
+There are no glibc wrappers for these system calls; see NOTES.
 .SH DESCRIPTION
 .BR init_module ()
 loads an ELF image into kernel space,
@@ -51,7 +46,7 @@ and then runs the module's
 .I init
 function.
 This system call requires privilege.
-
+.PP
 The
 .I module_image
 argument points to a buffer containing the binary image
@@ -59,7 +54,7 @@ to be loaded;
 .I len
 specifies the size of that buffer.
 The module image should be a valid ELF image, built for the running kernel.
-
+.PP
 The
 .I param_values
 argument is a string containing space-delimited specifications of the
@@ -70,12 +65,12 @@ and
 The kernel parses this string and initializes the specified
 parameters.
 Each of the parameter specifications has the form:
-
+.PP
 .RI "        " name [\c
 .BI = value\c
 .RB [ ,\c
 .IR value ...]]
-
+.PP
 The parameter
 .I name
 is one of those defined within the module using
@@ -108,7 +103,7 @@ The
 .I param_values
 argument is as for
 .BR init_module ().
-
+.PP
 The
 .I flags
 argument modifies the operation of
@@ -140,7 +135,7 @@ for the function named by the symbol.
 In this case, the kernel version number within the
 "vermagic" string is ignored,
 as the symbol version hashes are assumed to be sufficiently reliable.
-
+.PP
 Using the
 .B MODULE_INIT_IGNORE_VERMAGIC
 flag indicates that the "vermagic" string is to be ignored, and the
@@ -148,14 +143,14 @@ flag indicates that the "vermagic" string is to be ignored, and the
 flag indicates that the symbol version hashes are to be ignored.
 If the kernel is built to permit forced loading (i.e., configured with
 .BR CONFIG_MODULE_FORCE_LOAD ),
-then loading will continue, otherwise it will fail with
+then loading continues, otherwise it fails with the error
 .B ENOEXEC
 as expected for malformed modules.
 .SH RETURN VALUE
 On success, these system calls return 0.
 On error, \-1 is returned and
 .I errno
-is set appropriately.
+is set to indicate the error.
 .SH ERRORS
 .TP
 .BR EBADMSG " (since Linux 3.7)"
@@ -265,36 +260,36 @@ are Linux-specific.
 The
 .BR init_module ()
 system call is not supported by glibc.
-No declaration is provided in glibc headers, but,
-through a quirk of history, glibc does export an ABI for this system call.
+No declaration is provided in glibc headers, but, through a quirk of history,
+glibc versions before 2.23 did export an ABI for this system call.
 Therefore, in order to employ this system call,
-it is sufficient to manually declare the interface in your code;
+it is (before glibc 2.23) sufficient to
+manually declare the interface in your code;
 alternatively, you can invoke the system call using
 .BR syscall (2).
-
+.PP
 Glibc does not provide a wrapper for
 .BR finit_module ();
 call it using
 .BR syscall (2).
-
+.PP
 Information about currently loaded modules can be found in
 .IR /proc/modules
 and in the file trees under the per-module subdirectories under
 .IR /sys/module .
-
+.PP
 See the Linux kernel source file
 .I include/linux/module.h
 for some useful background information.
 .SS Linux 2.4 and earlier
-.PP
 In Linux 2.4 and earlier, the
 .BR init_module ()
 system call was rather different:
-
+.PP
 .B "    #include <linux/module.h>"
-
+.PP
 .BI "    int init_module(const char *" name ", struct module *" image );
-
+.PP
 (User-space applications can detect which version of
 .BR init_module ()
 is available by calling
@@ -302,7 +297,7 @@ is available by calling
 the latter call fails with the error
 .BR ENOSYS
 on Linux 2.6 and later.)
-
+.PP
 The older version of the system call
 loads the relocated module image pointed to by
 .I image
@@ -319,7 +314,7 @@ code and data as appropriate.
 Since Linux 2.2, the module structure is defined as follows:
 .PP
 .in +4n
-.nf
+.EX
 struct module {
     unsigned long         size_of_struct;
     struct module        *next;
@@ -340,7 +335,7 @@ struct module {
     unsigned long gp;
 #endif
 };
-.fi
+.EE
 .in
 .PP
 All of the pointer fields, with the exception of

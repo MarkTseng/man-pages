@@ -23,15 +23,15 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH PTHREAD_EXIT 3 2009-03-30 "Linux" "Linux Programmer's Manual"
+.TH PTHREAD_EXIT 3 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 pthread_exit \- terminate calling thread
 .SH SYNOPSIS
 .nf
 .B #include <pthread.h>
-
-.BI "void pthread_exit(void *" retval );
-.sp
+.PP
+.BI "noreturn void pthread_exit(void *" retval );
+.PP
 Compile and link with \fI\-pthread\fP.
 .fi
 .SH DESCRIPTION
@@ -42,7 +42,7 @@ function terminates the calling thread and returns a value via
 that (if the thread is joinable)
 is available to another thread in the same process that calls
 .BR pthread_join (3).
-
+.PP
 Any clean-up handlers established by
 .BR pthread_cleanup_push (3)
 that have not yet been popped,
@@ -52,14 +52,14 @@ If the thread has any thread-specific data, then,
 after the clean-up handlers have been executed,
 the corresponding destructor functions are called,
 in an unspecified order.
-
+.PP
 When a thread terminates,
 process-shared resources (e.g., mutexes, condition variables,
 semaphores, and file descriptors) are not released,
 and functions registered using
 .BR atexit (3)
 are not called.
-
+.PP
 After the last thread in a process terminates,
 the process terminates as by calling
 .BR exit (3)
@@ -72,20 +72,37 @@ are called.
 This function does not return to the caller.
 .SH ERRORS
 This function always succeeds.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR pthread_exit ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008.
 .SH NOTES
 Performing a return from the start function of any thread other
 than the main thread results in an implicit call to
 .BR pthread_exit (),
 using the function's return value as the thread's exit status.
-
+.PP
 To allow other threads to continue execution,
 the main thread should terminate by calling
 .BR pthread_exit ()
 rather than
 .BR exit (3).
-
+.PP
 The value pointed to by
 .IR retval
 should not be located on the calling thread's stack,

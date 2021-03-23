@@ -22,13 +22,15 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH MALLOC_USABLE_SIZE 3  2012-03-29 "GNU" "Linux Programmer's Manual"
+.TH MALLOC_USABLE_SIZE 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 malloc_usable_size \- obtain size of block of memory allocated from heap
 .SH SYNOPSIS
+.nf
 .B #include <malloc.h>
-
+.PP
 .BI "size_t malloc_usable_size (void *" ptr );
+.fi
 .SH DESCRIPTION
 The
 .BR malloc_usable_size ()
@@ -45,6 +47,23 @@ the block of allocated memory pointed to by
 If
 .I ptr
 is NULL, 0 is returned.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR malloc_usable_size ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 This function is a GNU extension.
 .SH NOTES
@@ -57,7 +76,7 @@ without ill effects,
 this is not good programming practice:
 the number of excess bytes in an allocation depends on
 the underlying implementation.
-
+.PP
 The main use of this function is for debugging and introspection.
 .SH SEE ALSO
 .BR malloc (3)

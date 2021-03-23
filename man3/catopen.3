@@ -25,15 +25,16 @@
 .\" Modified Thu Dec 13 22:51:19 2001 by Martin Schulze <joey@infodrom.org>
 .\" Modified 2001-12-14 aeb
 .\"
-.TH CATOPEN 3 2001-12-14 "GNU" "Linux Programmer's Manual"
+.TH CATOPEN 3 2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 catopen, catclose \- open/close a message catalog
 .SH SYNOPSIS
+.nf
 .B #include <nl_types.h>
-.sp
+.PP
 .BI "nl_catd catopen(const char *" name ", int " flag );
-
 .BI "int catclose(nl_catd " catalog );
+.fi
 .SH DESCRIPTION
 The function
 .BR catopen ()
@@ -46,7 +47,7 @@ If a file descriptor is used to implement catalog descriptors,
 then the
 .B FD_CLOEXEC
 flag will be set.
-.LP
+.PP
 The argument
 .I name
 specifies the name of the message catalog to be opened.
@@ -88,7 +89,7 @@ Changing the
 .B LC_MESSAGES
 part of the locale may invalidate
 open catalog descriptors.
-.LP
+.PP
 The
 .I flag
 argument to
@@ -101,7 +102,7 @@ then it will use the current locale setting for
 Otherwise, it will use the
 .B LANG
 environment variable.
-.LP
+.PP
 The function
 .BR catclose ()
 closes the message catalog identified by
@@ -124,7 +125,7 @@ The possible error values include all
 possible values for the
 .BR open (2)
 call.
-.LP
+.PP
 The function
 .BR catclose ()
 returns 0 on success, or \-1 on failure.
@@ -143,50 +144,71 @@ is set to
 The language to use if
 .I flag
 is 0.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR catopen ()
+T}	Thread safety	MT-Safe env
+T{
+.BR catclose ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008.
 .\" In XPG 1987, Vol. 3 it says:
 .\" .I "The flag argument of catopen is reserved for future use"
 .\" .IR "and should be set to 0" .
-It is unclear what the source was for the constants
-.B MCLoadBySet
-and
-.B MCLoadAll
-(see below).
+.\"
+.\" It is unclear what the source was for the constants
+.\" .B MCLoadBySet
+.\" and
+.\" .B MCLoadAll
+.\" (see below).
 .SH NOTES
-The above is the POSIX.1-2001 description.
+The above is the POSIX.1 description.
 The glibc value for
 .B NL_CAT_LOCALE
 is 1.
-(Compare
-.B MCLoadAll
-below.)
+.\" (Compare
+.\" .B MCLoadAll
+.\" below.)
 The default path varies, but usually looks at a number of places below
 .IR /usr/share/locale .
-.SS Linux notes
-These functions are available for Linux since libc 4.4.4c.
-In the case of linux libc4 and libc5, the catalog descriptor
-.I nl_catd
-is a
-.BR mmap (2)'ed
-area of memory and not a file descriptor.
-The
-.I flag
-argument to
-.BR catopen ()
-should be either
-.B MCLoadBySet
-(=0) or
-.B MCLoadAll
-(=1).
-The former value indicates that a set from the catalog is to be
-loaded when needed, whereas the latter causes the initial call to
-.BR catopen ()
-to load the entire catalog into memory.
-The default search path varies, but usually looks at a number of places below
-.I /etc/locale
-and
-.IR /usr/lib/locale .
+.\" .SS Linux notes
+.\" These functions are available for Linux since libc 4.4.4c.
+.\" In the case of linux libc4 and libc5, the catalog descriptor
+.\" .I nl_catd
+.\" is a
+.\" .BR mmap (2)'ed
+.\" area of memory and not a file descriptor.
+.\" The
+.\" .I flag
+.\" argument to
+.\" .BR catopen ()
+.\" should be either
+.\" .B MCLoadBySet
+.\" (=0) or
+.\" .B MCLoadAll
+.\" (=1).
+.\" The former value indicates that a set from the catalog is to be
+.\" loaded when needed, whereas the latter causes the initial call to
+.\" .BR catopen ()
+.\" to load the entire catalog into memory.
+.\" The default search path varies, but usually looks at a number of places below
+.\" .I /etc/locale
+.\" and
+.\" .IR /usr/lib/locale .
 .SH SEE ALSO
 .BR catgets (3),
 .BR setlocale (3)

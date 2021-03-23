@@ -21,20 +21,18 @@
 .\" <http://www.gnu.org/licenses/>.
 .\" %%%LICENSE_END
 .\"
-.TH WCSTOIMAX 3 2014-01-22 "" "Linux Programmer's Manual"
+.TH WCSTOIMAX 3 2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
 wcstoimax, wcstoumax \- convert wide-character string to integer
 .SH SYNOPSIS
 .nf
 .B #include <stddef.h>
-.br
 .B #include <inttypes.h>
-.sp
-.BI "intmax_t wcstoimax(const wchar_t *" nptr ", wchar_t **" endptr \
-", int " base );
-.br
-.BI "uintmax_t wcstoumax(const wchar_t *" nptr ", wchar_t **" endptr \
-", int " base );
+.PP
+.BI "intmax_t wcstoimax(const wchar_t *restrict " nptr ,
+.BI "                   wchar_t **restrict " endptr ", int " base );
+.BI "uintmax_t wcstoumax(const wchar_t *restrict " nptr ,
+.BI "                   wchar_t **restrict " endptr ", int " base );
 .fi
 .SH DESCRIPTION
 These functions are just like
@@ -47,18 +45,25 @@ and
 .IR uintmax_t ,
 respectively.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
-.BR wcstoimax ()
-and
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR wcstoimax (),
 .BR wcstoumax ()
-functions are thread-safe with exceptions.
-These functions can be safely used in multithreaded applications,
-as long as
-.BR setlocale (3)
-is not called to change the locale during their execution.
+T}	Thread safety	MT-Safe locale
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99.
+POSIX.1-2001, POSIX.1-2008, C99.
 .SH SEE ALSO
 .BR imaxabs (3),
 .BR imaxdiv (3),

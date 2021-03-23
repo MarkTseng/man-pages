@@ -27,28 +27,30 @@
 .\" 2006-02-08 Various additions by mtk
 .\" 2006-11-26 cleanup, cover the generic rtc framework; David Brownell
 .\"
-.TH RTC 4 2010-02-25 "Linux" "Linux Programmer's Manual"
+.TH RTC 4 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 rtc \- real-time clock
 .SH SYNOPSIS
+.nf
 #include <linux/rtc.h>
-.sp
+.PP
 .BI "int ioctl(" fd ", RTC_" request ", " param ");"
+.fi
 .SH DESCRIPTION
 This is the interface to drivers for real-time clocks (RTCs).
-
+.PP
 Most computers have one or more hardware clocks which record the
 current "wall clock" time.
 These are called "Real Time Clocks" (RTCs).
 One of these usually has battery backup power so that it tracks the time
 even while the computer is turned off.
 RTCs often provide alarms and other interrupts.
-
+.PP
 All i386 PCs, and ACPI-based systems, have an RTC that is compatible with
 the Motorola MC146818 chip on the original PC/AT.
 Today such an RTC is usually integrated into the mainboard's chipset
 (south bridge), and uses a replaceable coin-sized backup battery.
-
+.PP
 Non-PC systems, such as embedded systems built around system-on-chip
 processors, use other implementations.
 They usually won't offer the same functionality as the RTC from a PC/AT.
@@ -64,7 +66,7 @@ defined to be the POSIX Epoch: 1970-01-01 00:00:00 +0000 (UTC).
 (One common implementation counts timer interrupts, once
 per "jiffy", at a frequency of 100, 250, or 1000 Hz.)
 That is, it is supposed to report wall clock time, which RTCs also do.
-
+.PP
 A key difference between an RTC and the system clock is that RTCs
 run even when the system is in a low power state (including "off"),
 and the system clock can't.
@@ -77,8 +79,10 @@ maybe across the network or by entering that data manually.
 .SS RTC functionality
 RTCs can be read and written with
 .BR hwclock (8),
-or directly with the ioctl requests listed below.
-
+or directly with the
+.BR ioctl (2)
+requests listed below.
+.PP
 Besides tracking the date and time, many RTCs can also generate
 interrupts
 .IP * 3
@@ -97,7 +101,7 @@ Hibernation (called S4 in ACPI systems),
 or even "off" (called S5 in ACPI systems).
 On some systems, the battery backed RTC can't issue
 interrupts, but another one can.
-
+.PP
 The
 .I /dev/rtc
 (or
@@ -126,7 +130,7 @@ requests are defined on file descriptors connected to RTC devices:
 Returns this RTC's time in the following structure:
 .IP
 .in +4n
-.nf
+.EX
 struct rtc_time {
     int tm_sec;
     int tm_min;
@@ -138,7 +142,7 @@ struct rtc_time {
     int tm_yday;     /* unused */
     int tm_isdst;    /* unused */
 };
-.fi
+.EE
 .in
 .IP
 The fields in this structure have the same meaning and ranges as for the
@@ -196,7 +200,7 @@ in the range 2 to 8192.
 Only a privileged process (i.e., one having the
 .B CAP_SYS_RESOURCE
 capability) can set frequencies above the value specified in
-.IR /proc/sys/dev/rtc/max-user-freq .
+.IR /proc/sys/dev/rtc/max\-user\-freq .
 (This file contains the value 64 by default.)
 .TP
 .BR RTC_AIE_ON ", " RTC_AIE_OFF
@@ -222,7 +226,7 @@ Only a privileged process (i.e., one having the
 .B CAP_SYS_RESOURCE
 capability) can enable the periodic interrupt if the frequency is
 currently set above the value specified in
-.IR /proc/sys/dev/rtc/max-user-freq .
+.IR /proc/sys/dev/rtc/max\-user\-freq .
 .TP
 .BR RTC_EPOCH_READ ", " RTC_EPOCH_SET
 Many RTCs encode the year in an 8-bit register which is either
@@ -238,9 +242,9 @@ these operations can be used to read or to set the RTC's Epoch,
 respectively.
 The third
 .BR ioctl (2)
-argument is a
+argument is an
 .I "unsigned long\ *"
-or a
+or an
 .IR "unsigned long" ,
 respectively, and the value returned (or assigned) is the Epoch.
 To set the RTC's Epoch the process must be privileged (i.e., have the
@@ -253,13 +257,13 @@ to read or write the RTC's alarm time (respectively) with this structure:
 .PP
 .RS
 .in +4n
-.nf
+.EX
 struct rtc_wkalrm {
     unsigned char enabled;
     unsigned char pending;
     struct rtc_time time;
 };
-.fi
+.EE
 .in
 .RE
 .IP
@@ -292,12 +296,11 @@ A pointer to this structure should be passed as the third
 .BR ioctl (2)
 argument.
 .SH FILES
-.IR /dev/rtc ", "
-.IR /dev/rtc0 ", "
-.IR /dev/rtc1 ", "
-etc: RTC special character device files.
-
-.IR /proc/driver/rtc :
+.TP
+.IR /dev/rtc ", " /dev/rtc0 ", " /dev/rtc1 ", etc."
+RTC special character device files.
+.TP
+.IR /proc/driver/rtc
 status of the (first) RTC.
 .SH NOTES
 When the kernel's system time is synchronized with an external
@@ -306,21 +309,21 @@ reference using
 it will update a designated RTC periodically every 11 minutes.
 To do so, the kernel has to briefly turn off periodic interrupts;
 this might affect programs using that RTC.
-
+.PP
 An RTC's Epoch has nothing to do with the POSIX Epoch which is
 used only for the system clock.
-
+.PP
 If the year according to the RTC's Epoch and the year register is
 less than 1970 it is assumed to be 100 years later, that is, between 2000
 and 2069.
-
+.PP
 Some RTCs support "wildcard" values in alarm fields, to support
 scenarios like periodic alarms at fifteen minutes after every hour,
 or on the first day of each month.
 Such usage is nonportable;
-portable user-space code only expects a single alarm interrupt, and
+portable user-space code expects only a single alarm interrupt, and
 will either disable or reinitialize the alarm after receiving it.
-
+.PP
 Some RTCs support periodic interrupts with periods that are multiples
 of a second rather than fractions of a second;
 multiple alarms;
@@ -338,6 +341,6 @@ capabilities that are not currently exposed by this API.
 .BR gmtime (3),
 .BR time (7),
 .BR hwclock (8)
-
+.PP
 .I Documentation/rtc.txt
 in the Linux kernel source tree

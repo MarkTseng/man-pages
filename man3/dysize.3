@@ -23,36 +23,59 @@
 .\" %%%LICENSE_END
 .\"
 .\" aeb: some corrections
-.TH DYSIZE 3 2013-09-25 "GNU" "Linux Programmer's Manual"
+.TH DYSIZE 3 2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 dysize \- get number of days for a given year
 .SH SYNOPSIS
+.nf
 .B "#include <time.h>"
-.sp
+.PP
 .BI "int dysize(int " year );
-.sp
-.in -4n
+.fi
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
+.PP
 .BR dysize ():
-_BSD_SOURCE || _SVID_SOURCE
+.nf
+    Since glibc 2.19:
+        _DEFAULT_SOURCE
+    Glibc 2.19 and earlier:
+        _BSD_SOURCE || _SVID_SOURCE
+.fi
 .SH DESCRIPTION
 The function returns 365 for a normal year and 366 for a leap year.
 The calculation for leap year is based on:
-.sp
+.PP
+.in +4n
+.EX
 (year) %4 == 0 && ((year) %100 != 0 || (year) %400 == 0)
-.sp
+.EE
+.in
+.PP
 The formula is defined in the macro
 .I __isleap(year)
 also found in
 .IR <time.h> .
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR dysize ()
-function is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 This function occurs in SunOS 4.x.
 .SH NOTES

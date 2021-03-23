@@ -8,31 +8,27 @@
 .\"
 .\" Based on glibc infopages, copyright Free Software Foundation
 .\"
-.TH SIGNBIT 3 2013-07-04 "GNU" "Linux Programmer's Manual"
+.TH SIGNBIT 3 2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 signbit \- test sign of a real floating-point number
 .SH SYNOPSIS
+.nf
 .B "#include <math.h>"
-.sp
+.PP
 .BI  "int signbit(" x ");"
-.sp
+.fi
+.PP
 Link with \fI\-lm\fP.
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
-.ad l
-.BR signbit ():
-.RS 4
-_XOPEN_SOURCE\ >=\ 600 || _ISOC99_SOURCE ||
-_POSIX_C_SOURCE\ >=\ 200112L;
-.br
-or
-.I cc\ -std=c99
 .RE
-.ad
+.PP
+.BR signbit ():
+.nf
+    _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L
+.fi
 .SH DESCRIPTION
 .BR signbit ()
 is a generic macro which can work on all real floating-point types.
@@ -44,11 +40,11 @@ This is not the same as
 .IR "x < 0.0" ,
 because IEEE 754 floating point allows zero to be signed.
 The comparison
-.IR "-0.0 < 0.0"
+.IR "\-0.0 < 0.0"
 is false, but
 .IR "signbit(\-0.0)"
 will return a nonzero value.
-
+.PP
 NaNs and infinities have a sign bit.
 .SH RETURN VALUE
 The
@@ -59,12 +55,24 @@ is negative; otherwise it returns zero.
 .SH ERRORS
 No errors occur.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR signbit ()
-macro is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99, POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008, C99.
 This function is defined in IEC 559 (and the appendix with
 recommended functions in IEEE 754/IEEE 854).
 .SH SEE ALSO

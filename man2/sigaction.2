@@ -1,4 +1,3 @@
-'\" t
 .\" Copyright (c) 1994,1995 Mike Battersby <mib@deakin.edu.au>
 .\" and Copyright 2004, 2005 Michael Kerrisk <mtk.manpages@gmail.com>
 .\" based on work by faith@cs.unc.edu
@@ -43,30 +42,34 @@
 .\"	out of this page into separate pages.
 .\" 2010-06-11 Andi Kleen, add hwpoison signal extensions
 .\" 2010-06-11 mtk, improvements to discussion of various siginfo_t fields.
+.\" 2015-01-17, Kees Cook <keescook@chromium.org>
+.\"	Added notes on ptrace SIGTRAP and SYS_SECCOMP.
 .\"
-.TH SIGACTION 2 2014-04-27 "Linux" "Linux Programmer's Manual"
+.TH SIGACTION 2 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
-sigaction \- examine and change a signal action
+sigaction, rt_sigaction \- examine and change a signal action
 .SH SYNOPSIS
 .nf
 .B #include <signal.h>
-.sp
-.BI "int sigaction(int " signum ", const struct sigaction *" act ,
-.BI "              struct sigaction *" oldact );
+.PP
+.BI "int sigaction(int " signum ", const struct sigaction *restrict " act ,
+.BI "              struct sigaction *restrict " oldact );
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
-.ad l
+.RE
+.PP
 .BR sigaction ():
-_POSIX_C_SOURCE\ >=\ 1 || _XOPEN_SOURCE || _POSIX_SOURCE
-
+.nf
+    _POSIX_C_SOURCE
+.fi
+.PP
 .IR siginfo_t :
-_POSIX_C_SOURCE >= 199309L
-.ad b
+.nf
+    _POSIX_C_SOURCE >= 199309L
+.fi
 .SH DESCRIPTION
 The
 .BR sigaction ()
@@ -96,9 +99,9 @@ is non-NULL, the previous action is saved in
 The
 .I sigaction
 structure is defined as something like:
-.sp
+.PP
 .in +4n
-.nf
+.EX
 struct sigaction {
     void     (*sa_handler)(int);
     void     (*sa_sigaction)(int, siginfo_t *, void *);
@@ -106,7 +109,7 @@ struct sigaction {
     int        sa_flags;
     void     (*sa_restorer)(void);
 };
-.fi
+.EE
 .in
 .PP
 On some architectures a union is involved: do not assign to both
@@ -116,19 +119,25 @@ and
 .PP
 The
 .I sa_restorer
-element is obsolete and should not be used.
-POSIX does not specify a
+field is not intended for application use.
+(POSIX does not specify a
 .I sa_restorer
-element.
+field.)
+Some further details of the purpose of this field can be found in
+.BR sigreturn (2).
 .PP
 .I sa_handler
 specifies the action to be associated with
 .I signum
-and may be
+and is be one of the following:
+.IP * 2
 .B SIG_DFL
-for the default action,
+for the default action.
+.IP *
 .B SIG_IGN
-to ignore this signal, or a pointer to a signal handling function.
+to ignore this signal.
+.IP *
+A pointer to a signal handling function.
 This function receives the signal number as its only argument.
 .PP
 If
@@ -141,17 +150,7 @@ then
 .IR sa_handler )
 specifies the signal-handling function for
 .IR signum .
-This function receives the signal number as its first argument, a
-pointer to a
-.I siginfo_t
-as its second argument and a pointer to a
-.I ucontext_t
-(cast to \fIvoid\ *\fP) as its third argument.
-(Commonly, the handler function doesn't make any use of the third argument.
-See
-.BR getcontext (3)
-for further information about
-.IR ucontext_t .)
+This function receives three arguments, as described below.
 .PP
 .I sa_mask
 specifies a mask of signals which should be blocked
@@ -166,7 +165,6 @@ flag is used.
 .I sa_flags
 specifies a set of flags which modify the behavior of the signal.
 It is formed by the bitwise OR of zero or more of the following:
-.RS 4
 .TP
 .B SA_NOCLDSTOP
 If
@@ -175,7 +173,7 @@ is
 .BR SIGCHLD ,
 do not receive notification when child processes stop (i.e., when they
 receive one of
-.BR SIGSTOP ", " SIGTSTP ", " SIGTTIN ", "
+.BR SIGSTOP ", " SIGTSTP ", " SIGTTIN ,
 or
 .BR SIGTTOU )
 or resume (i.e., they receive
@@ -198,7 +196,7 @@ This flag is meaningful only when establishing a handler for
 .BR SIGCHLD ,
 or when setting that signal's disposition to
 .BR SIG_DFL .
-
+.IP
 If the
 .B SA_NOCLDWAIT
 flag is set when establishing a handler for
@@ -212,9 +210,13 @@ signal is generated in this case;
 on some other implementations, it is not.
 .TP
 .B SA_NODEFER
-Do not prevent the signal from being received from within its own signal
-handler.
+Do not add the signal to the thread's signal mask while the
+handler is executing, unless the signal is specified in
+.IR act.sa_mask .
+Consequently, a further instance of the signal may be delivered
+to the thread while it is executing the handler.
 This flag is meaningful only when establishing a signal handler.
+.IP
 .B SA_NOMASK
 is an obsolete, nonstandard synonym for this flag.
 .TP
@@ -227,6 +229,7 @@ This flag is meaningful only when establishing a signal handler.
 .BR SA_RESETHAND
 Restore the signal action to the default upon entry to the signal handler.
 This flag is meaningful only when establishing a signal handler.
+.IP
 .B SA_ONESHOT
 is an obsolete, nonstandard synonym for this flag.
 .TP
@@ -238,6 +241,15 @@ See
 .BR signal (7)
 for a discussion of system call restarting.
 .TP
+.BR SA_RESTORER
+.IR "Not intended for application use" .
+This flag is used by C libraries to indicate that the
+.IR sa_restorer
+field contains the address of a "signal trampoline".
+See
+.BR sigreturn (2)
+for more details.
+.TP
 .BR SA_SIGINFO " (since Linux 2.2)"
 The signal handler takes three arguments, not one.
 In this case,
@@ -248,47 +260,105 @@ This flag is meaningful only when establishing a signal handler.
 .\" (The
 .\" .I sa_sigaction
 .\" field was added in Linux 2.1.86.)
-.RE
+.\"
+.SS The siginfo_t argument to a SA_SIGINFO handler
+When the
+.B SA_SIGINFO
+flag is specified in
+.IR act.sa_flags ,
+the signal handler address is passed via the
+.IR act.sa_sigaction
+field.
+This handler takes three arguments, as follows:
+.PP
+.in +4n
+.EX
+void
+handler(int sig, siginfo_t *info, void *ucontext)
+{
+    ...
+}
+.EE
+.in
+.PP
+These three arguments are as follows
+.TP
+.I sig
+The number of the signal that caused invocation of the handler.
+.TP
+.I info
+A pointer to a
+.IR siginfo_t ,
+which is a structure containing further information about the signal,
+as described below.
+.TP
+.I ucontext
+This is a pointer to a
+.I ucontext_t
+structure, cast to \fIvoid\ *\fP.
+The structure pointed to by this field contains
+signal context information that was saved
+on the user-space stack by the kernel; for details, see
+.BR sigreturn (2).
+Further information about the
+.IR ucontext_t
+structure can be found in
+.BR getcontext (3)
+and
+.BR signal (7).
+Commonly, the handler function doesn't make any use of the third argument.
 .PP
 The
 .I siginfo_t
-argument to
-.I sa_sigaction
-is a struct with the following elements:
-.sp
+data type is a structure with the following fields:
+.PP
 .in +4n
-.nf
+.EX
 siginfo_t {
-    int      si_signo;    /* Signal number */
-    int      si_errno;    /* An errno value */
-    int      si_code;     /* Signal code */
-    int      si_trapno;   /* Trap number that caused
-                             hardware-generated signal
-                             (unused on most architectures) */
+    int      si_signo;     /* Signal number */
+    int      si_errno;     /* An errno value */
+    int      si_code;      /* Signal code */
+    int      si_trapno;    /* Trap number that caused
+                              hardware\-generated signal
+                              (unused on most architectures) */
 .\" FIXME
-.\" si_trapno seems to be only used on SPARC and Alpha;
-.\" this page could use a little more detail on its purpose there.
-    pid_t    si_pid;      /* Sending process ID */
-    uid_t    si_uid;      /* Real user ID of sending process */
-    int      si_status;   /* Exit value or signal */
-    clock_t  si_utime;    /* User time consumed */
-    clock_t  si_stime;    /* System time consumed */
-    sigval_t si_value;    /* Signal value */
-    int      si_int;      /* POSIX.1b signal */
-    void    *si_ptr;      /* POSIX.1b signal */
-    int      si_overrun;  /* Timer overrun count; POSIX.1b timers */
-    int      si_timerid;  /* Timer ID; POSIX.1b timers */
+.\" The siginfo_t 'si_trapno' field seems to be used
+.\" only on SPARC and Alpha; this page could use
+.\" a little more detail on its purpose there.
+    pid_t    si_pid;       /* Sending process ID */
+    uid_t    si_uid;       /* Real user ID of sending process */
+    int      si_status;    /* Exit value or signal */
+    clock_t  si_utime;     /* User time consumed */
+    clock_t  si_stime;     /* System time consumed */
+    union sigval si_value; /* Signal value */
+    int      si_int;       /* POSIX.1b signal */
+    void    *si_ptr;       /* POSIX.1b signal */
+    int      si_overrun;   /* Timer overrun count;
+                              POSIX.1b timers */
+    int      si_timerid;   /* Timer ID; POSIX.1b timers */
 .\" In the kernel: si_tid
-    void    *si_addr;     /* Memory location which caused fault */
-    long     si_band;     /* Band event (was \fIint\fP in
-                             glibc 2.3.2 and earlier) */
-    int      si_fd;       /* File descriptor */
-    short    si_addr_lsb; /* Least significant bit of address
-                             (since Linux 2.6.32) */
+    void    *si_addr;      /* Memory location which caused fault */
+    long     si_band;      /* Band event (was \fIint\fP in
+                              glibc 2.3.2 and earlier) */
+    int      si_fd;        /* File descriptor */
+    short    si_addr_lsb;  /* Least significant bit of address
+                              (since Linux 2.6.32) */
+    void    *si_lower;     /* Lower bound when address violation
+                              occurred (since Linux 3.19) */
+    void    *si_upper;     /* Upper bound when address violation
+                              occurred (since Linux 3.19) */
+    int      si_pkey;      /* Protection key on PTE that caused
+                              fault (since Linux 4.6) */
+    void    *si_call_addr; /* Address of system call instruction
+                              (since Linux 3.5) */
+    int      si_syscall;   /* Number of attempted system call
+                              (since Linux 3.5) */
+    unsigned int si_arch;  /* Architecture of attempted system call
+                              (since Linux 3.5) */
 }
-.fi
+.EE
 .in
-
+.PP
 .IR si_signo ", " si_errno " and " si_code
 are defined for all signals.
 .RI ( si_errno
@@ -379,7 +449,7 @@ of the (configurable) system jiffy (see
 .\" measurement unit was HZ, which was the same as clock ticks
 .\" (sysconf(_SC_CLK_TCK)).  In 2.6, HZ became configurable, and
 .\" was *still* used as the unit to return the info these fields,
-.\" with the result that the field values depended on the the
+.\" with the result that the field values depended on the
 .\" configured HZ.  Of course, the should have been measured in
 .\" USER_HZ instead, so that sysconf(_SC_CLK_TCK) could be used to
 .\" convert to seconds.  I have a queued patch to fix this:
@@ -398,14 +468,11 @@ and
 fill in
 .I si_addr
 with the address of the fault.
-.\" FIXME SIGTRAP also sets the following for ptrace_notify() ?
-.\"     info.si_code = exit_code;
-.\"     info.si_pid = task_pid_vnr(current);
-.\"     info.si_uid = current_uid();  /* Real UID */
 On some architectures,
 these signals also fill in the
 .I si_trapno
 field.
+.IP
 Some suberrors of
 .BR SIGBUS ,
 in particular
@@ -420,10 +487,41 @@ For example, if a full page was corrupted,
 .I si_addr_lsb
 contains
 .IR log2(sysconf(_SC_PAGESIZE)) .
-.B BUS_MCERR_*
+When
+.BR SIGTRAP
+is delivered in response to a
+.BR ptrace (2)
+event (PTRACE_EVENT_foo),
+.I si_addr
+is not populated, but
+.I si_pid
+and
+.I si_uid
+are populated with the respective process ID and user ID responsible for
+delivering the trap.
+In the case of
+.BR seccomp (2),
+the tracee will be shown as delivering the event.
+.B BUS_MCEERR_*
 and
 .I si_addr_lsb
 are Linux-specific extensions.
+.IP
+The
+.BR SEGV_BNDERR
+suberror of
+.B SIGSEGV
+populates
+.IR si_lower
+and
+.IR si_upper .
+.IP
+The
+.BR SEGV_PKUERR
+suberror of
+.B SIGSEGV
+populates
+.IR si_pkey .
 .IP *
 .BR SIGIO / SIGPOLL
 (the two names are synonyms on Linux)
@@ -437,34 +535,101 @@ field by
 .BR poll (2).
 The
 .I si_fd
-field indicates the file descriptor for which the I/O event occurred.
-.PP
+field indicates the file descriptor for which the I/O event occurred;
+for further details, see the description of
+.BR F_SETSIG
+in
+.BR fcntl (2).
+.IP *
+.BR SIGSYS ,
+generated (since Linux 3.5)
+.\" commit a0727e8ce513fe6890416da960181ceb10fbfae6
+when a seccomp filter returns
+.BR SECCOMP_RET_TRAP ,
+fills in
+.IR si_call_addr ,
+.IR si_syscall ,
+.IR si_arch ,
+.IR si_errno ,
+and other fields as described in
+.BR seccomp (2).
+.\"
+.SS
+The si_code field
+The
 .I si_code
-is a value (not a bit mask)
+field inside the
+.I siginfo_t
+argument that is passed to a
+.B SA_SIGINFO
+signal handler is a value (not a bit mask)
 indicating why this signal was sent.
-The following list shows the values which can be placed in
+For a
+.BR ptrace (2)
+event,
 .I si_code
-for any signal, along with reason that the signal was generated.
+will contain
+.BR SIGTRAP
+and have the ptrace event in the high byte:
+.PP
+.in +4n
+.EX
+(SIGTRAP | PTRACE_EVENT_foo << 8).
+.EE
+.in
+.PP
+For a
+.RB non- ptrace (2)
+event, the values that can appear in
+.I si_code
+are described in the remainder of this section.
+Since glibc 2.20,
+the definitions of most of these symbols are obtained from
+.I <signal.h>
+by defining feature test macros (before including
+.I any
+header file) as follows:
+.IP * 3
+.B _XOPEN_SOURCE
+with the value 500 or greater;
+.IP *
+.B _XOPEN_SOURCE
+and
+.BR _XOPEN_SOURCE_EXTENDED ;
+or
+.IP *
+.B _POSIX_C_SOURCE
+with the value 200809L or greater.
+.PP
+For the
+.B TRAP_*
+constants, the symbol definitions are provided only in the first two cases.
+Before glibc 2.20, no feature test macros were required to obtain these symbols.
+.PP
+For a regular signal, the following list shows the values which can be
+placed in
+.I si_code
+for any signal, along with the reason that the signal was generated.
 .RS 4
-.TP 15
+.TP
 .B SI_USER
-.BR kill (2)
+.BR kill (2).
 .TP
 .B SI_KERNEL
 Sent by the kernel.
 .TP
 .B SI_QUEUE
-.BR sigqueue (3)
+.BR sigqueue (3).
 .TP
 .B SI_TIMER
-POSIX timer expired
+POSIX timer expired.
 .TP
-.B SI_MESGQ
-POSIX message queue state changed (since Linux 2.6.6); see
-.BR mq_notify (3)
+.BR SI_MESGQ " (since Linux 2.6.6)"
+POSIX message queue state changed; see
+.BR mq_notify (3).
 .TP
 .B SI_ASYNCIO
-AIO completed
+AIO completed.
 .TP
 .B SI_SIGIO
 Queued
@@ -475,11 +640,10 @@ fills in
 .I si_code
 as described below).
 .TP
-.B SI_TKILL
+.BR SI_TKILL " (since Linux 2.4.19)"
 .BR tkill (2)
 or
-.BR tgkill (2)
-(since Linux 2.4.19)
+.BR tgkill (2).
 .\" SI_DETHREAD is defined in 2.6.9 sources, but isn't implemented
 .\" It appears to have been an idea that was tried during 2.5.6
 .\" through to 2.5.24 and then was backed out.
@@ -491,30 +655,30 @@ for a
 .B SIGILL
 signal:
 .RS 4
-.TP 15
+.TP
 .B ILL_ILLOPC
-illegal opcode
+Illegal opcode.
 .TP
 .B ILL_ILLOPN
-illegal operand
+Illegal operand.
 .TP
 .B ILL_ILLADR
-illegal addressing mode
+Illegal addressing mode.
 .TP
 .B ILL_ILLTRP
-illegal trap
+Illegal trap.
 .TP
 .B ILL_PRVOPC
-privileged opcode
+Privileged opcode.
 .TP
 .B ILL_PRVREG
-privileged register
+Privileged register.
 .TP
 .B ILL_COPROC
-coprocessor error
+Coprocessor error.
 .TP
 .B ILL_BADSTK
-internal stack error
+Internal stack error.
 .RE
 .PP
 The following values can be placed in
@@ -523,30 +687,30 @@ for a
 .B SIGFPE
 signal:
 .RS 4
-.TP 15
+.TP
 .B FPE_INTDIV
-integer divide by zero
+Integer divide by zero.
 .TP
 .B FPE_INTOVF
-integer overflow
+Integer overflow.
 .TP
 .B FPE_FLTDIV
-floating-point divide by zero
+Floating-point divide by zero.
 .TP
 .B FPE_FLTOVF
-floating-point overflow
+Floating-point overflow.
 .TP
 .B FPE_FLTUND
-floating-point underflow
+Floating-point underflow.
 .TP
 .B FPE_FLTRES
-floating-point inexact result
+Floating-point inexact result.
 .TP
 .B FPE_FLTINV
-floating-point invalid operation
+Floating-point invalid operation.
 .TP
 .B FPE_FLTSUB
-subscript out of range
+Subscript out of range.
 .RE
 .PP
 The following values can be placed in
@@ -555,12 +719,24 @@ for a
 .B SIGSEGV
 signal:
 .RS 4
-.TP 15
+.TP
 .B SEGV_MAPERR
-address not mapped to object
+Address not mapped to object.
 .TP
 .B SEGV_ACCERR
-invalid permissions for mapped object
+Invalid permissions for mapped object.
+.TP
+.BR SEGV_BNDERR " (since Linux 3.19)"
+.\" commit ee1b58d36aa1b5a79eaba11f5c3633c88231da83
+Failed address bound checks.
+.TP
+.BR SEGV_PKUERR " (since Linux 4.6)"
+.\" commit cd0ea35ff5511cde299a61c21a95889b4a71464e
+Access was denied by memory protection keys.
+See
+.BR pkeys (7).
+The protection key which applied to this access is available via
+.IR si_pkey .
 .RE
 .PP
 The following values can be placed in
@@ -569,15 +745,15 @@ for a
 .B SIGBUS
 signal:
 .RS 4
-.TP 15
+.TP
 .B BUS_ADRALN
-invalid address alignment
+Invalid address alignment.
 .TP
 .B BUS_ADRERR
-nonexistent physical address
+Nonexistent physical address.
 .TP
 .B BUS_OBJERR
-object-specific hardware error
+Object-specific hardware error.
 .TP
 .BR BUS_MCEERR_AR " (since Linux 2.6.32)"
 Hardware memory error consumed on a machine check; action required.
@@ -592,18 +768,18 @@ for a
 .B SIGTRAP
 signal:
 .RS 4
-.TP 15
+.TP
 .B TRAP_BRKPT
-process breakpoint
+Process breakpoint.
 .TP
 .B TRAP_TRACE
-process trace trap
+Process trace trap.
 .TP
-.BR TRAP_BRANCH " (since Linux 2.4)"
-process taken branch trap
+.BR TRAP_BRANCH " (since Linux 2.4, IA64 only)"
+Process taken branch trap.
 .TP
-.BR TRAP_HWBKPT " (since Linux 2.4)"
-hardware breakpoint/watchpoint
+.BR TRAP_HWBKPT " (since Linux 2.4, IA64 only)"
+Hardware breakpoint/watchpoint.
 .RE
 .PP
 The following values can be placed in
@@ -612,24 +788,24 @@ for a
 .B SIGCHLD
 signal:
 .RS 4
-.TP 15
+.TP
 .B CLD_EXITED
-child has exited
+Child has exited.
 .TP
 .B CLD_KILLED
-child was killed
+Child was killed.
 .TP
 .B CLD_DUMPED
-child terminated abnormally
+Child terminated abnormally.
 .TP
 .B CLD_TRAPPED
-traced child has trapped
+Traced child has trapped.
 .TP
 .B CLD_STOPPED
-child has stopped
+Child has stopped.
 .TP
-.B CLD_CONTINUED
-stopped child has continued (since Linux 2.6.9)
+.BR CLD_CONTINUED " (since Linux 2.6.9)"
+Stopped child has continued.
 .RE
 .PP
 The following values can be placed in
@@ -638,24 +814,37 @@ for a
 .BR SIGIO / SIGPOLL
 signal:
 .RS 4
-.TP 15
+.TP
 .B POLL_IN
-data input available
+Data input available.
 .TP
 .B POLL_OUT
-output buffers available
+Output buffers available.
 .TP
 .B POLL_MSG
-input message available
+Input message available.
 .TP
 .B POLL_ERR
-I/O error
+I/O error.
 .TP
 .B POLL_PRI
-high priority input available
+High priority input available.
 .TP
 .B POLL_HUP
-device disconnected
+Device disconnected.
+.RE
+.PP
+The following value can be placed in
+.I si_code
+for a
+.BR SIGSYS
+signal:
+.RS 4
+.TP
+.BR SYS_SECCOMP " (since Linux 3.5)"
+Triggered by a
+.BR seccomp (2)
+filter rule.
 .RE
 .SH RETURN VALUE
 .BR sigaction ()
@@ -672,10 +861,10 @@ points to memory which is not a valid part of the process address space.
 An invalid signal was specified.
 This will also be generated if an attempt
 is made to change the action for
-.BR SIGKILL " or " SIGSTOP ", "
+.BR SIGKILL " or " SIGSTOP ,
 which cannot be caught or ignored.
 .SH CONFORMING TO
-POSIX.1-2001, SVr4.
+POSIX.1-2001, POSIX.1-2008, SVr4.
 .\" SVr4 does not document the EINTR condition.
 .SH NOTES
 A child created via
@@ -685,7 +874,7 @@ During an
 .BR execve (2),
 the dispositions of handled signals are reset to the default;
 the dispositions of ignored signals are left unchanged.
-
+.PP
 According to POSIX, the behavior of a process is undefined after it
 ignores a
 .BR SIGFPE ,
@@ -708,7 +897,7 @@ POSIX.1-1990 disallowed setting the action for
 .B SIGCHLD
 to
 .BR SIG_IGN .
-POSIX.1-2001 allows this possibility, so that ignoring
+POSIX.1-2001 and later allow this possibility, so that ignoring
 .B SIGCHLD
 can be used to prevent the creation of zombies (see
 .BR wait (2)).
@@ -724,9 +913,12 @@ or similar.
 POSIX.1-1990 specified only
 .BR SA_NOCLDSTOP .
 POSIX.1-2001 added
+.BR SA_NOCLDSTOP ,
 .BR SA_NOCLDWAIT ,
-.BR SA_RESETHAND ,
 .BR SA_NODEFER ,
+.BR SA_ONSTACK ,
+.BR SA_RESETHAND ,
+.BR SA_RESTART ,
 and
 .BR SA_SIGINFO .
 Use of these latter values in
@@ -741,7 +933,7 @@ flag is compatible with the SVr4 flag of the same name.
 The
 .B SA_NODEFER
 flag is compatible with the SVr4 flag of the same name under kernels
-1.3.9 and newer.
+1.3.9 and later.
 On older kernels the Linux implementation
 allowed the receipt of any signal, not just the one we are installing
 (effectively overriding any
@@ -765,20 +957,88 @@ See
 for details on manipulating signal sets.
 .PP
 See
-.BR signal (7)
+.BR signal\-safety (7)
 for a list of the async-signal-safe functions that can be
 safely called inside from inside a signal handler.
+.\"
+.SS C library/kernel differences
+The glibc wrapper function for
+.BR sigaction ()
+gives an error
+.RB ( EINVAL )
+on attempts to change the disposition of the two real-time signals
+used internally by the NPTL threading implementation.
+See
+.BR nptl (7)
+for details.
+.PP
+On architectures where the signal trampoline resides in the C library,
+the glibc wrapper function for
+.BR sigaction ()
+places the address of the trampoline code in the
+.I act.sa_restorer
+field and sets the
+.B SA_RESTORER
+flag in the
+.IR act.sa_flags
+field.
+See
+.BR sigreturn (2).
+.PP
+The original Linux system call was named
+.BR sigaction ().
+However, with the addition of real-time signals in Linux 2.2,
+the fixed-size, 32-bit
+.IR sigset_t
+type supported by that system call was no longer fit for purpose.
+Consequently, a new system call,
+.BR rt_sigaction (),
+was added to support an enlarged
+.IR sigset_t
+type.
+The new system call takes a fourth argument,
+.IR "size_t sigsetsize" ,
+which specifies the size in bytes of the signal sets in
+.IR act.sa_mask
+and
+.IR oldact.sa_mask .
+This argument is currently required to have the value
+.IR sizeof(sigset_t)
+(or the error
+.B EINVAL
+results).
+The glibc
+.BR sigaction ()
+wrapper function hides these details from us, transparently calling
+.BR rt_sigaction ()
+when the kernel provides it.
+.\"
 .SS Undocumented
 Before the introduction of
-.B SA_SIGINFO
-it was also possible to get some additional information,
-namely by using a
+.BR SA_SIGINFO ,
+it was also possible to get some additional information about the signal.
+This was done by providing an
 .I sa_handler
-with second argument of type
-.IR "struct sigcontext".
+signal handler with a second argument of type
+.IR "struct sigcontext" ,
+which is the same structure as the one that is passed in the
+.I uc_mcontext
+field of the
+.I ucontext
+structure that is passed (via a pointer) in the third argument of the
+.I sa_sigaction
+handler.
 See the relevant Linux kernel sources for details.
 This use is obsolete now.
 .SH BUGS
+When delivering a signal with a
+.B SA_SIGINFO
+handler,
+the kernel does not always provide meaningful values
+for all of the fields of the
+.I siginfo_t
+that are relevant for that signal.
+.PP
 In kernels up to and including 2.6.13, specifying
 .B SA_NODEFER
 in
@@ -787,22 +1047,26 @@ prevents not only the delivered signal from being masked during
 execution of the handler, but also the signals specified in
 .IR sa_mask .
 This bug was fixed in kernel 2.6.14.
-.SH EXAMPLE
+.\" commit 69be8f189653cd81aae5a74e26615b12871bb72e
+.SH EXAMPLES
 See
 .BR mprotect (2).
 .SH SEE ALSO
 .BR kill (1),
 .BR kill (2),
-.BR killpg (2),
 .BR pause (2),
+.BR pidfd_send_signal (2),
 .BR restart_syscall (2),
+.BR seccomp (2),
 .BR sigaltstack (2),
 .BR signal (2),
 .BR signalfd (2),
 .BR sigpending (2),
 .BR sigprocmask (2),
+.BR sigreturn (2),
 .BR sigsuspend (2),
 .BR wait (2),
+.BR killpg (3),
 .BR raise (3),
 .BR siginterrupt (3),
 .BR sigqueue (3),

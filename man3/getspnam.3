@@ -5,7 +5,7 @@
 .\" Distributed under GPL
 .\" %%%LICENSE_END
 .\"
-.TH GETSPNAM 3  2013-04-19 "GNU" "Linux Programmer's Manual"
+.TH GETSPNAM 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 getspnam, getspnam_r, getspent, getspent_r, setspent, endspent,
 fgetspent, fgetspent_r, sgetspent, sgetspent_r, putspent,
@@ -13,62 +13,51 @@ lckpwdf, ulckpwdf \- get shadow password file entry
 .SH SYNOPSIS
 .nf
 /* General shadow password file API */
-.br
 .B #include <shadow.h>
-.sp
+.PP
 .BI "struct spwd *getspnam(const char *" name );
-.sp
 .B struct spwd *getspent(void);
-.sp
+.PP
 .B void setspent(void);
-.sp
 .B void endspent(void);
-.sp
-.BI "struct spwd *fgetspent(FILE *" fp );
-.sp
+.PP
+.BI "struct spwd *fgetspent(FILE *" stream );
 .BI "struct spwd *sgetspent(const char *" s );
-.sp
-.BI "int putspent(struct spwd *" p ", FILE *" fp );
-.sp
+.PP
+.BI "int putspent(const struct spwd *" p ", FILE *" stream );
+.PP
 .B int lckpwdf(void);
-.sp
 .B int ulckpwdf(void);
-.sp
+.PP
 /* GNU extension */
-.br
 .B #include <shadow.h>
-.sp
+.PP
 .BI "int getspent_r(struct spwd *" spbuf ,
-.br
-.BI "        char *" buf ", size_t " buflen ", struct spwd **" spbufp );
-.sp
+.BI "               char *" buf ", size_t " buflen ", struct spwd **" spbufp );
 .BI "int getspnam_r(const char *" name ", struct spwd *" spbuf ,
-.br
-.BI "        char *" buf ", size_t " buflen ", struct spwd **" spbufp );
-.sp
-.BI "int fgetspent_r(FILE *" fp ", struct spwd *" spbuf ,
-.br
-.BI "        char *" buf ", size_t " buflen ", struct spwd **" spbufp );
-.sp
+.BI "               char *" buf ", size_t " buflen ", struct spwd **" spbufp );
+.PP
+.BI "int fgetspent_r(FILE *" stream ", struct spwd *" spbuf ,
+.BI "               char *" buf ", size_t " buflen ", struct spwd **" spbufp );
 .BI "int sgetspent_r(const char *" s ", struct spwd *" spbuf ,
-.br
-.BI "        char *" buf ", size_t " buflen ", struct spwd **" spbufp );
+.BI "               char *" buf ", size_t " buflen ", struct spwd **" spbufp );
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
-.ad l
+.RE
+.PP
 .BR getspent_r (),
 .BR getspnam_r (),
 .BR fgetspent_r (),
 .BR sgetspent_r ():
-.RS 4
-_BSD_SOURCE || _SVID_SOURCE
-.RE
-.ad b
+.nf
+    Since glibc 2.19:
+        _DEFAULT_SOURCE
+    Glibc 2.19 and earlier:
+        _BSD_SOURCE || _SVID_SOURCE
+.fi
 .SH DESCRIPTION
 Long ago it was considered safe to have encrypted passwords openly
 visible in the password file.
@@ -81,14 +70,14 @@ the shadow password database
 .IR /etc/shadow ,
 NIS, and LDAP),
 readable only by root.
-.LP
+.PP
 The functions described below resemble those for
 the traditional password database
 (e.g., see
 .BR getpwnam (3)
 and
 .BR getpwent (3)).
-.\" FIXME I've commented out the following for the
+.\" FIXME . I've commented out the following for the
 .\" moment.  The relationship between PAM and nsswitch.conf needs
 .\" to be clearly documented in one place, which is pointed to by
 .\" the pages for the user, group, and shadow password functions.
@@ -98,14 +87,14 @@ and
 .\" (pluggable authentication modules), and the file
 .\" .I /etc/nsswitch.conf
 .\" now describes the sources to be used.
-.LP
+.PP
 The
 .BR getspnam ()
 function returns a pointer to a structure containing
 the broken-out fields of the record in the shadow password database
 that matches the username
 .IR name .
-.LP
+.PP
 The
 .BR getspent ()
 function returns a pointer to the next entry in the shadow password
@@ -117,31 +106,31 @@ When done reading, the program may call
 so that resources can be deallocated.
 .\" some systems require a call of setspent() before the first getspent()
 .\" glibc does not
-.LP
+.PP
 The
 .BR fgetspent ()
 function is similar to
 .BR getspent ()
 but uses the supplied stream instead of the one implicitly opened by
 .BR setspent ().
-.LP
+.PP
 The
 .BR sgetspent ()
 function parses the supplied string
 .I s
 into a struct
 .IR spwd .
-.LP
+.PP
 The
 .BR putspent ()
 function writes the contents of the supplied struct
 .I spwd
 .I *p
-as a text line in the shadow password file format to the stream
-.IR fp .
+as a text line in the shadow password file format to
+.IR stream .
 String entries with value NULL and numerical entries with value \-1
 are written as an empty string.
-.LP
+.PP
 The
 .BR lckpwdf ()
 function is intended to protect against multiple simultaneous accesses
@@ -156,7 +145,7 @@ password file.
 Only programs that use
 .BR lckpwdf ()
 will notice the lock.
-.LP
+.PP
 These were the functions that formed the original shadow API.
 They are widely available.
 .\" Also in libc5
@@ -178,28 +167,28 @@ of size
 A pointer to the result (in case of success) or NULL (in case no entry
 was found or an error occurred) is stored in
 .IR *spbufp .
-.LP
+.PP
 The functions
 .BR getspent_r (),
 .BR fgetspent_r (),
 and
 .BR sgetspent_r ()
 are similarly analogous to their nonreentrant counterparts.
-.LP
+.PP
 Some non-glibc systems also have functions with these names,
 often with different prototypes.
 .\" SUN doesn't have sgetspent_r()
 .SS Structure
 The shadow password structure is defined in \fI<shadow.h>\fP as follows:
-.sp
+.PP
 .in +4n
-.nf
+.EX
 struct spwd {
     char *sp_namp;     /* Login name */
     char *sp_pwdp;     /* Encrypted password */
     long  sp_lstchg;   /* Date of last change
                           (measured in days since
-                          1970-01-01 00:00:00 +0000 (UTC)) */
+                          1970\-01\-01 00:00:00 +0000 (UTC)) */
     long  sp_min;      /* Min # of days between changes */
     long  sp_max;      /* Max # of days between changes */
     long  sp_warn;     /* # of days before password expires
@@ -208,10 +197,10 @@ struct spwd {
                           until account is disabled */
     long  sp_expire;   /* Date when account expires
                           (measured in days since
-                          1970-01-01 00:00:00 +0000 (UTC)) */
+                          1970\-01\-01 00:00:00 +0000 (UTC)) */
     unsigned long sp_flag;  /* Reserved */
 };
-.fi
+.EE
 .in
 .SH RETURN VALUE
 The functions that return a pointer return NULL if no more entries
@@ -219,11 +208,11 @@ are available or if an error occurs during processing.
 The functions which have \fIint\fP as the return value return 0 for
 success and \-1 for failure, with
 .I errno
-set to indicate the cause of the error.
-.LP
+set to indicate the error.
+.PP
 For the nonreentrant functions, the return value may point to static area,
 and may be overwritten by subsequent calls to these functions.
-.LP
+.PP
 The reentrant functions return zero on success.
 In case of error, an error number is returned.
 .SH ERRORS
@@ -240,15 +229,83 @@ local shadow password database file
 .TP
 .I /etc/.pwd.lock
 lock file
-.LP
+.PP
 The include file
 .I <paths.h>
 defines the constant
 .B _PATH_SHADOW
 to the pathname of the shadow password file.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lb lb lbx
+l l l.
+Interface	Attribute	Value
+T{
+.BR getspnam ()
+T}	Thread safety	T{
+MT-Unsafe race:getspnam locale
+T}
+T{
+.BR getspent ()
+T}	Thread safety	T{
+MT-Unsafe race:getspent
+race:spentbuf locale
+T}
+T{
+.BR setspent (),
+.BR endspent (),
+.BR getspent_r ()
+T}	Thread safety	T{
+MT-Unsafe race:getspent locale
+T}
+T{
+.BR fgetspent ()
+T}	Thread safety	T{
+MT-Unsafe race:fgetspent
+T}
+T{
+.BR sgetspent ()
+T}	Thread safety	T{
+MT-Unsafe race:sgetspent
+T}
+T{
+.BR putspent (),
+.BR getspnam_r (),
+.BR sgetspent_r ()
+T}	Thread safety	T{
+MT-Safe locale
+T}
+T{
+.BR lckpwdf (),
+.BR ulckpwdf (),
+.BR fgetspent_r ()
+T}	Thread safety	T{
+MT-Safe
+T}
+.TE
+.hy
+.ad
+.sp 1
+In the above table,
+.I getspent
+in
+.I race:getspent
+signifies that if any of the functions
+.BR setspent (),
+.BR getspent (),
+.BR getspent_r (),
+or
+.BR endspent ()
+are used in parallel in different threads of a program,
+then data races could occur.
 .SH CONFORMING TO
 The shadow password database and its associated API are
-not specified in POSIX.1-2001.
+not specified in POSIX.1.
 However, many other systems provide a similar API.
 .SH SEE ALSO
 .BR getgrnam (3),

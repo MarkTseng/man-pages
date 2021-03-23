@@ -4,15 +4,17 @@
 .\" Distributed under GPL
 .\" %%%LICENSE_END
 .\"
-.TH COMPLEX 7 2011-09-16 "" "Linux Programmer's Manual"
+.TH COMPLEX 7 2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
 complex \- basics of complex mathematics
 .SH SYNOPSIS
+.nf
 .B #include <complex.h>
+.fi
 .SH DESCRIPTION
 Complex numbers are numbers of the form z = a+b*i, where a and b are
 real numbers and i = sqrt(\-1), so that i*i = \-1.
-.br
+.PP
 There are other ways to represent that number.
 The pair (a,b) of real
 numbers may be viewed as a point in the plane, given by X- and
@@ -33,12 +35,12 @@ The basic operations are defined on z = a+b*i and w = c+d*i as:
 .PP
 Nearly all math function have a complex counterpart but there are
 some complex-only functions.
-.SH EXAMPLE
+.SH EXAMPLES
 Your C-compiler can work with complex numbers if it supports the C99 standard.
 Link with \fI\-lm\fP.
 The imaginary unit is represented by I.
-.sp
-.nf
+.PP
+.EX
 /* check that exp(i * pi) == \-1 */
 #include <math.h>        /* for atan */
 #include <stdio.h>
@@ -49,9 +51,9 @@ main(void)
 {
     double pi = 4 * atan(1.0);
     double complex z = cexp(I * pi);
-    printf("%f + %f * i\\n", creal(z), cimag(z));
+    printf("%f + %f * i\en", creal(z), cimag(z));
 }
-.fi
+.EE
 .SH SEE ALSO
 .BR cabs (3),
 .BR cacos (3),

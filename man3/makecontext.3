@@ -1,4 +1,4 @@
-\" Copyright (C) 2001 Andries Brouwer (aeb@cwi.nl)
+.\" Copyright (C) 2001 Andries Brouwer (aeb@cwi.nl)
 .\" and Copyright (C) 2006 Michael Kerrisk <mtk.manpages@gmail.com>
 .\"
 .\" %%%LICENSE_START(VERBATIM)
@@ -25,31 +25,34 @@
 .\"
 .\" 2006-08-02, mtk, Added example program
 .\"
-.TH MAKECONTEXT 3 2014-04-14 "GNU" "Linux Programmer's Manual"
+.TH MAKECONTEXT 3 2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 makecontext, swapcontext \- manipulate user context
 .SH SYNOPSIS
+.nf
 .B #include <ucontext.h>
-.sp
-.BI "void makecontext(ucontext_t *" ucp ", void (*" func )(),
-.BI "int " argc ", ...);"
-.sp
-.BI "int swapcontext(ucontext_t *" oucp ", ucontext_t *" ucp );
+.PP
+.BI "void makecontext(ucontext_t *" ucp ", void (*" func ")(), int " argc \
+", ...);"
+.BI "int swapcontext(ucontext_t *restrict " oucp ,
+.BI "                const ucontext_t *restrict " ucp );
+.fi
 .SH DESCRIPTION
-In a System V-like environment, one has the type \fIucontext_t\fP defined in
+In a System V-like environment, one has the type
+.I ucontext_t
+(defined in
 .I <ucontext.h>
+and described in
+.BR getcontext (3))
 and the four functions
 .BR getcontext (3),
 .BR setcontext (3),
-.BR makecontext ()
+.BR makecontext (),
 and
 .BR swapcontext ()
 that allow user-level context switching
 between multiple threads of control within a process.
-.LP
-For the type and the first two functions, see
-.BR getcontext (3).
-.LP
+.PP
 The
 .BR makecontext ()
 function modifies the context pointed to
@@ -61,7 +64,7 @@ the caller must allocate a new stack
 for this context and assign its address to \fIucp\->uc_stack\fP,
 and define a successor context and
 assign its address to \fIucp\->uc_link\fP.
-
+.PP
 When this context is later activated (using
 .BR setcontext (3)
 or
@@ -75,7 +78,7 @@ the caller must specify the number of these arguments in
 .IR argc .
 When this function returns, the successor context is activated.
 If the successor context pointer is NULL, the thread exits.
-.LP
+.PP
 The
 .BR swapcontext ()
 function saves the current context in
@@ -91,8 +94,9 @@ activated, in which case it looks like
 returns 0.)
 On error,
 .BR swapcontext ()
-returns \-1 and
-sets \fIerrno\fP appropriately.
+returns \-1 and sets
+.I errno
+to indicate the error.
 .SH ERRORS
 .TP
 .B ENOMEM
@@ -103,12 +107,29 @@ and
 .BR swapcontext ()
 are provided in glibc since version 2.1.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lb lb lbx
+l l l.
+Interface	Attribute	Value
+T{
 .BR makecontext ()
-and
+T}	Thread safety	T{
+MT-Safe race:ucp
+T}
+T{
 .BR swapcontext ()
-functions are thread-safe.
+T}	Thread safety	T{
+MT-Safe race:oucp race:ucp
+T}
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 SUSv2, POSIX.1-2001.
 POSIX.1-2008 removes the specifications of
@@ -125,7 +146,7 @@ to be used as the stack, regardless of the direction of growth of
 the stack.
 Thus, it is not necessary for the user program to
 worry about this direction.
-
+.PP
 On architectures where
 .I int
 and pointer types are the same size
@@ -141,17 +162,16 @@ and won't work on architectures where pointers are larger than
 Nevertheless, starting with version 2.8, glibc makes some changes to
 .BR makecontext (),
 to permit this on some 64-bit architectures (e.g., x86-64).
-.SH EXAMPLE
-.PP
+.SH EXAMPLES
 The example program below demonstrates the use of
 .BR getcontext (3),
 .BR makecontext (),
 and
 .BR swapcontext ().
 Running the program produces the following output:
+.PP
 .in +4n
-.nf
-
+.EX
 .RB "$" " ./a.out"
 main: swapcontext(&uctx_main, &uctx_func2)
 func2: started
@@ -161,38 +181,38 @@ func1: swapcontext(&uctx_func1, &uctx_func2)
 func2: returning
 func1: returning
 main: exiting
-.fi
+.EE
 .in
 .SS Program source
 \&
-.nf
+.EX
 #include <ucontext.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 static ucontext_t uctx_main, uctx_func1, uctx_func2;
 
-#define handle_error(msg) \\
+#define handle_error(msg) \e
     do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
 static void
 func1(void)
 {
-    printf("func1: started\\n");
-    printf("func1: swapcontext(&uctx_func1, &uctx_func2)\\n");
+    printf("func1: started\en");
+    printf("func1: swapcontext(&uctx_func1, &uctx_func2)\en");
     if (swapcontext(&uctx_func1, &uctx_func2) == \-1)
         handle_error("swapcontext");
-    printf("func1: returning\\n");
+    printf("func1: returning\en");
 }
 
 static void
 func2(void)
 {
-    printf("func2: started\\n");
-    printf("func2: swapcontext(&uctx_func2, &uctx_func1)\\n");
+    printf("func2: started\en");
+    printf("func2: swapcontext(&uctx_func2, &uctx_func1)\en");
     if (swapcontext(&uctx_func2, &uctx_func1) == \-1)
         handle_error("swapcontext");
-    printf("func2: returning\\n");
+    printf("func2: returning\en");
 }
 
 int
@@ -216,14 +236,14 @@ main(int argc, char *argv[])
     uctx_func2.uc_link = (argc > 1) ? NULL : &uctx_func1;
     makecontext(&uctx_func2, func2, 0);
 
-    printf("main: swapcontext(&uctx_main, &uctx_func2)\\n");
+    printf("main: swapcontext(&uctx_main, &uctx_func2)\en");
     if (swapcontext(&uctx_main, &uctx_func2) == \-1)
         handle_error("swapcontext");
 
-    printf("main: exiting\\n");
+    printf("main: exiting\en");
     exit(EXIT_SUCCESS);
 }
-.fi
+.EE
 .SH SEE ALSO
 .BR sigaction (2),
 .BR sigaltstack (2),

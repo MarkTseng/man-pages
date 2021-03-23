@@ -23,25 +23,27 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH TIMER_DELETE 2 2009-02-20 Linux "Linux Programmer's Manual"
+.TH TIMER_DELETE 2 2021-03-22 Linux "Linux Programmer's Manual"
 .SH NAME
 timer_delete \- delete a POSIX per-process timer
 .SH SYNOPSIS
 .nf
 .B  #include <time.h>
-
+.PP
 .BI "int timer_delete(timer_t " timerid );
 .fi
-
+.PP
 Link with \fI\-lrt\fP.
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
+.PP
 .BR timer_delete ():
-_POSIX_C_SOURCE\ >=\ 199309L
+.nf
+    _POSIX_C_SOURCE >= 199309L
+.fi
 .SH DESCRIPTION
 .BR timer_delete ()
 deletes the timer whose ID is given in
@@ -65,7 +67,7 @@ is not a valid timer ID.
 .SH VERSIONS
 This system call is available since Linux 2.6.
 .SH CONFORMING TO
-POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008.
 .SH SEE ALSO
 .BR clock_gettime (2),
 .BR timer_create (2),

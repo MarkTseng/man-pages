@@ -1,4 +1,3 @@
-'\" t
 .\" Copyright (C) 2006 Michael Kerrisk <mtk.manpages@gmail.com>
 .\"
 .\" %%%LICENSE_START(VERBATIM)
@@ -23,41 +22,40 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH MQ_RECEIVE 3 2014-01-18 "Linux" "Linux Programmer's Manual"
+.TH MQ_RECEIVE 3 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 mq_receive, mq_timedreceive \- receive a message from a message queue
 .SH SYNOPSIS
 .nf
 .B #include <mqueue.h>
-.sp
+.PP
 .BI "ssize_t mq_receive(mqd_t " mqdes ", char *" msg_ptr ,
 .BI "                   size_t " msg_len ", unsigned int *" msg_prio );
-.sp
+.PP
 .B #include <time.h>
 .B #include <mqueue.h>
-.sp
-.BI "ssize_t mq_timedreceive(mqd_t " mqdes ", char *" msg_ptr ,
-.BI "                   size_t " msg_len ", unsigned int *" msg_prio ,
-.BI "                   const struct timespec *" abs_timeout );
+.PP
+.BI "ssize_t mq_timedreceive(mqd_t " mqdes ", char *restrict " msg_ptr ,
+.BI "                   size_t " msg_len ", unsigned int *restrict " msg_prio ,
+.BI "                   const struct timespec *restrict " abs_timeout );
 .fi
-.sp
+.PP
 Link with \fI\-lrt\fP.
-.sp
+.PP
 .ad l
-.in -4n
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
-.BR mq_timedreceive ():
-.RS 4
-_XOPEN_SOURCE\ >=\ 600 || _POSIX_C_SOURCE\ >=\ 200112L
 .RE
-.ad
+.PP
+.BR mq_timedreceive ():
+.nf
+    _POSIX_C_SOURCE >= 200112L
+.fi
 .SH DESCRIPTION
 .BR mq_receive ()
 removes the oldest message with the highest priority from
-the message queue referred to by the descriptor
+the message queue referred to by the message queue descriptor
 .IR mqdes ,
 and places it in the buffer pointed to by
 .IR msg_ptr .
@@ -73,7 +71,7 @@ If
 .I msg_prio
 is not NULL, then the buffer to which it points is used
 to return the priority associated with the received message.
-
+.PP
 If the queue is empty, then, by default,
 .BR mq_receive ()
 blocks until a message becomes available,
@@ -83,7 +81,7 @@ If the
 flag is enabled for the message queue description,
 then the call instead fails immediately with the error
 .BR EAGAIN .
-
+.PP
 .BR mq_timedreceive ()
 behaves just like
 .BR mq_receive (),
@@ -91,21 +89,20 @@ except that if the queue is empty and the
 .B O_NONBLOCK
 flag is not enabled for the message queue description, then
 .I abs_timeout
-points to a structure which specifies a ceiling on the time for which
-the call will block.
-This ceiling is an absolute timeout in seconds and nanoseconds
-since the Epoch, 1970-01-01 00:00:00 +0000 (UTC), and it is
+points to a structure which specifies how long the call will block.
+This value is an absolute timeout in seconds and nanoseconds
+since the Epoch, 1970-01-01 00:00:00 +0000 (UTC),
 specified in the following structure:
-.sp
+.PP
 .in +4n
-.nf
+.EX
 struct timespec {
     time_t tv_sec;        /* seconds */
     long   tv_nsec;       /* nanoseconds */
 };
-
-.fi
+.EE
 .in
+.PP
 If no message is available,
 and the timeout has already expired by the time of the call,
 .BR mq_timedreceive ()
@@ -130,7 +127,7 @@ flag was set for the message queue description referred to by
 .B EBADF
 The descriptor specified in
 .I mqdes
-was invalid.
+was invalid or not opened for reading.
 .TP
 .B EINTR
 The call was interrupted by a signal handler; see
@@ -153,8 +150,26 @@ attribute of the message queue.
 .TP
 .B ETIMEDOUT
 The call timed out before a message could be transferred.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR mq_receive (),
+.BR mq_timedreceive ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008.
 .SH NOTES
 On Linux,
 .BR mq_timedreceive ()

@@ -30,40 +30,31 @@
 .\" Modified 2001-04-01 by aeb
 .\" Modified 2003-07-23 by aeb
 .\"
-.TH USLEEP 3  2013-12-10 "" "Linux Programmer's Manual"
+.TH USLEEP 3  2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
 usleep \- suspend execution for microsecond intervals
 .SH SYNOPSIS
 .nf
 .B "#include <unistd.h>"
-.sp
+.PP
 .BI "int usleep(useconds_t " usec );
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
-.BR usleep ():
-.ad l
-.RS 4
-.PD 0
-.TP 4
-Since glibc 2.12:
-.nf
-_BSD_SOURCE ||
-    (_XOPEN_SOURCE\ >=\ 500 ||
-        _XOPEN_SOURCE\ &&\ _XOPEN_SOURCE_EXTENDED) &&
-    !(_POSIX_C_SOURCE\ >=\ 200809L || _XOPEN_SOURCE\ >=\ 700)
-.TP 4
-.fi
-Before glibc 2.12:
-_BSD_SOURCE || _XOPEN_SOURCE\ >=\ 500 ||
-_XOPEN_SOURCE\ &&\ _XOPEN_SOURCE_EXTENDED
-.PD
 .RE
-.ad b
+.PP
+.BR usleep ():
+.nf
+    Since glibc 2.12:
+        (_XOPEN_SOURCE >= 500) && ! (_POSIX_C_SOURCE >= 200809L)
+            || /* Glibc since 2.19: */ _DEFAULT_SOURCE
+            || /* Glibc <= 2.19: */ _BSD_SOURCE
+    Before glibc 2.12:
+        _BSD_SOURCE || _XOPEN_SOURCE >= 500
+.\"    || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED
+.fi
 .SH DESCRIPTION
 The
 .BR usleep ()
@@ -78,7 +69,7 @@ The
 function returns 0 on success.
 On error, \-1 is returned, with
 .I errno
-set to indicate the cause of the error.
+set to indicate the error.
 .SH ERRORS
 .TP
 .B EINTR
@@ -86,13 +77,25 @@ Interrupted by a signal; see
 .BR signal (7).
 .TP
 .B EINVAL
-\fIusec\fP is not smaller than 1000000.
+\fIusec\fP is greater than or equal to 1000000.
 (On systems where that is considered an error.)
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR usleep ()
-function is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 4.3BSD, POSIX.1-2001.
 POSIX.1-2001 declares this function obsolete; use
@@ -100,14 +103,14 @@ POSIX.1-2001 declares this function obsolete; use
 instead.
 POSIX.1-2008 removes the specification of
 .BR usleep ().
-
+.PP
 On the original BSD implementation,
 and in glibc before version 2.2.2, the return type of this function is
 .IR void .
 The POSIX version returns
 .IR int ,
 and this is also the prototype used since glibc 2.2.2.
-
+.PP
 Only the
 .B EINVAL
 error return is documented by SUSv2 and POSIX.1-2001.
@@ -119,17 +122,17 @@ in the range [0,1000000].
 Programs will be more portable
 if they never mention this type explicitly.
 Use
+.PP
 .in +4n
-.nf
-.sp
+.EX
 #include <unistd.h>
 \&...
     unsigned int usecs;
 \&...
     usleep(usecs);
-.fi
+.EE
 .in
-.LP
+.PP
 The interaction of this function with the
 .B SIGALRM
 signal, and with other timer functions such as

@@ -21,16 +21,17 @@
 .\" <http://www.gnu.org/licenses/>.
 .\" %%%LICENSE_END
 .\"
-.TH STRTOIMAX 3 2014-01-22 "" "Linux Programmer's Manual"
+.TH STRTOIMAX 3 2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
 strtoimax, strtoumax \- convert string to integer
 .SH SYNOPSIS
 .nf
 .B #include <inttypes.h>
-.sp
-.BI "intmax_t strtoimax(const char *" nptr ", char **" endptr ", int " base );
-.br
-.BI "uintmax_t strtoumax(const char *" nptr ", char **" endptr ", int " base );
+.PP
+.BI "intmax_t strtoimax(const char *restrict " nptr ", char **restrict " endptr ,
+.BI "                   int " base );
+.BI "uintmax_t strtoumax(const char *restrict " nptr ", char **restrict " endptr ,
+.BI "                   int " base );
 .fi
 .SH DESCRIPTION
 These functions are just like
@@ -56,18 +57,25 @@ is returned, and
 is set to
 .BR ERANGE .
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
-.BR strtoimax ()
-and
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR strtoimax (),
 .BR strtoumax ()
-functions are thread-safe with exceptions.
-These functions can be safely used in multithreaded applications,
-as long as
-.BR setlocale (3)
-is not called to change the locale during their execution.
+T}	Thread safety	MT-Safe locale
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99, POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008, C99.
 .SH SEE ALSO
 .BR imaxabs (3),
 .BR imaxdiv (3),

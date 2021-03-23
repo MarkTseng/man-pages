@@ -4,29 +4,51 @@
 .\" Distributed under GPL
 .\" %%%LICENSE_END
 .\"
-.TH CTAN 3 2008-08-11 "" "Linux Programmer's Manual"
+.TH CTAN 3 2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
 ctan, ctanf, ctanl \- complex tangent function
 .SH SYNOPSIS
-.B #include <complex.h>
-.sp
-.BI "double complex ctan(double complex " z ");"
-.br
-.BI "float complex ctanf(float complex " z );
-.br
-.BI "long double complex ctanl(long double complex " z ");"
-.sp
-Link with \fI\-lm\fP.
-.SH DESCRIPTION
-The complex tangent function is defined as:
 .nf
-
+.B #include <complex.h>
+.PP
+.BI "double complex ctan(double complex " z ");"
+.BI "float complex ctanf(float complex " z );
+.BI "long double complex ctanl(long double complex " z ");"
+.PP
+Link with \fI\-lm\fP.
+.fi
+.SH DESCRIPTION
+These functions calculate the complex tangent of
+.IR z .
+.PP
+The complex tangent function is defined as:
+.PP
+.nf
     ctan(z) = csin(z) / ccos(z)
 .fi
 .SH VERSIONS
 These functions first appeared in glibc in version 2.1.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR ctan (),
+.BR ctanf (),
+.BR ctanl ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99.
+C99, POSIX.1-2001, POSIX.1-2008.
 .SH SEE ALSO
 .BR cabs (3),
 .BR catan (3),

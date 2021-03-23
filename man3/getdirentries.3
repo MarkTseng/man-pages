@@ -24,22 +24,29 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH GETDIRENTRIES 3 2007-07-26 "GNU" "Linux Programmer's Manual"
+.TH GETDIRENTRIES 3 2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 getdirentries \- get directory entries in a filesystem-independent format
 .SH SYNOPSIS
+.nf
 .B #include <dirent.h>
-.sp
-.BI "ssize_t getdirentries(int " fd ", char *" buf ", size_t " nbytes
-.BI ", off_t *" basep );
-.sp
-.in -4n
+.PP
+.BI "ssize_t getdirentries(int " fd ", char *restrict " buf ", size_t " nbytes ,
+.BI "                      off_t *restrict " basep );
+.fi
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
+.PP
 .BR getdirentries ():
-_BSD_SOURCE || _SVID_SOURCE
+.nf
+    Since glibc 2.19:
+        _DEFAULT_SOURCE
+    Glibc 2.19 and earlier:
+        _BSD_SOURCE || _SVID_SOURCE
+.fi
 .SH DESCRIPTION
 Read directory entries from the directory specified by
 .I fd
@@ -58,11 +65,28 @@ is updated with the new position after reading.
 returns the number of bytes read or zero when at the end of the directory.
 If an error occurs, \-1 is returned, and
 .I errno
-is set appropriately.
+is set to indicate the error.
 .SH ERRORS
 See the Linux library source code for details.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR getdirentries ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-Not in POSIX.1-2001.
+Not in POSIX.1.
 Present on the BSDs, and a few other systems.
 Use
 .BR opendir (3)

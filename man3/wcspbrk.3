@@ -13,13 +13,13 @@
 .\"   OpenGroup's Single UNIX specification http://www.UNIX-systems.org/online.html
 .\"   ISO/IEC 9899:1999
 .\"
-.TH WCSPBRK 3  2013-11-18 "GNU" "Linux Programmer's Manual"
+.TH WCSPBRK 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 wcspbrk \- search a wide-character string for any of a set of wide characters
 .SH SYNOPSIS
 .nf
 .B #include <wchar.h>
-.sp
+.PP
 .BI "wchar_t *wcspbrk(const wchar_t *" wcs ", const wchar_t *" accept );
 .fi
 .SH DESCRIPTION
@@ -47,12 +47,24 @@ If
 .I wcs
 contains none of these characters, NULL is returned.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR wcspbrk ()
-function is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99.
+POSIX.1-2001, POSIX.1-2008, C99.
 .SH SEE ALSO
 .BR strpbrk (3),
 .BR wcschr (3),

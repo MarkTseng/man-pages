@@ -13,14 +13,15 @@
 .\"   OpenGroup's Single UNIX specification http://www.UNIX-systems.org/online.html
 .\"   ISO/IEC 9899:1999
 .\"
-.TH WCSCPY 3  2013-12-02 "GNU" "Linux Programmer's Manual"
+.TH WCSCPY 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 wcscpy \- copy a wide-character string
 .SH SYNOPSIS
 .nf
 .B #include <wchar.h>
-.sp
-.BI "wchar_t *wcscpy(wchar_t *" dest ", const wchar_t *" src );
+.PP
+.BI "wchar_t *wcscpy(wchar_t *restrict " dest \
+", const wchar_t *restrict " src );
 .fi
 .SH DESCRIPTION
 The
@@ -31,7 +32,7 @@ of the
 function.
 It copies the wide-character string pointed to by
 .IR src ,
-including the terminating null wide character (L\(aq\\0\(aq),
+including the terminating null wide character (L\(aq\e0\(aq),
 to the array pointed to by
 .IR dest .
 .PP
@@ -47,12 +48,24 @@ wide characters at
 returns
 .IR dest .
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR wcscpy ()
-function is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99.
+POSIX.1-2001, POSIX.1-2008, C99.
 .SH SEE ALSO
 .BR strcpy (3),
 .BR wcpcpy (3),

@@ -36,23 +36,42 @@
 .\"     Greatly expanded, to describe all attributes that differ
 .\"	parent and child.
 .\"
-.TH FORK 2 2013-03-12 "Linux" "Linux Programmer's Manual"
+.TH FORK 2 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 fork \- create a child process
 .SH SYNOPSIS
+.nf
 .B #include <unistd.h>
-.sp
+.PP
 .B pid_t fork(void);
+.fi
 .SH DESCRIPTION
 .BR fork ()
 creates a new process by duplicating the calling process.
-The new process, referred to as the \fIchild\fP,
-is an exact duplicate of the calling process,
-referred to as the \fIparent\fP, except for the following points:
+The new process is referred to as the
+.I child
+process.
+The calling process is referred to as the
+.I parent
+process.
+.PP
+The child process and the parent process run in separate memory spaces.
+At the time of
+.BR fork ()
+both memory spaces have the same content.
+Memory writes, file mappings
+.RB ( mmap (2)),
+and unmappings
+.RB ( munmap (2))
+performed by one of the processes do not affect the other.
+.PP
+The child process is an exact duplicate of the parent
+process except for the following points:
 .IP * 3
 The child has its own unique process ID,
 and this PID does not match the ID of any existing process group
-.RB ( setpgid (2)).
+.RB ( setpgid (2))
+or session.
 .IP *
 The child's parent process ID is the same as the parent's process ID.
 .IP *
@@ -72,8 +91,13 @@ The child's set of pending signals is initially empty
 The child does not inherit semaphore adjustments from its parent
 .RB ( semop (2)).
 .IP *
-The child does not inherit record locks from its parent
+The child does not inherit process-associated record locks from its parent
 .RB ( fcntl (2)).
+(On the other hand, it does inherit
+.BR fcntl (2)
+open file description locks and
+.BR flock (2)
+locks from its parent.)
 .IP *
 The child does not inherit timers from its parent
 .RB ( setitimer (2),
@@ -88,7 +112,7 @@ nor does it inherit any asynchronous I/O contexts from its parent (see
 .BR io_setup (2)).
 .PP
 The process attributes in the preceding list are all specified
-in POSIX.1-2001.
+in POSIX.1.
 The parent and child also differ with respect to the following
 Linux-specific process attributes:
 .IP * 3
@@ -118,6 +142,15 @@ Memory mappings that have been marked with the
 flag are not inherited across a
 .BR fork ().
 .IP *
+Memory in address ranges that have been marked with the
+.BR madvise (2)
+.B MADV_WIPEONFORK
+flag is zeroed in the child after a
+.BR fork ().
+(The
+.B MADV_WIPEONFORK
+setting remains in place for those address ranges in the child.)
+.IP *
 The termination signal of the child is always
 .B SIGCHLD
 (see
@@ -140,13 +173,21 @@ and other pthreads objects; the use of
 .BR pthread_atfork (3)
 may be helpful for dealing with problems that this can cause.
 .IP *
+After a
+.BR fork ()
+in a multithreaded program,
+the child can safely call only async-signal-safe functions (see
+.BR signal\-safety (7))
+until such time as it calls
+.BR execve (2).
+.IP *
 The child inherits copies of the parent's set of open file descriptors.
 Each file descriptor in the child refers to the same
 open file description (see
 .BR open (2))
 as the corresponding file descriptor in the parent.
-This means that the two descriptors share open file status flags,
-current file offset,
+This means that the two file descriptors share open file status flags,
+file offset,
 and signal-driven I/O attributes (see the description of
 .B F_SETOWN
 and
@@ -157,15 +198,15 @@ in
 The child inherits copies of the parent's set of open message
 queue descriptors (see
 .BR mq_overview (7)).
-Each descriptor in the child refers to the same
+Each file descriptor in the child refers to the same
 open message queue description
-as the corresponding descriptor in the parent.
-This means that the two descriptors share the same flags
+as the corresponding file descriptor in the parent.
+This means that the two file descriptors share the same flags
 .RI ( mq_flags ).
 .IP *
 The child inherits copies of the parent's set of open directory streams (see
 .BR opendir (3)).
-POSIX.1-2001 says that the corresponding directory streams
+POSIX.1 says that the corresponding directory streams
 in the parent and child
 .I may
 share the directory stream positioning;
@@ -176,43 +217,74 @@ and 0 is returned in the child.
 On failure, \-1 is returned in the parent,
 no child process is created, and
 .I errno
-is set appropriately.
+is set to indicate the error.
 .SH ERRORS
 .TP
 .B EAGAIN
-.BR fork ()
-cannot allocate sufficient memory to copy the parent's page tables and
-allocate a task structure for the child.
+.\" NOTE! The following should match the description in pthread_create(3)
+A system-imposed limit on the number of threads was encountered.
+There are a number of limits that may trigger this error:
+.RS
+.IP * 3
+the
+.BR RLIMIT_NPROC
+soft resource limit (set via
+.BR setrlimit (2)),
+which limits the number of processes and threads for a real user ID,
+was reached;
+.IP *
+the kernel's system-wide limit on the number of processes and threads,
+.IR /proc/sys/kernel/threads\-max ,
+was reached (see
+.BR proc (5));
+.IP *
+the maximum number of PIDs,
+.IR /proc/sys/kernel/pid_max ,
+was reached (see
+.BR proc (5));
+or
+.IP *
+the PID limit
+.RI ( pids.max )
+imposed by the cgroup "process number" (PIDs) controller was reached.
+.RE
 .TP
 .B EAGAIN
-It was not possible to create a new process because the caller's
-.B RLIMIT_NPROC
-resource limit was encountered.
-To exceed this limit, the process must have either the
-.B CAP_SYS_ADMIN
-or the
-.B CAP_SYS_RESOURCE
-capability.
+The caller is operating under the
+.BR SCHED_DEADLINE
+scheduling policy and does not have the reset-on-fork flag set.
+See
+.BR sched (7).
 .TP
 .B ENOMEM
 .BR fork ()
 failed to allocate the necessary kernel structures because memory is tight.
+.TP
+.B ENOMEM
+An attempt was made to create a child process in a PID namespace
+whose "init" process has terminated.
+See
+.BR pid_namespaces (7).
 .TP
 .B ENOSYS
 .BR fork ()
 is not supported on this platform (for example,
 .\" e.g., arm (optionally), blackfin, c6x, frv, h8300, microblaze, xtensa
 hardware without a Memory-Management Unit).
+.TP
+.BR ERESTARTNOINTR " (since Linux 2.6.17)"
+.\" commit 4a2c7a7837da1b91468e50426066d988050e4d56
+System call was interrupted by a signal and will be restarted.
+(This can be seen only during a trace.)
 .SH CONFORMING TO
-SVr4, 4.3BSD, POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008, SVr4, 4.3BSD.
 .SH NOTES
-.PP
 Under Linux,
 .BR fork ()
 is implemented using copy-on-write pages, so the only penalty that it incurs
 is the time and memory required to duplicate the parent's page tables,
 and to create a unique task structure for the child.
-
+.SS C library/kernel differences
 Since version 2.3.3,
 .\" nptl/sysdeps/unix/sysv/linux/fork.c
 rather than invoking the kernel's
@@ -236,7 +308,7 @@ The glibc wrapper invokes any fork handlers that have been
 established using
 .BR pthread_atfork (3).
 .\" and does some magic to ensure that getpid(2) returns the right value.
-.SH EXAMPLE
+.SH EXAMPLES
 See
 .BR pipe (2)
 and
@@ -250,5 +322,6 @@ and
 .BR vfork (2),
 .BR wait (2),
 .BR daemon (3),
+.BR pthread_atfork (3),
 .BR capabilities (7),
 .BR credentials (7)

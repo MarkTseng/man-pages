@@ -26,13 +26,13 @@
 .\" Modified Sat Jul 24 18:40:56 1993 by Rik Faith (faith@cs.unc.edu)
 .\" Modified 1995 by Mike Battersby (mib@deakin.edu.au)
 .\"
-.TH RAISE 3  2014-03-10 "GNU" "Linux Programmer's Manual"
+.TH RAISE 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 raise \- send a signal to the caller
 .SH SYNOPSIS
 .nf
 .B #include <signal.h>
-.sp
+.PP
 .BI "int raise(int " sig );
 .fi
 .SH DESCRIPTION
@@ -40,19 +40,19 @@ The
 .BR raise ()
 function sends a signal to the calling process or thread.
 In a single-threaded program it is equivalent to
-.sp
+.PP
 .in +4n
-.nf
+.EX
 kill(getpid(), sig);
-.fi
+.EE
 .in
 .PP
 In a multithreaded program it is equivalent to
-.sp
+.PP
 .in +4n
-.nf
+.EX
 pthread_kill(pthread_self(), sig);
-.fi
+.EE
 .in
 .PP
 If the signal causes a handler to be called,
@@ -62,12 +62,24 @@ will return only after the signal handler has returned.
 .BR raise ()
 returns 0 on success, and nonzero for failure.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR raise ()
-function is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C89, C99, POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008, C89, C99.
 .SH NOTES
 Since version 2.3.3, glibc implements
 .BR raise ()

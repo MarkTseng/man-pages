@@ -7,19 +7,22 @@
 .\" 2006-02-09, some reformatting by Luc Van Oostenryck; some
 .\" reformatting and rewordings by mtk
 .\"
-.TH GET_KERNEL_SYMS 2 2012-10-18 "Linux" "Linux Programmer's Manual"
+.TH GET_KERNEL_SYMS 2 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 get_kernel_syms \- retrieve exported kernel and module symbols
 .SH SYNOPSIS
 .nf
 .B #include <linux/module.h>
-.sp
+.PP
 .BI "int get_kernel_syms(struct kernel_sym *" table );
 .fi
+.PP
+.IR Note :
+No declaration of this system call is provided in glibc headers; see NOTES.
 .SH DESCRIPTION
 .BR Note :
 This system call is present only in kernels before Linux 2.6.
-
+.PP
 If
 .I table
 is NULL,
@@ -28,12 +31,12 @@ returns the number of symbols available for query.
 Otherwise, it fills in a table of structures:
 .PP
 .in +4n
-.nf
+.EX
 struct kernel_sym {
     unsigned long value;
     char          name[60];
 };
-.fi
+.EE
 .in
 .PP
 The symbols are interspersed with magic symbols of the form
@@ -50,7 +53,7 @@ On success, returns the number of symbols copied to
 .IR table .
 On error, \-1 is returned and
 .I errno
-is set appropriately.
+is set to indicate the error.
 .SH ERRORS
 There is only one possible error return:
 .TP
@@ -64,6 +67,14 @@ it was removed in Linux 2.6.
 .SH CONFORMING TO
 .BR get_kernel_syms ()
 is Linux-specific.
+.SH NOTES
+This obsolete system call is not supported by glibc.
+No declaration is provided in glibc headers, but, through a quirk of history,
+glibc versions before 2.23 did export an ABI for this system call.
+Therefore, in order to employ this system call,
+it was sufficient to manually declare the interface in your code;
+alternatively, you could invoke the system call using
+.BR syscall (2).
 .SH BUGS
 There is no way to indicate the size of the buffer allocated for
 .IR table .

@@ -27,59 +27,50 @@
 .\" Modified 2002-07-27 Walter Harms
 .\" (walter.harms@informatik.uni-oldenburg.de)
 .\"
-.TH CBRT 3  2013-09-18 "GNU"  "Linux Programmer's Manual"
+.TH CBRT 3  2021-03-22 "GNU"  "Linux Programmer's Manual"
 .SH NAME
 cbrt, cbrtf, cbrtl \- cube root function
 .SH SYNOPSIS
 .nf
 .B #include <math.h>
-.sp
+.PP
 .BI "double cbrt(double " x );
-.br
 .BI "float cbrtf(float " x );
-.br
 .BI "long double cbrtl(long double " x );
 .fi
-.sp
+.PP
 Link with \fI\-lm\fP.
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
-.ad l
-.BR cbrt ():
-.br
-.RS 4
-_BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE\ >=\ 500 ||
-_XOPEN_SOURCE\ &&\ _XOPEN_SOURCE_EXTENDED || _ISOC99_SOURCE ||
-_POSIX_C_SOURCE\ >=\ 200112L;
-.br
-or
-.I cc\ -std=c99
 .RE
+.PP
+.BR cbrt ():
+.nf
+    _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L
+        || _XOPEN_SOURCE >= 500
+.\"    || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED
+        || /* Since glibc 2.19: */ _DEFAULT_SOURCE
+        || /* Glibc <= 2.19: */ _BSD_SOURCE || _SVID_SOURCE
+.fi
+.PP
 .BR cbrtf (),
 .BR cbrtl ():
-.RS 4
-_BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE\ >=\ 600 || _ISOC99_SOURCE ||
-_POSIX_C_SOUCE\ >=\ 200112L;
-.br
-or
-.I cc\ -std=c99
-.RE
-.ad b
+.nf
+    _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L
+        || /* Since glibc 2.19: */ _DEFAULT_SOURCE
+        || /* Glibc <= 2.19: */ _BSD_SOURCE || _SVID_SOURCE
+.fi
 .SH DESCRIPTION
-The
-.BR cbrt ()
-function returns the (real) cube root of
+These functions return the (real) cube root of
 .IR x .
 This function cannot fail; every representable real value has a
 representable real cube root.
 .SH RETURN VALUE
 These functions return the cube root of
 .IR x .
-
+.PP
 If
 .I x
 is +0, \-0, positive infinity, negative infinity, or NaN,
@@ -88,15 +79,26 @@ is returned.
 .SH ERRORS
 No errors occur.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR cbrt (),
 .BR cbrtf (),
-and
 .BR cbrtl ()
-functions are thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99, POSIX.1-2001.
+C99, POSIX.1-2001, POSIX.1-2008.
 .\" .BR cbrt ()
 .\" was a GNU extension. It is now a C99 requirement.
 .SH SEE ALSO

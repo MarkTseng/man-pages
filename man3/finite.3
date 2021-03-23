@@ -22,71 +22,66 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH FINITE 3  2013-07-22 "" "Linux Programmer's Manual"
+.TH FINITE 3  2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
 finite, finitef, finitel, isinf, isinff, isinfl, isnan, isnanf, isnanl \-
 BSD floating-point classification functions
 .SH SYNOPSIS
 .nf
 .B #include <math.h>
-.sp
+.PP
 .BI "int finite(double " x );
-.br
 .BI "int finitef(float " x );
-.br
 .BI "int finitel(long double " x );
-.sp
+.PP
 .BI "int isinf(double " x );
-.br
 .BI "int isinff(float " x );
-.br
 .BI "int isinfl(long double " x );
-.sp
+.PP
 .BI "int isnan(double " x );
-.br
 .BI "int isnanf(float " x );
-.br
 .BI "int isnanl(long double " x );
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
-.ad l
+.RE
+.PP
 .BR finite (),
 .BR finitef (),
 .BR finitel ():
-.RS 4
-_BSD_SOURCE || _SVID_SOURCE
-.RE
+.nf
+    /* Glibc since 2.19: */ _DEFAULT_SOURCE
+        || /* Glibc <= 2.19: */ _BSD_SOURCE || _SVID_SOURCE
+.PP
 .BR isinf ():
-.RS 4
-_BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE\ >=\ 600 || _ISOC99_SOURCE;
-.br
-or
-.I cc\ -std=c99
-.RE
-.br
+    _XOPEN_SOURCE >= 600 || _ISOC99_SOURCE
+        || /* Glibc since 2.19: */ _DEFAULT_SOURCE
+        || /* Glibc <= 2.19: */ _BSD_SOURCE || _SVID_SOURCE
+.fi
+.PP
 .BR isinff (),
 .BR isinfl ():
-.RS 4
-_BSD_SOURCE || _SVID_SOURCE
-.RE
+.nf
+    /* Glibc since 2.19: */ _DEFAULT_SOURCE
+        || /* Glibc <= 2.19: */ _BSD_SOURCE || _SVID_SOURCE
+.fi
+.PP
 .BR isnan ():
-.RS 4
-_BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE || _ISOC99_SOURCE;
-.br
-or
-.I cc\ -std=c99
-.RE
+.nf
+    _XOPEN_SOURCE || _ISOC99_SOURCE
+        || /* Glibc since 2.19: */ _DEFAULT_SOURCE
+        || /* Glibc <= 2.19: */ _BSD_SOURCE || _SVID_SOURCE
+.fi
+.PP
 .BR isnanf (),
 .BR isnanl ():
-.RS 4
-_BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE\ >=\ 600
-.RE
-.ad b
+.nf
+    _XOPEN_SOURCE >= 600
+        || /* Glibc since 2.19: */ _DEFAULT_SOURCE
+        || /* Glibc <= 2.19: */ _BSD_SOURCE || _SVID_SOURCE
+.fi
 .SH DESCRIPTION
 The
 .BR finite (),
@@ -97,7 +92,7 @@ functions return a nonzero value if
 .I x
 is neither infinite
 nor a "not-a-number" (NaN) value, and 0 otherwise.
-
+.PP
 The
 .BR isnan (),
 .BR isnanf (),
@@ -107,7 +102,7 @@ functions return a nonzero value if
 .I x
 is a NaN value,
 and 0 otherwise.
-
+.PP
 The
 .BR isinf (),
 .BR isinff (),
@@ -119,8 +114,16 @@ is positive infinity, \-1 if
 .I x
 is negative infinity, and 0 otherwise.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR finite (),
 .BR finitef (),
 .BR finitel (),
@@ -129,9 +132,12 @@ The
 .BR isinfl (),
 .BR isnan (),
 .BR isnanf (),
-and
 .BR isnanl ()
-functions are thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH NOTES
 Note that these functions are obsolete.
 C99 defines macros

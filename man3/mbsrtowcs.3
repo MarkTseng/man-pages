@@ -13,15 +13,15 @@
 .\"   OpenGroup's Single UNIX specification http://www.UNIX-systems.org/online.html
 .\"   ISO/IEC 9899:1999
 .\"
-.TH MBSRTOWCS 3  2014-03-18 "GNU" "Linux Programmer's Manual"
+.TH MBSRTOWCS 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 mbsrtowcs \- convert a multibyte string to a wide-character string
 .SH SYNOPSIS
 .nf
 .B #include <wchar.h>
-.sp
-.BI "size_t mbsrtowcs(wchar_t *" dest ", const char **" src ,
-.BI "                  size_t " len ", mbstate_t *" ps );
+.PP
+.BI "size_t mbsrtowcs(wchar_t *restrict " dest ", const char **restrict " src ,
+.BI "                 size_t " len ", mbstate_t *restrict " ps );
 .fi
 .SH DESCRIPTION
 If
@@ -65,7 +65,7 @@ is set to
 .BR EILSEQ .
 .IP 2.
 .I len
-non-L\(aq\\0\(aq wide characters have been stored at
+non-L\(aq\e0\(aq wide characters have been stored at
 .IR dest .
 In this case,
 .I *src
@@ -76,7 +76,7 @@ and the number of wide characters written to
 is returned.
 .IP 3.
 The multibyte string has been completely converted, including the
-terminating null wide character (\(aq\\0\(aq), which has the side
+terminating null wide character (\(aq\e0\(aq), which has the side
 effect of bringing back
 .I *ps
 to the
@@ -123,8 +123,27 @@ is returned, and
 .I errno
 set to
 .BR EILSEQ .
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lb lb lbx
+l l l.
+Interface	Attribute	Value
+T{
+.BR mbsrtowcs ()
+T}	Thread safety	T{
+MT-Unsafe race:mbsrtowcs/!ps
+T}
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99.
+POSIX.1-2001, POSIX.1-2008, C99.
 .SH NOTES
 The behavior of
 .BR mbsrtowcs ()

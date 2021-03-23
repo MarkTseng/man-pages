@@ -13,13 +13,13 @@
 .\"   OpenGroup's Single UNIX specification http://www.UNIX-systems.org/online.html
 .\"   ISO/IEC 9899:1999
 .\"
-.TH BTOWC 3 2011-09-22 "GNU" "Linux Programmer's Manual"
+.TH BTOWC 3 2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 btowc \- convert single byte to wide character
 .SH SYNOPSIS
 .nf
 .B #include <wchar.h>
-.sp
+.PP
 .BI "wint_t btowc(int " c );
 .fi
 .SH DESCRIPTION
@@ -46,8 +46,25 @@ If \fIc\fP is
 or not a valid multibyte sequence of length 1,
 it returns
 .BR WEOF .
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR btowc ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99, POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008, C99.
 .SH NOTES
 The behavior of
 .BR btowc ()

@@ -28,23 +28,28 @@
 .\"     386BSD man pages
 .\" Modified 1993-04-02, David Metcalfe
 .\" Modified 1993-07-25, Rik Faith (faith@cs.unc.edu)
-.TH ON_EXIT 3  2008-12-05 "GNU" "Linux Programmer's Manual"
+.TH ON_EXIT 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 on_exit \- register a function to be called at normal process termination
 .SH SYNOPSIS
 .nf
 .B #include <stdlib.h>
-.sp
+.PP
 .BI "int on_exit(void (*" function ")(int , void *), void *" arg );
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
+.PP
 .BR on_exit ():
-_BSD_SOURCE || _SVID_SOURCE
+.nf
+    Since glibc 2.19:
+        _DEFAULT_SOURCE
+    Glibc 2.19 and earlier:
+        _BSD_SOURCE || _SVID_SOURCE
+.fi
 .SH DESCRIPTION
 The
 .BR on_exit ()
@@ -63,10 +68,10 @@ and the
 .I arg
 argument from
 .BR on_exit ().
-
+.PP
 The same function may be registered multiple times:
 it is called once for each registration.
-
+.PP
 When a child process is created via
 .BR fork (2),
 it inherits copies of its parent's registrations.
@@ -78,13 +83,39 @@ The
 .BR on_exit ()
 function returns the value 0 if successful; otherwise
 it returns a nonzero value.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR on_exit ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-This function comes from SunOS 4, but is also present in
-libc4, libc5 and glibc.
+This function comes from SunOS 4, but is also present in glibc.
 It no longer occurs in Solaris (SunOS 5).
-Avoid this function, and use the standard
+Portable application should avoid this function, and use the standard
 .BR atexit (3)
 instead.
+.SH NOTES
+By the time
+.I function
+is executed, stack
+.RI ( auto )
+variables may already have gone out of scope.
+Therefore,
+.I arg
+should not be a pointer to a stack variable;
+it may however be a pointer to a heap variable or a global variable.
 .SH SEE ALSO
 .BR _exit (2),
 .BR atexit (3),

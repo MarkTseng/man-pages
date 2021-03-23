@@ -27,13 +27,13 @@
 .\"     Lewine's _POSIX Programmer's Guide_ (O'Reilly & Associates, 1991)
 .\"     386BSD man pages
 .\" Modified Sat Jul 24 18:55:27 1993 by Rik Faith (faith@cs.unc.edu)
-.TH MEMCMP 3  2014-03-14 "" "Linux Programmer's Manual"
+.TH MEMCMP 3  2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
 memcmp \- compare memory areas
 .SH SYNOPSIS
 .nf
 .B #include <string.h>
-.sp
+.PP
 .BI "int memcmp(const void *" s1 ", const void *" s2 ", size_t " n );
 .fi
 .SH DESCRIPTION
@@ -49,7 +49,7 @@ function returns an integer less than, equal to, or
 greater than zero if the first \fIn\fP bytes of \fIs1\fP is found,
 respectively, to be less than, to match, or be greater than the first
 \fIn\fP bytes of \fIs2\fP.
-
+.PP
 For a nonzero return value, the sign is determined by the sign of
 the difference between the first pair of bytes (interpreted as
 .IR "unsigned char" )
@@ -57,15 +57,42 @@ that differ in
 .I s1
 and
 .IR s2 .
+.PP
+If
+.I n
+is zero, the return value is zero.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR memcmp ()
-function is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-SVr4, 4.3BSD, C89, C99, POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008, C89, C99, SVr4, 4.3BSD.
+.SH NOTES
+Do not use
+.BR memcmp ()
+to compare security critical data, such as cryptographic secrets,
+because the required CPU time depends on the number of equal bytes.
+Instead, a function that performs comparisons in constant time is required.
+Some operating systems provide such a function (e.g., NetBSD's
+.BR consttime_memequal ()),
+but no such function is specified in POSIX.
+On Linux, it may be necessary to implement such a function oneself.
 .SH SEE ALSO
 .BR bcmp (3),
+.BR bstring (3),
 .BR strcasecmp (3),
 .BR strcmp (3),
 .BR strcoll (3),

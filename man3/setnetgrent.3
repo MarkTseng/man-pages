@@ -7,40 +7,47 @@
 .\"  based on glibc infopages
 .\" polished - aeb
 .\"
-.TH SETNETGRENT 3 2007-07-26 "GNU" "Linux Programmer's Manual"
+.TH SETNETGRENT 3 2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 setnetgrent, endnetgrent, getnetgrent, getnetgrent_r, innetgr \-
 handle network group entries
 .SH SYNOPSIS
 .nf
 .B #include <netdb.h>
-
+.PP
 .BI "int setnetgrent(const char *" netgroup );
-
 .B "void endnetgrent(void);"
-
-.BI "int getnetgrent(char **" host ", char **" user ", char **" domain );
-
-.BI "int getnetgrent_r(char **" host ", char **" user ","
-.BI "                  char **" domain ", char *" buf ", int " buflen );
-
-.BI "int innetgr(const char *" netgroup ", const char *" host ","
+.PP
+.BI "int getnetgrent(char **restrict " host ,
+.BI "            char **restrict " user ", char **restrict " domain );
+.BI "int getnetgrent_r(char **restrict " host ,
+.BI "            char **restrict " user ", char **restrict " domain ,
+.BI "            char *restrict " buf ", size_t " buflen );
+.PP
+.BI "int innetgr(const char *" netgroup ", const char *" host ,
 .BI "            const char *" user ", const char *" domain );
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
 .ad l
+.PP
+.nh
 .BR setnetgrent (),
 .BR endnetgrent (),
 .BR getnetgrent (),
 .BR getnetgrent_r (),
 .BR innetgr ():
-_BSD_SOURCE || _SVID_SOURCE
-.ad b
+.hy
+.nf
+    Since glibc 2.19:
+        _DEFAULT_SOURCE
+    Glibc 2.19 and earlier:
+        _BSD_SOURCE || _SVID_SOURCE
+.fi
+.ad
 .SH DESCRIPTION
 The
 .I netgroup
@@ -89,8 +96,54 @@ These functions return 1 on success and 0 for failure.
 .I /etc/netgroup
 .br
 .I /etc/nsswitch.conf
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lb lb lbx
+l l l.
+Interface	Attribute	Value
+T{
+.BR setnetgrent (),
+.BR getnetgrent_r (),
+.BR innetgr ()
+T}	Thread safety	T{
+MT-Unsafe race:netgrent
+locale
+T}
+T{
+.BR endnetgrent ()
+T}	Thread safety	T{
+MT-Unsafe race:netgrent
+T}
+T{
+.BR getnetgrent ()
+T}	Thread safety	T{
+MT-Unsafe race:netgrent
+race:netgrentbuf locale
+T}
+.TE
+.hy
+.ad
+.sp 1
+In the above table,
+.I netgrent
+in
+.I race:netgrent
+signifies that if any of the functions
+.BR setnetgrent (),
+.BR getnetgrent_r (),
+.BR innetgr (),
+.BR getnetgrent (),
+or
+.BR endnetgrent ()
+are used in parallel in different threads of a program,
+then data races could occur.
 .SH CONFORMING TO
-These functions are not in POSIX.1-2001, but
+These functions are not in POSIX.1, but
 .BR setnetgrent (),
 .BR endnetgrent (),
 .BR getnetgrent (),

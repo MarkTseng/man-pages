@@ -23,34 +23,33 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH PTHREAD_ATTR_SETSTACK 3 2014-04-21 "Linux" "Linux Programmer's Manual"
+.TH PTHREAD_ATTR_SETSTACK 3 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 pthread_attr_setstack, pthread_attr_getstack \- set/get stack
 attributes in thread attributes object
 .SH SYNOPSIS
 .nf
 .B #include <pthread.h>
-
+.PP
 .BI "int pthread_attr_setstack(pthread_attr_t *" attr ,
 .BI "                          void *" stackaddr ", size_t " stacksize );
-.BI "int pthread_attr_getstack(pthread_attr_t *" attr ,
-.BI "                          void **" stackaddr ", size_t *" stacksize );
-.sp
+.BI "int pthread_attr_getstack(const pthread_attr_t *restrict " attr ,
+.BI "                          void **restrict " stackaddr ,
+.BI "                          size_t *restrict " stacksize );
+.PP
 Compile and link with \fI\-pthread\fP.
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
-.ad l
+.RE
+.PP
 .BR pthread_attr_getstack (),
 .BR pthread_attr_setstack ():
-.RS 4
-_POSIX_C_SOURCE\ >=\ 200112L || _XOPEN_SOURCE\ >=\ 600
-.RE
-.ad b
+.nf
+    _POSIX_C_SOURCE >= 200112L
+.fi
 .SH DESCRIPTION
 The
 .BR pthread_attr_setstack ()
@@ -65,13 +64,13 @@ respectively.
 These attributes specify the location and size of the stack that should
 be used by a thread that is created using the thread attributes object
 .IR attr .
-
+.PP
 .I stackaddr
 should point to the lowest addressable byte of a buffer of
 .I stacksize
 bytes that was allocated by the caller.
 The pages of the allocated buffer should be both readable and writable.
-
+.PP
 The
 .BR pthread_attr_getstack ()
 function returns the stack address and stack size attributes of the
@@ -100,7 +99,7 @@ or
 .IR "stackaddr\ +\ stacksize"
 is not suitably aligned.
 .PP
-POSIX.1-2001 also documents an
+POSIX.1 also documents an
 .BR EACCES
 error if the stack area described by
 .I stackaddr
@@ -110,14 +109,25 @@ is not both readable and writable by the caller.
 .SH VERSIONS
 These functions are provided by glibc since version 2.2.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
-.BR pthread_attr_setstack ()
-and
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR pthread_attr_setstack (),
 .BR pthread_attr_getstack ()
-functions are thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008.
 .SH NOTES
 These functions are provided for applications that must ensure that
 a thread's stack is placed in a particular location.
@@ -126,7 +136,7 @@ and the use of these functions should be avoided.
 (Use
 .BR pthread_attr_setstacksize (3)
 if an application simply requires a stack size other than the default.)
-
+.PP
 When an application employs
 .BR pthread_attr_setstack (),
 it takes over the responsibility of allocating the stack.
@@ -137,7 +147,7 @@ If deemed necessary,
 it is the application's responsibility to allocate a guard area
 (one or more pages protected against reading and writing)
 to handle the possibility of stack overflow.
-
+.PP
 The address specified in
 .I stackaddr
 should be suitably aligned:
@@ -148,7 +158,7 @@ may be useful for allocation.
 Probably,
 .IR stacksize
 should also be a multiple of the system page size.
-
+.PP
 If
 .I attr
 is used to create multiple threads, then the caller must change the
@@ -156,7 +166,7 @@ stack address attribute between calls to
 .BR pthread_create (3);
 otherwise, the threads will attempt to use the same memory area
 for their stacks, and chaos will ensue.
-.SH EXAMPLE
+.SH EXAMPLES
 See
 .BR pthread_attr_init (3).
 .SH SEE ALSO

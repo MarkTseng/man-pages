@@ -6,24 +6,29 @@
 .\"  adapted glibc info page
 .\"
 .\"  polished a little, aeb
-.TH ADDSEVERITY 3 2008-06-14 "GNU" "Linux Programmer's Manual"
+.TH ADDSEVERITY 3 2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 addseverity \- introduce new severity classes
 .SH SYNOPSIS
 .nf
-.sp
+.PP
 .B #include <fmtmsg.h>
-.sp
+.PP
 .BI "int addseverity(int " severity ", const char *" s );
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
+.PP
 .BR addseverity ():
-_SVID_SOURCE
+.nf
+    Since glibc 2.19:
+        _DEFAULT_SOURCE
+    Glibc 2.19 and earlier:
+        _SVID_SOURCE
+.fi
 .SH DESCRIPTION
 This function allows the introduction of new severity classes
 which can be addressed by the
@@ -31,7 +36,7 @@ which can be addressed by the
 argument of the
 .BR fmtmsg (3)
 function.
-By default that latter function only knows how to
+By default, that function knows only how to
 print messages for severity 0-4 (with strings (none), HALT,
 ERROR, WARNING, INFO).
 This call attaches the given string
@@ -57,6 +62,23 @@ nonexistent or default severity class.
 .SH VERSIONS
 .BR addseverity ()
 is provided in glibc since version 2.1.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR addseverity ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 This function is not specified in the X/Open Portability Guide
 although the

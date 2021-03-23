@@ -21,37 +21,30 @@
 .\" <http://www.gnu.org/licenses/>.
 .\" %%%LICENSE_END
 .\"
-.TH GETPASS 3  2013-06-21 "Linux" "Linux Programmer's Manual"
+.TH GETPASS 3  2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 getpass \- get a password
 .SH SYNOPSIS
+.nf
 .B #include <unistd.h>
-.sp
-.BI "char *getpass( const char *" prompt );
-.sp
-.in -4n
+.PP
+.BI "char *getpass(const char *" prompt );
+.fi
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
-.BR getpass ():
-.ad l
-.RS 4
-.PD 0
-.TP 4
-Since glibc 2.2.2:
-.nf
-_BSD_SOURCE ||
-    (_XOPEN_SOURCE\ >=\ 500 ||
-        _XOPEN_SOURCE\ &&\ _XOPEN_SOURCE_EXTENDED) &&
-    !(_POSIX_C_SOURCE\ >=\ 200112L || _XOPEN_SOURCE\ >=\ 600)
-.fi
-.TP 4
-Before glibc 2.2.2:
-none
-.PD
 .RE
-.ad b
+.PP
+.BR getpass ():
+.nf
+    Since glibc 2.2.2:
+        _XOPEN_SOURCE && ! (_POSIX_C_SOURCE >= 200112L)
+            || /* Glibc since 2.19: */ _DEFAULT_SOURCE
+            || /* Glibc <= 2.19: */ _BSD_SOURCE
+    Before glibc 2.2.2:
+        none
+.fi
 .SH DESCRIPTION
 This function is obsolete.
 Do not use it.
@@ -77,11 +70,11 @@ The function
 returns a pointer to a static buffer containing (the first
 .B PASS_MAX
 bytes of) the password without the trailing
-newline, terminated by a null byte (\(aq\\0\(aq).
+newline, terminated by a null byte (\(aq\e0\(aq).
 This buffer may be overwritten by a following call.
 On error, the terminal state is restored,
 .I errno
-is set appropriately, and NULL is returned.
+is set to indicate the error, and NULL is returned.
 .SH ERRORS
 The function may fail if
 .TP
@@ -94,36 +87,48 @@ The process does not have a controlling terminal.
 .\" .BR getpass ()
 .\" function appeared in Version 7 AT&T UNIX.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR getpass ()
-function is not thread-safe.
+T}	Thread safety	MT-Unsafe term
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 Present in SUSv2, but marked LEGACY.
 Removed in POSIX.1-2001.
 .SH NOTES
-For libc4 and libc5, the prompt is not written to
-.I /dev/tty
-but to
-.IR stderr .
-Moreover, if
-.I /dev/tty
-cannot be opened, the password is read from
-.IR stdin .
-The static buffer has length 128 so that only the first 127
-bytes of the password are returned.
-While reading the password, signal generation
-.RB ( SIGINT ,
-.BR SIGQUIT ,
-.BR SIGSTOP ,
-.BR SIGTSTP )
-is disabled and the corresponding characters
-(usually control-C, control-\e, control-Z and control-Y)
-are transmitted as part of the password.
-Since libc 5.4.19 also line editing is disabled, so that also
-backspace and the like will be seen as part of the password.
-.PP
-For glibc2, if
+.\" For libc4 and libc5, the prompt is not written to
+.\" .I /dev/tty
+.\" but to
+.\" .IR stderr .
+.\" Moreover, if
+.\" .I /dev/tty
+.\" cannot be opened, the password is read from
+.\" .IR stdin .
+.\" The static buffer has length 128 so that only the first 127
+.\" bytes of the password are returned.
+.\" While reading the password, signal generation
+.\" .RB ( SIGINT ,
+.\" .BR SIGQUIT ,
+.\" .BR SIGSTOP ,
+.\" .BR SIGTSTP )
+.\" is disabled and the corresponding characters
+.\" (usually control-C, control-\e, control-Z and control-Y)
+.\" are transmitted as part of the password.
+.\" Since libc 5.4.19 also line editing is disabled, so that also
+.\" backspace and the like will be seen as part of the password.
+.
+In the GNU C library implementation, if
 .I /dev/tty
 cannot be opened, the prompt is written to
 .I stderr
@@ -132,7 +137,7 @@ and the password is read from
 There is no limit on the length of the password.
 Line editing is not disabled.
 .PP
-According to the SUSv2, the value of
+According to SUSv2, the value of
 .B PASS_MAX
 must be defined in
 .I <limits.h>
@@ -144,11 +149,11 @@ and
 .BR _SC_PASS_MAX ,
 and the function
 .BR getpass ().
-Libc4 and libc5 have never supported
-.B PASS_MAX
-or
-.BR _SC_PASS_MAX .
-Glibc2 accepts
+.\" Libc4 and libc5 have never supported
+.\" .B PASS_MAX
+.\" or
+.\" .BR _SC_PASS_MAX .
+The glibc version accepts
 .B _SC_PASS_MAX
 and returns
 .B BUFSIZ

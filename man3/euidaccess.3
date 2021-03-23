@@ -22,14 +22,14 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH EUIDACCESS 3 2013-09-25 "" "Linux Programmer's Manual"
+.TH EUIDACCESS 3 2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
 euidaccess, eaccess \- check effective user's permissions for a file
 .SH SYNOPSIS
 .nf
 .BR "#define _GNU_SOURCE" "             /* See feature_test_macros(7) */"
 .B #include <unistd.h>
-.sp
+.PP
 .BI "int euidaccess(const char *" pathname ", int " mode );
 .BI "int eaccess(const char *" pathname ", int " mode );
 .fi
@@ -40,17 +40,17 @@ Like
 checks permissions and existence of the file identified by its argument
 .IR pathname .
 However, whereas
-.BR access (2),
+.BR access (2)
 performs checks using the real user and group identifiers of the process,
 .BR euidaccess ()
 uses the effective identifiers.
-
+.PP
 .I mode
 is a mask consisting of one or more of
 .BR R_OK ", " W_OK ", " X_OK ", and " F_OK ,
 with the same meanings as for
 .BR access (2).
-
+.PP
 .BR eaccess ()
 is a synonym for
 .BR euidaccess (),
@@ -62,7 +62,7 @@ On error (at least one bit in
 asked for a permission that is denied, or some other error occurred),
 \-1 is returned, and
 .I errno
-is set appropriately.
+is set to indicate the error.
 .SH ERRORS
 As for
 .BR access (2).
@@ -71,12 +71,23 @@ The
 .BR eaccess ()
 function was added to glibc in version 2.4.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
-.BR euidaccess ()
-and
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR euidaccess (),
 .BR eaccess ()
-functions are thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 These functions are nonstandard.
 Some other systems have an
@@ -90,7 +101,7 @@ performing some operation based on that information leads to race conditions:
 the file permissions may change between the two steps.
 Generally, it is safer just to attempt the desired operation and handle
 any permission error that occurs.
-
+.PP
 This function always dereferences symbolic links.
 If you need to check the permissions on a symbolic link, use
 .BR faccessat (2)

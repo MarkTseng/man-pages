@@ -6,48 +6,66 @@
 .\"
 .\" heavily based on glibc infopages, copyright Free Software Foundation
 .\"
-.TH SIGNIFICAND 3 2009-02-04 "GNU" "Linux Programmer's Manual"
+.TH SIGNIFICAND 3 2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 significand, significandf, significandl \-
 get mantissa of floating-point number
 .SH SYNOPSIS
+.nf
 .B #include <math.h>
-.sp
+.PP
 .BI "double significand(double " x );
-.br
 .BI "float significandf(float " x );
-.br
 .BI "long double significandl(long double " x );
-.sp
+.fi
+.PP
 Link with \fI\-lm\fP.
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
-.ad l
+.RE
+.PP
 .BR significand (),
 .BR significandf (),
 .BR significandl ():
-.RS 4
-_SVID_SOURCE || _BSD_SOURCE
-.RE
-.ad b
+.nf
+    /* Since glibc 2.19: */ _DEFAULT_SOURCE
+        || /* Glibc <= 2.19: */ _BSD_SOURCE || _SVID_SOURCE
+.fi
 .SH DESCRIPTION
-The
-.BR significand ()
-function returns the mantissa of
+These functions return the mantissa of
 .I x
 scaled to the range [1,2).
-It is equivalent to
-.sp
+They are equivalent to
+.PP
 .in +4n
+.EX
 scalb(x, (double) \-ilogb(x))
+.EE
 .in
 .PP
 This function exists mainly for use in certain standardized tests
 for IEEE 754 conformance.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR significand (),
+.BR significandf (),
+.BR significandl ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 These functions are nonstandard; the
 .I double

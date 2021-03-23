@@ -27,22 +27,20 @@
 .\"     Lewine's _POSIX Programmer's Guide_ (O'Reilly & Associates, 1991)
 .\"     386BSD man pages
 .\" Modified Sat Jul 24 19:26:03 1993 by Rik Faith (faith@cs.unc.edu)
-.TH GETPROTOENT 3  2008-08-19 "GNU" "Linux Programmer's Manual"
+.TH GETPROTOENT 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 getprotoent, getprotobyname, getprotobynumber, setprotoent,
 endprotoent \- get protocol entry
 .SH SYNOPSIS
 .nf
 .B #include <netdb.h>
-.sp
+.PP
 .B struct protoent *getprotoent(void);
-.sp
+.PP
 .BI "struct protoent *getprotobyname(const char *" name );
-.sp
 .BI "struct protoent *getprotobynumber(int " proto );
-.sp
+.PP
 .BI "void setprotoent(int " stayopen );
-.sp
 .B void endprotoent(void);
 .fi
 .SH DESCRIPTION
@@ -97,15 +95,15 @@ The
 structure is defined in
 .I <netdb.h>
 as follows:
-.sp
+.PP
 .in +4n
-.nf
+.EX
 struct protoent {
     char  *p_name;       /* official protocol name */
     char **p_aliases;    /* alias list */
     int    p_proto;      /* protocol number */
 }
-.fi
+.EE
 .in
 .PP
 The members of the
@@ -123,7 +121,7 @@ The protocol number.
 .SH RETURN VALUE
 The
 .BR getprotoent (),
-.BR getprotobyname ()
+.BR getprotobyname (),
 and
 .BR getprotobynumber ()
 functions return a pointer to a
@@ -137,8 +135,58 @@ error occurs or the end of the file is reached.
 .I /etc/protocols
 protocol database file
 .PD
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lb lb lbx
+l l l.
+Interface	Attribute	Value
+T{
+.BR getprotoent ()
+T}	Thread safety	T{
+MT-Unsafe race:protoent
+race:protoentbuf locale
+T}
+T{
+.BR getprotobyname ()
+T}	Thread safety	T{
+MT-Unsafe race:protobyname
+locale
+T}
+T{
+.BR getprotobynumber ()
+T}	Thread safety	T{
+MT-Unsafe race:protobynumber
+locale
+T}
+T{
+.BR setprotoent (),
+.BR endprotoent ()
+T}	Thread safety	T{
+MT-Unsafe race:protoent
+locale
+T}
+.TE
+.hy
+.ad
+.sp 1
+In the above table,
+.I protoent
+in
+.I race:protoent
+signifies that if any of the functions
+.BR setprotoent (),
+.BR getprotoent (),
+or
+.BR endprotoent ()
+are used in parallel in different threads of a program,
+then data races could occur.
 .SH CONFORMING TO
-4.3BSD, POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008, 4.3BSD.
 .SH SEE ALSO
 .BR getnetent (3),
 .BR getprotoent_r (3),

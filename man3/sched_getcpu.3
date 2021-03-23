@@ -23,35 +23,29 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH SCHED_GETCPU 3 2014-05-10 "Linux" "Linux Programmer's Manual"
+.TH SCHED_GETCPU 3 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 sched_getcpu \- determine CPU on which the calling thread is running
 .SH SYNOPSIS
 .nf
 .B #include <sched.h>
-
+.PP
 .B int sched_getcpu(void);
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
-.BR sched_getcpu ():
-.ad l
-.RS 4
-.PD 0
-.TP 4
-Since glibc 2.14:
-_GNU_SOURCE
-.TP 4
-Before glibc 2.14:
-_BSD_SOURCE || _SVID_SOURCE
-    /* _GNU_SOURCE also suffices */
-.PD
 .RE
-.ad b
+.PP
+.BR sched_getcpu ():
+.nf
+    Since glibc 2.14:
+        _GNU_SOURCE
+    Before glibc 2.14:
+        _BSD_SOURCE || _SVID_SOURCE
+            /* _GNU_SOURCE also suffices */
+.fi
 .SH DESCRIPTION
 .BR sched_getcpu ()
 returns the number of the CPU on which the calling thread is currently executing.
@@ -70,32 +64,44 @@ This kernel does not implement
 .SH VERSIONS
 This function is available since glibc 2.6.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR sched_getcpu ()
-function is thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 .BR sched_getcpu ()
 is glibc-specific.
 .SH NOTES
 The call
+.PP
 .in +4n
-.nf
-
+.EX
 cpu = sched_getcpu();
-
-.fi
+.EE
 .in
+.PP
 is equivalent to the following
 .BR getcpu (2)
 call:
+.PP
 .in +4n
-.nf
-
+.EX
 int c, s;
 s = getcpu(&c, NULL, NULL);
 cpu = (s == \-1) ? s : c;
-.fi
+.EE
 .in
 .SH SEE ALSO
 .BR getcpu (2),

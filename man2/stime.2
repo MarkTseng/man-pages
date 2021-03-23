@@ -27,22 +27,35 @@
 .\" Modified 2001-03-16 by Andries Brouwer <aeb@cwi.nl>
 .\" Modified 2004-05-27 by Michael Kerrisk <mtk.manpages@gmail.com>
 .\"
-.TH STIME 2 2014-05-10 "Linux" "Linux Programmer's Manual"
+.TH STIME 2 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 stime \- set time
 .SH SYNOPSIS
+.nf
 .B #include <time.h>
-.sp
+.PP
 .BI "int stime(const time_t *" t );
-.sp
-.in -4n
+.fi
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
+.PP
 .BR stime ():
-_SVID_SOURCE
+.nf
+    Since glibc 2.19:
+        _DEFAULT_SOURCE
+    Glibc 2.19 and earlier:
+        _SVID_SOURCE
+.fi
 .SH DESCRIPTION
+.BR NOTE :
+This function is deprecated;
+use
+.BR clock_settime (2)
+instead.
+.PP
 .BR stime ()
 sets the system's idea of the time and date.
 The time, pointed
@@ -54,7 +67,7 @@ may be executed only by the superuser.
 On success, zero is returned.
 On error, \-1 is returned, and
 .I errno
-is set appropriately.
+is set to indicate the error.
 .SH ERRORS
 .TP
 .B EFAULT
@@ -62,11 +75,16 @@ Error in getting information from user space.
 .TP
 .B EPERM
 The calling process has insufficient privilege.
-Under Linux the
+Under Linux, the
 .B CAP_SYS_TIME
 privilege is required.
 .SH CONFORMING TO
 SVr4.
+.SH NOTES
+Starting with glibc 2.31,
+this function is no longer available to newly linked applications
+and is no longer declared in
+.IR <time.h> .
 .SH SEE ALSO
 .BR date (1),
 .BR settimeofday (2),

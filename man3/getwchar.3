@@ -14,13 +14,13 @@
 .\"      http://www.UNIX-systems.org/online.html
 .\"   ISO/IEC 9899:1999
 .\"
-.TH GETWCHAR 3  1999-07-25 "GNU" "Linux Programmer's Manual"
+.TH GETWCHAR 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 getwchar \- read a wide character from standard input
 .SH SYNOPSIS
 .nf
 .B #include <wchar.h>
-.sp
+.PP
 .B "wint_t getwchar(void);"
 .fi
 .SH DESCRIPTION
@@ -52,8 +52,25 @@ The
 function returns the next wide-character from
 standard input, or
 .BR WEOF .
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR getwchar ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99.
+POSIX.1-2001, POSIX.1-2008, C99.
 .SH NOTES
 The behavior of
 .BR getwchar ()

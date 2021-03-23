@@ -4,29 +4,46 @@
 .\" Distributed under GPL
 .\" %%%LICENSE_END
 .\"
-.TH CABS 3 2008-08-11 "" "Linux Programmer's Manual"
+.TH CABS 3 2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
 cabs, cabsf, cabsl \- absolute value of a complex number
 .SH SYNOPSIS
+.nf
 .B #include <complex.h>
-.sp
+.PP
 .BI "double cabs(double complex " z );
-.br
 .BI "float cabsf(float complex " z );
-.br
 .BI "long double cabsl(long double complex " z );
-.sp
+.PP
 Link with \fI\-lm\fP.
+.fi
 .SH DESCRIPTION
-The
-.BR cabs ()
-function returns the absolute value of the complex number
+These functions return the absolute value of the complex number
 .IR z .
 The result is a real number.
 .SH VERSIONS
 These functions first appeared in glibc in version 2.1.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR cabs (),
+.BR cabsf (),
+.BR cabsl ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99.
+C99, POSIX.1-2001, POSIX.1-2008.
 .SH NOTES
 The function is actually an alias for
 .I "hypot(a,\ b)"

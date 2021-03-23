@@ -22,27 +22,30 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH GETGID 2 2010-11-22 "Linux" "Linux Programmer's Manual"
+.TH GETGID 2 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 getgid, getegid \- get group identity
 .SH SYNOPSIS
+.nf
 .B #include <unistd.h>
-.br
-.B #include <sys/types.h>
-.sp
+.PP
 .B gid_t getgid(void);
-.br
 .B gid_t getegid(void);
+.fi
 .SH DESCRIPTION
 .BR getgid ()
 returns the real group ID of the calling process.
-
+.PP
 .BR getegid ()
 returns the effective group ID of the calling process.
 .SH ERRORS
-These functions are always successful.
+These functions are always successful
+and never modify
+.\" https://www.austingroupbugs.net/view.php?id=511
+.\" 0000511: getuid and friends should not modify errno
+.IR errno .
 .SH CONFORMING TO
-POSIX.1-2001, 4.3BSD.
+POSIX.1-2001, POSIX.1-2008, 4.3BSD.
 .SH NOTES
 The original Linux
 .BR getgid ()
@@ -59,6 +62,22 @@ The glibc
 and
 .BR getegid ()
 wrapper functions transparently deal with the variations across kernel versions.
+.PP
+On Alpha, instead of a pair of
+.BR getgid ()
+and
+.BR getegid ()
+system calls, a single
+.BR getxgid ()
+system call is provided, which returns a pair of real and effective GIDs.
+The glibc
+.BR getgid ()
+and
+.BR getegid ()
+wrapper functions transparently deal with this.
+See
+.BR syscall (2)
+for details regarding register mapping.
 .SH SEE ALSO
 .BR getresgid (2),
 .BR setgid (2),

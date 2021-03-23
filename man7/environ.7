@@ -31,46 +31,96 @@
 .\" Modified Wed Jan 24 06:37:24 2001 by Eric S. Raymond (esr@thyrsus.com)
 .\" Modified Thu Dec 13 23:53:27 2001 by Martin Schulze <joey@infodrom.org>
 .\"
-.TH ENVIRON 7 2014-01-18 "Linux" "Linux Programmer's Manual"
+.TH ENVIRON 7 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 environ \- user environment
 .SH SYNOPSIS
 .nf
 .BI "extern char **" environ ;
-.br
 .fi
 .SH DESCRIPTION
 The variable
 .I environ
 points to an array of pointers to strings called the "environment".
 The last pointer in this array has the value NULL.
-(This variable must be declared in the user program,
-but is declared in the header file
-.I <unistd.h>
-in case the header files came from libc4 or libc5, and
-in case they came from glibc and
-.B _GNU_SOURCE
-was defined.)
 This array of strings is made available to the process by the
-.BR exec (3)
-call that started the process.
-
-By convention the strings in
+.BR execve (2)
+call when a new program is started.
+When a child process is created via
+.BR fork (2),
+it inherits a
+.I copy
+of its parent's environment.
+.PP
+By convention, the strings in
 .I environ
 have the form "\fIname\fP\fB=\fP\fIvalue\fP".
-Common examples are:
+The name is case-sensitive and may not contain
+the character "\fB=\fP".
+The value can be anything that can be represented as a string.
+The name and the value may not contain an embedded null byte (\(aq\e0\(aq),
+since this is assumed to terminate the string.
+.PP
+Environment variables may be placed in the shell's environment by the
+.I export
+command in
+.BR sh (1),
+or by the
+.I setenv
+command if you use
+.BR csh (1).
+.PP
+The initial environment of the shell is populated in various ways,
+such as definitions from
+.IR /etc/environment
+that are processed by
+.BR pam_env (8)
+for all users at login time (on systems that employ
+.BR pam (8)).
+In addition, various shell initialization scripts, such as the system-wide
+.IR /etc/profile
+script and per-user initializations script may include commands
+that add variables to the shell's environment;
+see the manual page of your preferred shell for details.
+.PP
+Bourne-style shells support the syntax
+.PP
+    NAME=value command
+.PP
+to create an environment variable definition only in the scope
+of the process that executes
+.IR command .
+Multiple variable definitions, separated by white space, may precede
+.IR command .
+.PP
+Arguments may also be placed in the
+environment at the point of an
+.BR exec (3).
+A C program can manipulate its environment using the functions
+.BR getenv (3),
+.BR putenv (3),
+.BR setenv (3),
+and
+.BR unsetenv (3).
+.PP
+What follows is a list of environment variables typically seen on a
+system.
+This list is incomplete and includes only common variables seen
+by average users in their day-to-day routine.
+Environment variables specific to a particular program or library function
+are documented in the ENVIRONMENT section of the appropriate manual page.
 .TP
 .B USER
 The name of the logged-in user (used by some BSD-derived programs).
+Set at login time, see section NOTES below.
 .TP
 .B LOGNAME
 The name of the logged-in user (used by some System-V derived programs).
+Set at login time, see section NOTES below.
 .TP
 .B HOME
-A user's login directory, set by
-.BR login (1)
-from the password file
-.BR passwd (5).
+A user's login directory, set a login time.
+Set at login time, see section NOTES below.
 .TP
 .B LANG
 The name of a locale to use for locale categories when not overridden
@@ -94,95 +144,111 @@ environment variables).
 The sequence of directory prefixes that
 .BR sh (1)
 and many other
-programs apply in searching for a file known by an incomplete pathname.
-The prefixes are separated by \(aq\fB:\fP\(aq.
-(Similarly one has
+programs employ when searching for an executable file that is specified
+as a simple filename (i.a., a pathname that contains no slashes).
+The prefixes are separated by colons (\fB:\fP).
+The list of prefixes is searched from beginning to end,
+by checking the pathname formed by concatenating
+a prefix, a slash, and the filename,
+until a file with execute permission is found.
+.IP
+As a legacy feature, a zero-length prefix
+(specified as two adjacent colons, or an initial or terminating colon)
+is interpreted to mean the current working directory.
+However, use of this feature is deprecated,
+and POSIX notes that a conforming application shall use
+an explicit pathname (e.g.,
+.IR . )
+to specify the current working directory.
+.IP
+Analogously to
+.BR PATH ,
+one has
 .B CDPATH
 used by some shells to find the target
 of a change directory command,
 .B MANPATH
 used by
 .BR man (1)
-to find manual pages, and so on)
+to find manual pages, and so on.
 .TP
 .B PWD
 The current working directory.
 Set by some shells.
 .TP
 .B SHELL
-The pathname of the user's login shell.
+The absolute pathname of the user's login shell.
+Set at login time, see section NOTES below.
 .TP
 .B TERM
 The terminal type for which output is to be prepared.
 .TP
 .B PAGER
 The user's preferred utility to display text files.
+Any string acceptable as a command-string operand to the
+.I sh\ \-c
+command shall be valid.
+If
+.B PAGER
+is null or is not set,
+then applications that launch a pager will default to a program such as
+.BR less (1)
+or
+.BR more (1).
 .TP
 .BR EDITOR / VISUAL
 The user's preferred utility to edit text files.
+Any string acceptable as a command_string operand to the
+.I sh\ \-c
+command shall be valid.
 .\" .TP
 .\" .B BROWSER
 .\" The user's preferred utility to browse URLs. Sequence of colon-separated
-.\" browser commands. See http://www.catb.org/~esr/BROWSER/ .
+.\" browser commands. See http://www.catb.org/\(tiesr/BROWSER/ .
 .PP
-Further names may be placed in the environment by the
-.I export
-command and "name=value" in
-.BR sh (1),
-or by the
-.I setenv
-command if you use
-.BR csh (1).
-Arguments may also be placed in the
-environment at the point of an
-.BR exec (3).
-A C program can manipulate its environment using the functions
-.BR getenv (3),
-.BR putenv (3),
-.BR setenv (3),
-and
-.BR unsetenv (3).
-
 Note that the behavior of many programs and library routines is
 influenced by the presence or value of certain environment variables.
-A random collection:
-.LP
+Examples include the following:
+.IP * 3
 The variables
-.BR LANG ", " LANGUAGE ", " NLSPATH ", " LOCPATH ", "
-.BR LC_ALL ", " LC_MESSAGES ", "
+.BR LANG ", " LANGUAGE ", " NLSPATH ", " LOCPATH ,
+.BR LC_ALL ", " LC_MESSAGES ,
 and so on influence locale handling; see
 .BR catopen (3),
 .BR gettext (3),
 and
 .BR locale (7).
-.LP
+.IP *
 .B TMPDIR
 influences the path prefix of names created by
-.BR tmpnam (3)
+.BR tempnam (3)
 and other routines, and the temporary directory used by
 .BR sort (1)
 and other programs.
-.LP
-.BR LD_LIBRARY_PATH ", " LD_PRELOAD
-and other LD_* variables influence
-the behavior of the dynamic loader/linker.
-.LP
+.IP *
+.BR LD_LIBRARY_PATH ", " LD_PRELOAD ,
+and other
+.BR LD_*
+variables influence the behavior of the dynamic loader/linker.
+See also
+.BR ld.so (8).
+.IP *
 .B POSIXLY_CORRECT
 makes certain programs and library routines follow
 the prescriptions of POSIX.
-.LP
+.IP *
 The behavior of
 .BR malloc (3)
 is influenced by
 .B MALLOC_*
 variables.
-.LP
+.IP *
 The variable
 .B HOSTALIASES
 gives the name of a file containing aliases
 to be used with
 .BR gethostbyname (3).
-.LP
+.IP *
 .BR TZ " and " TZDIR
 give timezone information used by
 .BR tzset (3)
@@ -193,26 +259,64 @@ and through that by functions like
 .BR strftime (3).
 See also
 .BR tzselect (8).
-.LP
+.IP *
 .B TERMCAP
 gives information on how to address a given terminal
 (or gives the name of a file containing such information).
-.LP
+.IP *
 .BR COLUMNS " and " LINES
 tell applications about the window size, possibly overriding the actual size.
-.LP
+.IP *
 .BR PRINTER " or " LPDEST
 may specify the desired printer to use.
 See
 .BR lpr (1).
-.LP
-Etc.
+.SH NOTES
+Historically and by standard,
+.I environ
+must be declared in the user program.
+However, as a (nonstandard) programmer convenience,
+.I environ
+is declared in the header file
+.I <unistd.h>
+if the
+.B _GNU_SOURCE
+feature test macro is defined (see
+.BR feature_test_macros (7)).
+.PP
+The
+.BR prctl (2)
+.B PR_SET_MM_ENV_START
+and
+.B PR_SET_MM_ENV_END
+operations can be used to control the location of the process's environment.
+.PP
+The
+.BR HOME ,
+.BR LOGNAME ,
+.BR SHELL ,
+and
+.B USER
+variables are set when the user is changed via a
+session management interface, typically by a program such as
+.BR login (1)
+from a user database (such as
+.BR passwd (5)).
+(Switching to the root user using
+.BR su (1)
+may result in a mixed environment where
+.B LOGNAME
+and
+.B USER
+are retained from old user; see the
+.BR su (1)
+manual page.)
 .SH BUGS
 Clearly there is a security risk here.
 Many a system command has been
 tricked into mischief by a user who specified unusual values for
 .BR IFS " or " LD_LIBRARY_PATH .
-
+.PP
 There is also the risk of name space pollution.
 Programs like
 .I make
@@ -248,8 +352,11 @@ should consider renaming their option to
 .SH SEE ALSO
 .BR bash (1),
 .BR csh (1),
+.BR env (1),
 .BR login (1),
+.BR printenv (1),
 .BR sh (1),
+.BR su (1),
 .BR tcsh (1),
 .BR execve (2),
 .BR clearenv (3),
@@ -258,4 +365,6 @@ should consider renaming their option to
 .BR putenv (3),
 .BR setenv (3),
 .BR unsetenv (3),
-.BR locale (7)
+.BR locale (7),
+.BR ld.so (8),
+.BR pam_env (8)

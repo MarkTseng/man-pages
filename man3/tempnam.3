@@ -22,23 +22,28 @@
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" %%%LICENSE_END
 .\"
-.TH TEMPNAM 3  2014-02-27 "" "Linux Programmer's Manual"
+.TH TEMPNAM 3  2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
 tempnam \- create a name for a temporary file
 .SH SYNOPSIS
 .nf
 .B #include <stdio.h>
-.sp
+.PP
 .BI "char *tempnam(const char *" dir ", const char *" pfx );
 .fi
-.sp
-.in -4n
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
+.RE
+.PP
 .BR tempnam ():
-_BSD_SOURCE || _SVID_SOURCE
+.nf
+    Since glibc 2.19:
+        _DEFAULT_SOURCE
+    Glibc 2.19 and earlier:
+        _BSD_SOURCE || _SVID_SOURCE
+.fi
 .SH DESCRIPTION
 .I "Never use this function."
 Use
@@ -46,7 +51,7 @@ Use
 or
 .BR tmpfile (3)
 instead.
-
+.PP
 The
 .BR tempnam ()
 function returns a pointer to a string that is a valid filename,
@@ -60,7 +65,7 @@ in case
 is a non-NULL string of at most five bytes.
 The directory prefix part of the pathname generated is required to
 be "appropriate" (often that at least implies writable).
-
+.PP
 Attempts to find an appropriate directory go through the following
 steps:
 .TP 3
@@ -97,11 +102,28 @@ On success, the
 function returns a pointer to a unique temporary filename.
 It returns NULL if a unique name cannot be generated, with
 .I errno
-set to indicate the cause of the error.
+set to indicate the error.
 .SH ERRORS
 .TP
 .B ENOMEM
 Allocation of storage failed.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR tempnam ()
+T}	Thread safety	MT-Safe env
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 SVr4, 4.3BSD, POSIX.1-2001.
 POSIX.1-2008 marks
@@ -126,7 +148,7 @@ Or better yet, use
 .BR mkstemp (3)
 or
 .BR tmpfile (3).
-
+.PP
 SUSv2 does not mention the use of
 .BR TMPDIR ;
 glibc will use it only
@@ -134,12 +156,12 @@ when the program is not set-user-ID.
 On SVr4, the directory used under \fBd)\fP is
 .I /tmp
 (and this is what glibc does).
-.LP
+.PP
 Because it dynamically allocates memory used to return the pathname,
 .BR tempnam ()
 is reentrant, and thus thread safe, unlike
 .BR tmpnam (3).
-.LP
+.PP
 The
 .BR tempnam ()
 function generates a different string each time it is called,
@@ -152,14 +174,14 @@ If it is called more than
 .B TMP_MAX
 times,
 the behavior is implementation defined.
-.LP
+.PP
 .BR tempnam ()
 uses at most the first five bytes from
 .IR pfx .
-
+.PP
 The glibc implementation of
 .BR tempnam ()
-will fail with the error
+fails with the error
 .B EEXIST
 upon failure to find a unique name.
 .SH BUGS

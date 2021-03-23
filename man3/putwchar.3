@@ -14,13 +14,13 @@
 .\"      http://www.UNIX-systems.org/online.html
 .\"   ISO/IEC 9899:1999
 .\"
-.TH PUTWCHAR 3  1999-07-25 "GNU" "Linux Programmer's Manual"
+.TH PUTWCHAR 3  2021-03-22 "GNU" "Linux Programmer's Manual"
 .SH NAME
 putwchar \- write a wide character to standard output
 .SH SYNOPSIS
 .nf
 .B #include <wchar.h>
-.sp
+.PP
 .BI "wint_t putwchar(wchar_t " wc );
 .fi
 .SH DESCRIPTION
@@ -57,8 +57,25 @@ function returns
 if no error occurred, or
 .B WEOF
 to indicate an error.
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
+.BR putwchar ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-C99.
+POSIX.1-2001, POSIX.1-2008, C99.
 .SH NOTES
 The behavior of
 .BR putwchar ()

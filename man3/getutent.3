@@ -28,30 +28,29 @@
 .\" Modified Thu Jul 25 14:43:46 MET DST 1996 by Michael Haardt
 .\"     <michael@cantor.informatik.rwth-aachen.de>
 .\"
-.TH GETUTENT 3 2013-04-19 "" "Linux Programmer's Manual"
+.TH GETUTENT 3 2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
 getutent, getutid, getutline, pututline, setutent, endutent,
 utmpname \- access utmp file entries
 .SH SYNOPSIS
+.nf
 .B #include <utmp.h>
-.sp
+.PP
 .B struct utmp *getutent(void);
-.br
-.BI "struct utmp *getutid(struct utmp *" ut );
-.br
-.BI "struct utmp *getutline(struct utmp *" ut );
-.sp
-.BI "struct utmp *pututline(struct utmp *" ut );
-.sp
+.BI "struct utmp *getutid(const struct utmp *" ut );
+.BI "struct utmp *getutline(const struct utmp *" ut );
+.PP
+.BI "struct utmp *pututline(const struct utmp *" ut );
+.PP
 .B void setutent(void);
-.br
 .B void endutent(void);
-.sp
+.PP
 .BI "int utmpname(const char *" file );
+.fi
 .SH DESCRIPTION
 New applications should use the POSIX.1-specified "utmpx" versions of
 these functions; see CONFORMING TO.
-
+.PP
 .BR utmpname ()
 sets the name of the utmp-format file for the other utmp
 functions to access.
@@ -124,19 +123,19 @@ return a pointer to a \fIstruct utmp\fP on success,
 and NULL on failure (which includes the "record not found" case).
 This \fIstruct utmp\fP is allocated in static storage, and may be
 overwritten by subsequent calls.
-
+.PP
 On success
 .BR pututline ()
 returns
 .IR ut ;
 on failure, it returns NULL.
-
+.PP
 .BR utmpname ()
 returns 0 if the new name was successfully stored, or \-1 on failure.
-
-In the event of an error, these functions
+.PP
+On failure, these functions
 .I errno
-set to indicate the cause.
+set to indicate the error.
 .SH ERRORS
 .TP
 .B ENOMEM
@@ -152,39 +151,93 @@ and the
 functions can also fail for the reasons described in
 .BR open (2).
 .SH FILES
-/var/run/utmp	database of currently logged-in users
-.br
-/var/log/wtmp	database of past user logins
+.TP
+.I /var/run/utmp
+database of currently logged-in users
+.TP
+.I /var/log/wtmp
+database of past user logins
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lb lb lbx
+l l l.
+Interface	Attribute	Value
+T{
+.BR getutent ()
+T}	Thread safety	T{
+MT-Unsafe init race:utent
+race:utentbuf sig:ALRM timer
+T}
+T{
+.BR getutid (),
+.BR getutline ()
+T}	Thread safety	T{
+MT-Unsafe init race:utent
+sig:ALRM timer
+T}
+T{
+.BR pututline ()
+T}	Thread safety	T{
+MT-Unsafe race:utent
+sig:ALRM timer
+T}
+T{
+.BR setutent (),
+.BR endutent (),
+.BR utmpname ()
+T}	Thread safety	MT-Unsafe race:utent
+.TE
+.hy
+.ad
+.sp 1
+In the above table,
+.I utent
+in
+.I race:utent
+signifies that if any of the functions
+.BR setutent (),
+.BR getutent (),
+.BR getutid (),
+.BR getutline (),
+.BR pututline (),
+.BR utmpname (),
+or
+.BR endutent ()
+are used in parallel in different threads of a program,
+then data races could occur.
 .SH CONFORMING TO
 XPG2, SVr4.
-.LP
+.PP
 In XPG2 and SVID 2 the function
 .BR pututline ()
 is documented to return void, and that is what it does on many systems
-(AIX, HP-UX, Linux libc5).
+(AIX, HP-UX).
 HP-UX introduces a new function
 .BR _pututline ()
 with the prototype given above for
-.BR pututline ()
-(also found in Linux libc5).
-.LP
+.BR pututline ().
+.PP
 All these functions are obsolete now on non-Linux systems.
-POSIX.1-2001, following SUSv1,
+POSIX.1-2001 and POSIX.1-2008, following SUSv1,
 does not have any of these functions, but instead uses
-.sp
+.PP
+.RS 4
+.EX
 .B #include <utmpx.h>
-.sp
+.PP
 .B struct utmpx *getutxent(void);
-.br
 .B struct utmpx *getutxid(const struct utmpx *);
-.br
 .B struct utmpx *getutxline(const struct utmpx *);
-.br
 .B struct utmpx *pututxline(const struct utmpx *);
-.br
 .B void setutxent(void);
-.br
 .B void endutxent(void);
+.EE
+.RE
 .PP
 These functions are provided by glibc,
 and perform the same task as their equivalents without the "x", but use
@@ -202,7 +255,7 @@ and parallel files are maintained, often
 .I /var/*/utmpx
 and
 .IR /var/*/wtmpx .
-.LP
+.PP
 Linux glibc on the other hand does not use a parallel \fIutmpx\fP file
 since its \fIutmp\fP structure is already large enough.
 The "x" functions listed above are just aliases for
@@ -214,32 +267,40 @@ is an alias for
 .SS Glibc notes
 The above functions are not thread-safe.
 Glibc adds reentrant versions
-.sp
+.PP
 .nf
-.BR "#define _GNU_SOURCE" "    /* or _SVID_SOURCE or _BSD_SOURCE;
-.RB "\&                          see " feature_test_macros "(7) */"
 .B #include <utmp.h>
-.sp
+.PP
 .BI "int getutent_r(struct utmp *" ubuf ", struct utmp **" ubufp );
-.sp
 .BI "int getutid_r(struct utmp *" ut ,
 .BI "              struct utmp *" ubuf ", struct utmp **" ubufp );
-.sp
 .BI "int getutline_r(struct utmp *" ut ,
 .BI "                struct utmp *" ubuf ", struct utmp **" ubufp );
 .fi
-.sp
+.PP
+Feature Test Macro Requirements for glibc (see
+.BR feature_test_macros (7)):
+.PP
+.BR getutent_r (),
+.BR getutid_r (),
+.BR getutline_r ():
+.nf
+    _GNU_SOURCE
+        || /* Since glibc 2.19: */ _DEFAULT_SOURCE
+        || /* Glibc <= 2.19: */    _SVID_SOURCE || _BSD_SOURCE
+.fi
+.PP
 These functions are GNU extensions, analogs of the functions of the
 same name without the _r suffix.
 The
 .I ubuf
 argument gives these functions a place to store their result.
-On success they return 0, and a pointer to the result is written in
+On success, they return 0, and a pointer to the result is written in
 .IR *ubufp .
 On error, these functions return \-1.
 There are no utmpx equivalents of the above functions.
 (POSIX.1 does not specify such functions.)
-.SH EXAMPLE
+.SH EXAMPLES
 The following example adds and removes a utmp record, assuming it is run
 from within a pseudo terminal.
 For usage in a real application, you
@@ -248,12 +309,13 @@ should check the return values of
 and
 .BR ttyname (3).
 .PP
-.nf
+.EX
 #include <string.h>
 #include <stdlib.h>
 #include <pwd.h>
 #include <unistd.h>
 #include <utmp.h>
+#include <time.h>
 
 int
 main(int argc, char *argv[])
@@ -288,7 +350,7 @@ main(int argc, char *argv[])
     endutent();
     exit(EXIT_SUCCESS);
 }
-.fi
+.EE
 .SH SEE ALSO
 .BR getutmp (3),
 .BR utmp (5)

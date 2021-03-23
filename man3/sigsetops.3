@@ -28,38 +28,36 @@
 .\" 2007-10-26 mdw   added wording that a sigset_t must be initialized
 .\"                  prior to use
 .\"
-.TH SIGSETOPS 3 2014-04-14 "Linux" "Linux Programmer's Manual"
+.TH SIGSETOPS 3 2021-03-22 "Linux" "Linux Programmer's Manual"
 .SH NAME
 sigemptyset, sigfillset, sigaddset, sigdelset, sigismember \- POSIX
 signal set operations
 .SH SYNOPSIS
+.nf
 .B #include <signal.h>
-.sp
+.PP
 .BI "int sigemptyset(sigset_t *" set );
-.sp
 .BI "int sigfillset(sigset_t *" set );
-.sp
+.PP
 .BI "int sigaddset(sigset_t *" set ", int " signum );
-.sp
 .BI "int sigdelset(sigset_t *" set ", int " signum );
-.sp
+.PP
 .BI "int sigismember(const sigset_t *" set ", int " signum );
-.sp
-.in -4n
+.fi
+.PP
+.RS -4
 Feature Test Macro Requirements for glibc (see
 .BR feature_test_macros (7)):
-.in
-.sp
-.ad l
+.RE
+.PP
 .BR sigemptyset (),
 .BR sigfillset (),
 .BR sigaddset (),
 .BR sigdelset (),
 .BR sigismember ():
-.RS 4
-_POSIX_C_SOURCE\ >=\ 1 || _XOPEN_SOURCE || _POSIX_SOURCE
-.RE
-.ad b
+.nf
+    _POSIX_C_SOURCE
+.fi
 .SH DESCRIPTION
 These functions allow the manipulation of POSIX signal sets.
 .PP
@@ -95,7 +93,7 @@ or
 .BR sigfillset ()
 before being passed to the functions
 .BR sigaddset (),
-.BR sigdelset ()
+.BR sigdelset (),
 and
 .BR sigismember ()
 or the additional glibc functions described below
@@ -120,17 +118,26 @@ is a member of
 0 if
 .I signum
 is not a member, and \-1 on error.
+.PP
 On error, these functions set
 .I errno
-to indicate the cause.
+to indicate the error.
 .SH ERRORS
 .TP
 .B EINVAL
-.I sig
+.I signum
 is not a valid signal.
 .SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
-The
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR sigemptyset (),
 .BR sigfillset (),
 .BR sigaddset (),
@@ -138,19 +145,30 @@ The
 .BR sigismember (),
 .BR sigisemptyset (),
 .BR sigorset (),
-and
 .BR sigandset ()
-functions are thread-safe.
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
-POSIX.1-2001.
+POSIX.1-2001, POSIX.1-2008.
 .SH NOTES
-.SS Glibc notes
+When creating a filled signal set, the glibc
+.BR sigfillset ()
+function does not include the two real-time signals used internally
+by the NPTL threading implementation.
+See
+.BR nptl (7)
+for details.
+.\"
+.SS Glibc extensions
 If the
 .B _GNU_SOURCE
 feature test macro is defined, then \fI<signal.h>\fP
 exposes three other functions for manipulating signal
 sets:
-
+.PP
 .nf
 .BI "int sigisemptyset(const sigset_t *" set );
 .BI "int sigorset(sigset_t *" dest ", const sigset_t *" left ,
@@ -158,12 +176,12 @@ sets:
 .BI "int sigandset(sigset_t *" dest ", const sigset_t *" left ,
 .BI "              const sigset_t *" right );
 .fi
-
+.PP
 .BR sigisemptyset ()
 returns 1 if
 .I set
 contains no signals, and 0 otherwise.
-
+.PP
 .BR sigorset ()
 places the union of the sets
 .I left

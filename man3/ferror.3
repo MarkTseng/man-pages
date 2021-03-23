@@ -1,4 +1,5 @@
 .\" Copyright (c) 1990, 1991 The Regents of the University of California.
+.\" and Copyright (C) 2021 Michael Kerrisk <mtk.manpages@gmail.com>
 .\" All rights reserved.
 .\"
 .\" This code is derived from software contributed to Berkeley by
@@ -39,29 +40,18 @@
 .\"
 .\"
 .\" Converted for Linux, Mon Nov 29 14:24:40 1993, faith@cs.unc.edu
-.\" Added remark on EBADF for fileno, aeb, 2001-03-22
 .\"
-.TH FERROR 3  2014-01-15 "" "Linux Programmer's Manual"
+.TH FERROR 3  2021-03-22 "" "Linux Programmer's Manual"
 .SH NAME
-clearerr, feof, ferror, fileno \- check and reset stream status
+clearerr, feof, ferror \- check and reset stream status
 .SH SYNOPSIS
+.nf
 .B #include <stdio.h>
-.sp
+.PP
 .BI "void clearerr(FILE *" stream );
-
 .BI "int feof(FILE *" stream );
-
 .BI "int ferror(FILE *" stream );
-
-.BI "int fileno(FILE *" stream );
-.sp
-.in -4n
-Feature Test Macro Requirements for glibc (see
-.BR feature_test_macros (7)):
-.in
-.sp
-.BR fileno ():
-_POSIX_C_SOURCE\ >=\ 1 || _XOPEN_SOURCE || _POSIX_SOURCE
+.fi
 .SH DESCRIPTION
 The function
 .BR clearerr ()
@@ -85,33 +75,42 @@ The error indicator can be reset only by the
 .BR clearerr ()
 function.
 .PP
-The function
-.BR fileno ()
-examines the argument
-.I stream
-and returns its integer descriptor.
-.PP
 For nonlocking counterparts, see
 .BR unlocked_stdio (3).
-.SH ERRORS
-These functions should not fail and do not set the external variable
-.IR errno .
-(However, in case
-.BR fileno ()
-detects that its argument is not a valid stream, it must
-return \-1 and set
-.I errno
-to
-.BR EBADF .)
-.SH ATTRIBUTES
-.SS Multithreading (see pthreads(7))
+.SH RETURN VALUE
 The
+.BR feof ()
+function returns nonzero if the end-of-file indicator is set for
+.IR stream ;
+otherwise, it returns zero.
+.PP
+The
+.BR feof ()
+function returns nonzero if the error indicator is set for
+.IR stream ;
+otherwise, it returns zero.
+.SH ERRORS
+These functions should not fail and do not set
+.IR errno .
+.SH ATTRIBUTES
+For an explanation of the terms used in this section, see
+.BR attributes (7).
+.ad l
+.nh
+.TS
+allbox;
+lbx lb lb
+l l l.
+Interface	Attribute	Value
+T{
 .BR clearerr (),
 .BR feof (),
-.BR ferror (),
-and
-.BR fileno ()
-functions are thread-safe.
+.BR ferror ()
+T}	Thread safety	MT-Safe
+.TE
+.hy
+.ad
+.sp 1
 .SH CONFORMING TO
 The functions
 .BR clearerr (),
@@ -119,12 +118,17 @@ The functions
 and
 .BR ferror ()
 conform to C89, C99, POSIX.1-2001, and POSIX.1-2008.
-
-The function
-.BR fileno ()
-conforms to POSIX.1-2001 and POSIX.1-2008.
+.SH NOTES
+POSIX.1-2008 specifies
+.\"https://www.austingroupbugs.net/view.php?id=401
+that these functions shall not change the value of
+.I errno
+if
+.I stream
+is valid.
 .SH SEE ALSO
 .BR open (2),
 .BR fdopen (3),
+.BR fileno (3),
 .BR stdio (3),
 .BR unlocked_stdio (3)
